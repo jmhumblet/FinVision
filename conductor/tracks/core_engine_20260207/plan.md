@@ -1,26 +1,36 @@
 # Implementation Plan: Core Cash Flow Projection Engine and Visualization MVP
 
-## Phase 1: Domain Logic - Projection Engine
-This phase focuses on the core mathematical engine. All code here must reach 100% test coverage.
+## Phase 0: Testing Infrastructure
+Setup the tools necessary for TDD and coverage reporting.
 
-- [ ] Task: Define domain types and projection engine interface
-    - [ ] Write types for Transactions, Frequencies, and Projection results in `types.ts`
-    - [ ] Define the interface for the projection function
-- [ ] Task: Implement Projection Engine (TDD)
-    - [ ] Write tests for the projection engine in `utils/financialUtils.test.ts` covering all frequencies and edge cases
-    - [ ] Implement the `calculateProjection` function in `utils/financialUtils.ts` to pass all tests
-    - [ ] Verify 100% coverage for `financialUtils.ts`
+- [ ] Task: Install and configure Vitest and Coverage tools
+    - [ ] Install `vitest`, `@vitest/coverage-v8`, and `jsdom`
+    - [ ] Update `package.json` with a `test` script
+    - [ ] Configure `vitest.config.ts` (or `vite.config.ts`) for testing
+
+## Phase 1: Domain Logic - Projection Engine (Solidification)
+Hardening the existing `financialUtils.ts` to ensure accuracy and 100% coverage.
+
+- [ ] Task: Verify types and interfaces
+    - [ ] Ensure `types.ts` covers all necessary domain models (Transactions, Projections, Scenarios)
+- [ ] Task: Implement comprehensive tests for financialUtils.ts (TDD)
+    - [ ] Write unit tests for `formatCurrency` and `formatDate`
+    - [ ] Write unit tests for `generateTimeline` covering:
+        - [ ] Historical transaction application
+        - [ ] Base projections (Daily, Weekly, Monthly, Yearly frequencies)
+        - [ ] Scenario adjustments (Add, Set, Percent Inc/Dec)
+        - [ ] Edge cases: Leap years, month end (e.g., 31st), empty data
+    - [ ] Refactor `financialUtils.ts` only where necessary to pass tests or improve robustness
+    - [ ] Verify 100% coverage for `utils/financialUtils.ts`
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Domain Logic' (Protocol in workflow.md)
 
-## Phase 2: UI Layer - Visualization
-This phase integrates the engine with the UI and renders the interactive chart.
+## Phase 2: UI Layer - Visualization Verification
+Ensuring the existing components render correctly and handle data changes.
 
-- [ ] Task: Create Projection Data Hook
-    - [ ] Write tests for `useProjectionData` hook
-    - [ ] Implement hook to call the engine and format data for Recharts
-- [ ] Task: Implement FinancialChart Component
-    - [ ] Write tests for `FinancialChart` component (80% coverage)
-    - [ ] Implement `FinancialChart` using Recharts
-- [ ] Task: Integrate with App
-    - [ ] Connect `FinancialChart` to the main `App.tsx`
+- [ ] Task: Implement tests for FinancialChart component
+    - [ ] Write tests to verify chart rendering with base data
+    - [ ] Write tests to verify scenario line rendering
+    - [ ] Target >80% coverage for `components/FinancialChart.tsx`
+- [ ] Task: Integration Verification
+    - [ ] Verify `App.tsx` correctly consumes the engine results and handles the default state
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: UI Layer' (Protocol in workflow.md)
