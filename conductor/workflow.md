@@ -347,3 +347,22 @@ A task is complete when:
 - Document lessons learned
 - Optimize for user happiness
 - Keep things simple and maintainable
+
+## Git Flow & Pull Requests
+
+To ensure code quality and maintain a clean history, all development follows this flow:
+
+### Branch Naming
+- **Features/Chore/Fix:** `conductor/feat/<track-id>`, `conductor/fix/<track-id>`, etc.
+- **Example:** `conductor/feat/git_flow_20260208`
+
+### Pull Request Process
+1. **Complete Phase/Track:** Ensure all tasks are complete and verified locally.
+2. **Push Branch:** `git push origin <branch_name>`
+3. **Create PR:** Use the GitHub CLI to create the PR.
+   ```bash
+   gh pr create --title "feat: <Short Description>" --body-file <path_to_description_file>
+   ```
+   *The PR body should include a summary of the track and a link to the implementation plan.*
+4. **CI Checks:** Ensure all automated checks (Build, Lint, Type-Check, Test, E2E) pass.
+5. **Review & Merge:** Await manual review and merge.
