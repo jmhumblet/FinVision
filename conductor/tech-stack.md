@@ -16,6 +16,11 @@
 - **Authentication**: Firebase Auth (Google Authentication & Guest Mode)
 - **Real-time**: Real-time synchronization across devices.
 
+## Testing
+- **Unit & Integration**: Vitest, React Testing Library
+- **End-to-End (E2E)**: Playwright
+- **Coverage**: v8
+
 ## Build & Infrastructure
 - **Build Tool**: Vite (6.2.0)
 - **Deployment**: Configured for modern ES6 module environments.

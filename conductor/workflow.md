@@ -187,6 +187,11 @@ Before marking any task complete, verify:
 - Test authentication and authorization
 - Check form submissions
 
+### End-to-End (E2E) Testing
+- **Mandatory for UI Features:** All user-facing features must be verified with Playwright.
+- **Visual Regression:** Critical visual components (like charts) should be tested for presence and basic rendering correctness.
+- **Cross-Browser:** Ensure tests run on Chromium, Firefox, and WebKit (via Playwright config).
+
 ### Mobile Testing
 - Test on actual iPhone when possible
 - Use Safari developer tools
@@ -213,6 +218,7 @@ Before requesting review:
 3. **Testing**
    - Unit tests comprehensive
    - Integration tests pass
+   - E2E tests pass for UI features
    - Coverage adequate (100% domain logic, >80% overall)
 
 4. **Security**
