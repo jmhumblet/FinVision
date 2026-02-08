@@ -152,6 +152,16 @@ Before marking any task complete, verify:
 
 **AI AGENT INSTRUCTION: This section should be adapted to the project's specific language, framework, and build tools.**
 
+### Windows / PowerShell Note
+**Important:** If you encounter `PSSecurityException` or `UnauthorizedAccess` errors regarding script signing when running `npm` commands in PowerShell (e.g., `npm run type-check`), use `cmd /c` to bypass the execution policy:
+```powershell
+cmd /c "npm run type-check"
+```
+Or call the cmd executable directly:
+```powershell
+npm.cmd run type-check
+```
+
 ### Setup
 ```bash
 # Example: Commands to set up the development environment (e.g., install dependencies, configure database)

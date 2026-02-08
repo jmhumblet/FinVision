@@ -5,7 +5,8 @@ import {
   Projection, 
   AdjustmentType, 
   ScenarioAdjustment, 
-  TransactionType 
+  TransactionType,
+  Frequency
 } from '../types';
 import { Plus, Trash2, Play, GitBranch, X, ChevronRight, ChevronDown } from 'lucide-react';
 

@@ -4,3 +4,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
+- [~] **Track: GitHub-Native Git Flow Integration**
+*Link: [./tracks/git_flow_20260208/](./tracks/git_flow_20260208/)*
+

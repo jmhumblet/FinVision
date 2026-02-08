@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
+    console.log('VITE_USE_MOCK_API:', process.env.VITE_USE_MOCK_API);
     return {
       server: {
         port: 3000,
@@ -18,15 +19,13 @@ export default defineConfig(({ mode }) => {
       resolve: {
         alias: {
           '@': path.resolve(__dirname, '.'),
-          './services/firebaseService': process.env.VITE_USE_MOCK_API === 'true' 
-            ? path.resolve(__dirname, './services/mockFirebaseService.ts') 
-            : path.resolve(__dirname, './services/firebaseService.ts')
         }
       },
       test: {
         globals: true,
         environment: 'jsdom',
         setupFiles: './test/setup.ts',
+        exclude: ['e2e/**', 'node_modules/**'],
         coverage: {
           provider: 'v8',
           reporter: ['text', 'json', 'html'],
