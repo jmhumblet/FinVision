@@ -10,7 +10,7 @@ Verify the existing GitHub Actions workflow and ensure it covers all required qu
 - [x] Task: Implement missing CI steps
     - [x] Update `.github/workflows/ci.yml` to include any missing checks identified in the audit.
     - [x] Verify the workflow triggers on `pull_request` to `master`/`main`.
-- [~] Task: Conductor - User Manual Verification 'Phase 1: Workflow Audit & CI Hardening' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Workflow Audit & CI Hardening' (Protocol in workflow.md) [checkpoint: 5fdd977]
 
 ## Phase 2: Git Flow Automation & PR Creation
 Implement the logic and documentation for the standardized branch and PR flow.
