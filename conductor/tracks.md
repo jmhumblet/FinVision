@@ -4,5 +4,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Implement Core Cash Flow Projection Engine and Visualization MVP**
+- [x] **Track: Implement Core Cash Flow Projection Engine and Visualization MVP**
   *Link: [./conductor/tracks/core_engine_20260207/](./conductor/tracks/core_engine_20260207/)*

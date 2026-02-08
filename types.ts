@@ -45,14 +45,15 @@ export enum AdjustmentType {
   PERCENTAGE_INCREASE = 'PERCENT_INC',
   PERCENTAGE_DECREASE = 'PERCENT_DEC',
   SET_AMOUNT = 'SET_AMOUNT',
-  ADD_AMOUNT = 'ADD_AMOUNT'
+  ADD_AMOUNT = 'ADD_AMOUNT',
+  REMOVE_RECORD = 'REMOVE'
 }
 
 export interface ScenarioAdjustment {
   id: string;
   projectionId: string; // The ID of the base projection being modified
   type: AdjustmentType;
-  value: number; // The % or absolute value
+  value: number; // The % or absolute value (ignored for REMOVE)
   startDate?: string; // Optional: When this change takes effect
   endDate?: string; // Optional: When this change stops
 }
@@ -63,6 +64,7 @@ export interface Scenario {
   color: string;
   isActive: boolean; // Visible on chart
   adjustments: ScenarioAdjustment[];
+  newProjections?: Projection[]; // Projections that only exist in this scenario
 }
 
 export interface DailyBalance {

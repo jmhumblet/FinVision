@@ -1,0 +1,197 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - img [ref=e8]
+          - generic [ref=e11]:
+            - heading "FinVision" [level=1] [ref=e12]
+            - generic [ref=e14]:
+              - img [ref=e15]
+              - text: Saved
+        - generic [ref=e17]:
+          - generic [ref=e18]:
+            - generic [ref=e19]: "Projection:"
+            - combobox [ref=e20] [cursor=pointer]:
+              - option "30 Days"
+              - option "3 Months"
+              - option "6 Months" [selected]
+              - option "1 Year"
+          - button "AI Smart Categorize" [ref=e21] [cursor=pointer]:
+            - img [ref=e22]
+            - generic [ref=e25]: AI Smart Categorize
+          - generic [ref=e27]:
+            - generic [ref=e28]:
+              - paragraph [ref=e29]: User
+              - paragraph
+            - button "Sign Out" [ref=e30] [cursor=pointer]:
+              - img [ref=e31]
+    - main [ref=e34]:
+      - generic [ref=e35]:
+        - generic [ref=e36]:
+          - generic [ref=e37]:
+            - generic [ref=e38]: Current Available Balance
+            - generic [ref=e39]: Live
+          - generic [ref=e40]:
+            - generic [ref=e41]:
+              - generic [ref=e42]: €0
+              - generic [ref=e43]:
+                - img [ref=e44]
+                - text: Calculated from history
+            - button "Align Balance" [ref=e47] [cursor=pointer]:
+              - img [ref=e48]
+              - generic [ref=e52]: Align Balance
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - generic [ref=e55]: Projected Balance (180 days)
+            - generic [ref=e56]: Future
+          - generic [ref=e57]: €0
+          - generic [ref=e58]: Estimated position at end of period
+      - generic [ref=e59]:
+        - generic [ref=e60] [cursor=pointer]:
+          - generic [ref=e61]:
+            - img [ref=e63]
+            - generic [ref=e67]:
+              - heading "What-If Scenarios" [level=2] [ref=e68]
+              - paragraph [ref=e69]: Simulate changes to your future
+          - img [ref=e71]
+        - generic [ref=e73]:
+          - generic [ref=e74]:
+            - textbox "Scenario Name (e.g. New Job, Baby)" [ref=e75]
+            - button "Create" [disabled] [ref=e76]
+          - generic [ref=e78]:
+            - generic [ref=e79]:
+              - generic [ref=e80]:
+                - checkbox [checked] [ref=e81]
+                - generic [ref=e82]: Budget Cut
+              - generic [ref=e84]:
+                - button "Done" [ref=e85] [cursor=pointer]
+                - button [ref=e86] [cursor=pointer]:
+                  - img [ref=e87]
+            - generic [ref=e90]:
+              - paragraph [ref=e91]: Modifications
+              - generic [ref=e92]:
+                - combobox [ref=e93]:
+                  - option "Select Item..." [selected]
+                - combobox [ref=e94]:
+                  - option "Increase %" [selected]
+                  - option "Decrease %"
+                  - option "Set Fixed Amount"
+                  - option "Add Fixed Amount"
+                  - option "Remove Item"
+                - spinbutton [ref=e95]: "10"
+                - textbox [ref=e96]:
+                  - /placeholder: End Date (Optional)
+                - button "Add" [ref=e97] [cursor=pointer]:
+                  - img [ref=e98]
+                  - text: Add
+              - generic [ref=e100]:
+                - paragraph [ref=e101]: Scenario-Only Items
+                - button "+ Add New Expense/Income" [active] [ref=e102] [cursor=pointer]
+      - generic [ref=e104]:
+        - heading "Cash Flow Projection & Scenarios" [level=2] [ref=e106]
+        - generic [ref=e108]:
+          - img [ref=e109]:
+            - generic [ref=e113]:
+              - generic [ref=e115]: 12/1
+              - generic [ref=e117]: 23/1
+              - generic [ref=e119]: 2/2
+              - generic [ref=e121]: 12/2
+              - generic [ref=e123]: 23/2
+              - generic [ref=e125]: 5/3
+              - generic [ref=e127]: 15/3
+              - generic [ref=e129]: 26/3
+              - generic [ref=e131]: 5/4
+              - generic [ref=e133]: 15/4
+              - generic [ref=e135]: 26/4
+              - generic [ref=e137]: 6/5
+              - generic [ref=e139]: 16/5
+              - generic [ref=e141]: 27/5
+              - generic [ref=e143]: 6/6
+              - generic [ref=e145]: 16/6
+              - generic [ref=e147]: 27/6
+              - generic [ref=e149]: 7/7
+              - generic [ref=e151]: 17/7
+              - generic [ref=e153]: 28/7
+              - generic [ref=e155]: 7/8
+            - generic [ref=e157]:
+              - generic [ref=e159]: €0
+              - generic [ref=e161]: €1
+              - generic [ref=e163]: €2
+              - generic [ref=e165]: €3
+              - generic [ref=e167]: €4
+            - generic [ref=e169]: Today
+          - list [ref=e171]:
+            - listitem [ref=e172]:
+              - img [ref=e173]
+              - text: History
+            - listitem [ref=e175]:
+              - img [ref=e176]
+              - text: Projected (Base)
+            - listitem [ref=e178]:
+              - img [ref=e179]
+              - text: Budget Cut
+      - generic [ref=e181]:
+        - generic [ref=e182]:
+          - generic [ref=e183] [cursor=pointer]:
+            - generic [ref=e184]:
+              - img [ref=e186]
+              - heading "Historical Transactions" [level=2] [ref=e189]
+              - generic [ref=e190]: "0"
+            - generic [ref=e191]:
+              - textbox "Search..." [ref=e192]
+              - button "Add Row" [ref=e193]:
+                - img [ref=e194]
+                - generic [ref=e195]: Add Row
+              - button [ref=e196]:
+                - img [ref=e197]
+          - table [ref=e200]:
+            - rowgroup [ref=e201]:
+              - row "Date Description Category Amount Type" [ref=e202]:
+                - columnheader "Date" [ref=e203] [cursor=pointer]:
+                  - generic [ref=e204]:
+                    - generic [ref=e205]: Date
+                    - img [ref=e206]
+                - columnheader "Description" [ref=e208] [cursor=pointer]:
+                  - generic [ref=e210]: Description
+                - columnheader "Category" [ref=e211] [cursor=pointer]:
+                  - generic [ref=e213]: Category
+                - columnheader "Amount" [ref=e214] [cursor=pointer]:
+                  - generic [ref=e216]: Amount
+                - columnheader "Type" [ref=e217]
+                - columnheader [ref=e218]
+            - rowgroup
+        - generic [ref=e219]:
+          - generic [ref=e220] [cursor=pointer]:
+            - generic [ref=e221]:
+              - img [ref=e223]
+              - heading "Future Projections" [level=2] [ref=e225]
+              - generic [ref=e226]: "0"
+            - generic [ref=e227]:
+              - button "Add Projection" [ref=e228]:
+                - img [ref=e229]
+                - generic [ref=e230]: Add Projection
+              - button [ref=e231]:
+                - img [ref=e232]
+          - table [ref=e235]:
+            - rowgroup [ref=e236]:
+              - row "Active Name Category Frequency Start Date End Date Amount Type" [ref=e237]:
+                - columnheader "Active" [ref=e238]
+                - columnheader "Name" [ref=e239]
+                - columnheader "Category" [ref=e240]
+                - columnheader "Frequency" [ref=e241]
+                - columnheader "Start Date" [ref=e242]
+                - columnheader "End Date" [ref=e243]
+                - columnheader "Amount" [ref=e244]
+                - columnheader "Type" [ref=e245]
+                - columnheader [ref=e246]
+            - rowgroup
+    - contentinfo [ref=e247]:
+      - generic [ref=e248]:
+        - paragraph [ref=e249]: FinVision Planner • Secured with Firebase • AI Powered by Gemini
+        - paragraph [ref=e250]: "Pro tip: Press Ctrl + Enter to quick add via AI"
+  - generic [ref=e251]: €0
+```

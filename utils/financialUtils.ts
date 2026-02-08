@@ -120,6 +120,7 @@ export const generateTimeline = (
                 
                 // 2. Determine the "Effective Projection" to apply
                 let effectiveAmount = proj.amount;
+                let isRemoved = false;
                 
                 if (adjustment) {
                     // Check if adjustment is valid for this date
@@ -131,6 +132,9 @@ export const generateTimeline = (
 
                     if (isStarted && !isEnded) {
                         switch (adjustment.type) {
+                            case AdjustmentType.REMOVE_RECORD:
+                                isRemoved = true;
+                                break;
                             case AdjustmentType.SET_AMOUNT:
                                 effectiveAmount = adjustment.value;
                                 break;
@@ -147,12 +151,22 @@ export const generateTimeline = (
                     }
                 }
 
-                // 3. Calculate value using effective amount
-                // Create a temporary proj object with the new amount to reuse logic
-                const effProj = { ...proj, amount: effectiveAmount };
-                const val = calculateProjectionValueForDate(effProj, d, dateStr);
-                scenarioChange += val;
+                if (!isRemoved) {
+                    // 3. Calculate value using effective amount
+                    const effProj = { ...proj, amount: effectiveAmount };
+                    const val = calculateProjectionValueForDate(effProj, d, dateStr);
+                    scenarioChange += val;
+                }
             });
+
+            // 4. Apply New Projections specific to this scenario
+            if (s.newProjections) {
+                s.newProjections.forEach(newProj => {
+                    if (!newProj.isActive) return;
+                    const val = calculateProjectionValueForDate(newProj, d, dateStr);
+                    scenarioChange += val;
+                });
+            }
 
             scenarioBalances.set(s.id, (scenarioBalances.get(s.id) || 0) + scenarioChange);
         });
