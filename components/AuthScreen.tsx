@@ -7,7 +7,6 @@ interface AuthScreenProps {
 }
 
 const AuthScreen: React.FC<AuthScreenProps> = () => {
-  console.log('AuthScreen: Rendering');
   const handleLogin = async () => {
     try {
       await signInWithGoogle();
