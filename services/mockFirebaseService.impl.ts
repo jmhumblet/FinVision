@@ -7,6 +7,12 @@ let currentProjections = [...mockProjections];
 let currentSettings = { ...mockSettings };
 let currentUser = null;
 
+const authListeners: Array<(user: any) => void> = [];
+
+const notifyAuthListeners = () => {
+  authListeners.forEach(cb => cb(currentUser));
+};
+
 // Mock Auth
 export const auth = {
   currentUser: null,
@@ -18,12 +24,6 @@ export const auth = {
 
 export const signInWithGoogle = async () => {
   currentUser = mockUser;
-  // Trigger auth listener manually if needed, or rely on app re-render
-  // In a real app, onAuthStateChanged fires. Here we might need a simpler way.
-  // For now, we assume the app checks auth status or we trigger the listener.
-  // But since we can't easily trigger the exported auth.onAuthStateChanged from here if it's already bound,
-  // we might need a simpler approach: reload the page or assume the test forces a state check.
-  // actually, the real `onAuthStateChanged` is a listener. We need to implement a mini observer.
   notifyAuthListeners();
   return { user: currentUser };
 };
@@ -39,29 +39,6 @@ export const logout = async () => {
   notifyAuthListeners();
 };
 
-const authListeners: Array<(user: any) => void> = [];
-// Override the export to allow subscription
-import { onAuthStateChanged as firebaseOnAuthStateChanged } from 'firebase/auth'; // Just for type? No.
-
-// We need to mimic the export `auth` object structure or the function usage.
-// The real code uses `onAuthStateChanged(auth, callback)`.
-// So we need to mock that *function* from firebase/auth if we can, 
-// OR we mock the service that wraps it?
-// `App.tsx` imports `auth` from this file, but `onAuthStateChanged` from `firebase/auth`.
-// Ah! `App.tsx` imports:
-// import { auth, ... } from './services/firebaseService';
-// import { onAuthStateChanged, User } from 'firebase/auth';
-// AND calls `onAuthStateChanged(auth, ...)`
-// This makes mocking harder because `onAuthStateChanged` comes from the library, not our service file.
-
-// CRITICAL FIX: We need to wrap `onAuthStateChanged` in our service to make it mockable via this alias method.
-// OR we rely on `vite` to alias `firebase/auth` too? That's messy.
-
-// Better approach: Refactor `App.tsx` to use a listener exported from `firebaseService`.
-// This aligns with "Refactor" phase but enables the testing strategy.
-
-// I will add `observeAuth` to `firebaseService.ts` and `mockFirebaseService.ts` and update `App.tsx`.
-
 export const observeAuth = (callback: (user: any) => void) => {
   authListeners.push(callback);
   callback(currentUser); // Immediate call
@@ -71,12 +48,9 @@ export const observeAuth = (callback: (user: any) => void) => {
   };
 };
 
-const notifyAuthListeners = () => {
-  authListeners.forEach(cb => cb(currentUser));
-};
-
 // Data Operations
 export const fetchUserData = async (uid: string) => {
+  console.log('MOCK fetchUserData called for', uid);
   return {
     settings: currentSettings,
     transactions: currentTransactions,

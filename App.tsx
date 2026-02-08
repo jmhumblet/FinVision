@@ -21,7 +21,7 @@ import {
   deleteRemoteTransaction,
   deleteRemoteProjection,
   observeAuth
-} from './services/firebaseService';
+} from '@/services/firebaseService';
 import { User } from 'firebase/auth';
 import FinancialChart from './components/FinancialChart';
 import TransactionTable from './components/TransactionTable';
