@@ -8,12 +8,12 @@ Establish the patterns for mocking the service layer to ensure deterministic tes
 - [x] Task: Implement Playwright Network Mocking
     - [x] Update `playwright.config.ts` or create a `e2e/global-setup.ts` to support mocking.
     - [x] Create a helper function `mockFirebase` to intercept calls to `firebaseService`.
-- [ ] Task: Refactor Existing `scenarios.spec.ts`
-    - [ ] Apply the new mocking strategy to the existing flaky tests.
-    - [ ] Verify they pass consistently without timeouts or retries.
-- [ ] Task: Setup GitHub Actions CI
-    - [ ] Create `.github/workflows/ci.yml`.
-    - [ ] Configure it to run `npm run test` (Vitest) and `npm run test:e2e` (Playwright) on PRs.
+- [x] Task: Refactor Existing `scenarios.spec.ts`
+    - [x] Apply the new mocking strategy to the existing flaky tests.
+    - [x] Verify they pass consistently without timeouts or retries.
+- [x] Task: Setup GitHub Actions CI
+    - [x] Create `.github/workflows/ci.yml`.
+    - [x] Configure it to run `npm run test` (Vitest) and `npm run test:e2e` (Playwright) on PRs.
 
 ## Phase 2: Critical Flow Automation
 Automate the core user journeys using the new deterministic infrastructure.
