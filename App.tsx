@@ -42,8 +42,6 @@ import {
   Scale
 } from 'lucide-react';
 
-console.log('App.tsx: Module top-level load');
-
 // --- Constants & Seed Data ---
 const DEFAULT_CATEGORIES: Category[] = [
   { id: '1', name: 'Salary', color: '#10b981' },
@@ -87,10 +85,8 @@ const App: React.FC = () => {
 
   // --- Auth Observer ---
   useEffect(() => {
-    console.log('App init: hostname =', window.location.hostname);
     try {
       const unsubscribe = observeAuth(async (u) => {
-        console.log('App Auth change: user =', u ? u.uid : 'null');
         setUser(u);
         setIsInitializing(false);
         

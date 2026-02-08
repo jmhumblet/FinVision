@@ -39,3 +39,4 @@ jobs:
       env:
         CI: true
         VITE_USE_MOCK_API: true
+        GEMINI_API_KEY: "dummy-key-for-ci"

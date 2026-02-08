@@ -4,7 +4,6 @@ import { Transaction, Projection } from '../types';
 import { User } from 'firebase/auth';
 
 const useMock = import.meta.env.VITE_USE_MOCK_API === 'true';
-console.log('FirebaseService: useMock =', useMock, 'Raw:', import.meta.env.VITE_USE_MOCK_API);
 
 // Proxy functions
 export const auth = useMock ? MockService.auth : RealService.auth;
