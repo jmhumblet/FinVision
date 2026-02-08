@@ -33,11 +33,11 @@ Automate the core user journeys using the new deterministic infrastructure.
 ## Phase 3: Integration Suite & Documentation
 Create the separate integration suite and update project guidelines.
 
-- [ ] Task: Create Full Integration Test
-    - [ ] Create `e2e/integration.spec.ts`.
-    - [ ] Implement a real "Login -> Create -> Read" flow against the actual Firebase project (using a test user credential from env vars).
-    - [ ] Add `test:integration` script to `package.json` that runs only this file.
-- [ ] Task: Update Project Documentation
-    - [ ] Update `conductor/tech-stack.md` with the new E2E strategy.
-    - [ ] Update `conductor/product-guidelines.md` with the "No Snapshots for Dynamic Data" policy.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Integration Suite & Documentation' (Protocol in workflow.md)
+- [x] Task: Create Full Integration Test
+    - [x] Create `e2e/integration.spec.ts`.
+    - [x] Implement a real "Login -> Create -> Read" flow against the actual Firebase project (using a test user credential from env vars).
+    - [x] Add `test:integration` script to `package.json` that runs only this file.
+- [x] Task: Update Project Documentation
+    - [x] Update `conductor/tech-stack.md` with the new E2E strategy.
+    - [x] Update `conductor/product-guidelines.md` with the "No Snapshots for Dynamic Data" policy.
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Integration Suite & Documentation' (Protocol in workflow.md)

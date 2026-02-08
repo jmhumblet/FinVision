@@ -15,3 +15,6 @@
 
 ## Data Privacy & Transparency
 - **Transparent Audit Log**: Users should have clear visibility into when and how their data was last synchronized or modified, fostering trust and providing a clear trail of financial updates.
+
+## Testing & QA Guidelines
+- **Visual Regression**: **No snapshots for dynamic data.** Do not use visual snapshot testing for screens with variable data (dates, IDs, live calcs) unless fully mocked/masked. Prioritize robust locator assertions.

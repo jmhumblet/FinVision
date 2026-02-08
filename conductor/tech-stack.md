@@ -19,6 +19,7 @@
 ## Testing
 - **Unit & Integration**: Vitest, React Testing Library
 - **End-to-End (E2E)**: Playwright
+    - **Strategy**: Deterministic mocking of service layer (`mockFirebaseService`) for standard tests; separate suite for real integration.
 - **Coverage**: v8
 
 ## Build & Infrastructure
