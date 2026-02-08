@@ -81,40 +81,46 @@ const App: React.FC = () => {
   const [projectionDays, setProjectionDays] = useState(180);
   const [isCategorizing, setIsCategorizing] = useState(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   // --- Auth Observer ---
   useEffect(() => {
-    const unsubscribe = observeAuth(async (u) => {
-      setUser(u);
-      setIsInitializing(false);
-      
-      if (u) {
-        setIsLoadingData(true);
-        try {
-          const data = await fetchUserData(u.uid);
-          
-          if (data.settings) {
-            setLoadedInitialBalance(data.settings.initialBalance || 0);
-            setProjectionDays(data.settings.projectionDays || 180);
+    try {
+      const unsubscribe = observeAuth(async (u) => {
+        setUser(u);
+        setIsInitializing(false);
+        
+        if (u) {
+          setIsLoadingData(true);
+          try {
+            const data = await fetchUserData(u.uid);
+            
+            if (data.settings) {
+              setLoadedInitialBalance(data.settings.initialBalance || 0);
+              setProjectionDays(data.settings.projectionDays || 180);
+            }
+            
+            if (data.transactions.length > 0) {
+              setTransactions(data.transactions);
+            }
+            
+            if (data.projections.length > 0) {
+              setProjections(data.projections);
+            }
+          } catch (error) {
+            console.error("Error loading user data:", error);
+            addToast("Failed to load cloud data. Check your connection.", "error");
+          } finally {
+            setIsLoadingData(false);
           }
-          
-          if (data.transactions.length > 0) {
-            setTransactions(data.transactions);
-          }
-          
-          if (data.projections.length > 0) {
-            setProjections(data.projections);
-          }
-          // Note: Scenarios currently local-only for this iteration, 
-          // or could be added to firebaseService in future.
-        } catch (error) {
-          console.error("Error loading user data:", error);
-        } finally {
-          setIsLoadingData(false);
         }
-      }
-    });
-    return () => unsubscribe();
+      });
+      return () => unsubscribe();
+    } catch (e: any) {
+      console.error("Auth observer setup failed:", e);
+      setAuthError(e.message || "Authentication system failed to initialize.");
+      setIsInitializing(false);
+    }
   }, []);
 
   // --- Computed ---
@@ -434,6 +440,22 @@ const App: React.FC = () => {
     );
   }
 
+  if (authError) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-4">
+        <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
+        <h2 className="text-xl font-bold text-slate-900 mb-2">System Error</h2>
+        <p className="text-slate-600 text-center max-w-md">{authError}</p>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   if (!user) {
     return <AuthScreen />;
   }
@@ -516,8 +538,8 @@ const App: React.FC = () => {
 
             <div className="flex items-center space-x-3">
                <div className="hidden lg:block text-right">
-                  <p className="text-xs font-bold text-slate-900 leading-none">{user.displayName || 'User'}</p>
-                  <p className="text-[10px] text-slate-400 mt-1">{user.email}</p>
+                  <p className="text-xs font-bold text-slate-900 leading-none">{user?.displayName || 'User'}</p>
+                  <p className="text-[10px] text-slate-400 mt-1">{user?.email || 'Guest Session'}</p>
                </div>
                <button 
                   onClick={() => logout()}
