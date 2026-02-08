@@ -84,16 +84,18 @@ const App: React.FC = () => {
 
   // --- Auth Observer ---
   useEffect(() => {
+    console.log('App: Setting up auth observer');
     const unsubscribe = observeAuth(async (u) => {
+      console.log('App: Auth state changed, user:', u ? u.uid : 'null');
       setUser(u);
       setIsInitializing(false);
       
       if (u) {
+        console.log('App: User found, fetching data...');
         setIsLoadingData(true);
         try {
           const data = await fetchUserData(u.uid);
-          
-          if (data.settings) {
+          console.log('App: User data fetched successfully');
             setLoadedInitialBalance(data.settings.initialBalance || 0);
             setProjectionDays(data.settings.projectionDays || 180);
           }
