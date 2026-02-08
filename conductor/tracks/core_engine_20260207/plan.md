@@ -27,10 +27,10 @@ Hardening the existing `financialUtils.ts` to ensure accuracy and 100% coverage.
 ## Phase 1.5: E2E Infrastructure & Bug Fix
 Address the manual verification failure by instituting automated E2E tests and fixing the scenario rendering bug.
 
-- [ ] Task: Install and Configure Playwright
-    - [ ] Install Playwright and browser binaries
-    - [ ] Configure `playwright.config.ts` for local development
-    - [ ] Add `test:e2e` script to `package.json`
+- [x] Task: Install and Configure Playwright 961ab07
+    - [x] Install Playwright and browser binaries
+    - [x] Configure `playwright.config.ts` for local development
+    - [x] Add `test:e2e` script to `package.json`
 - [ ] Task: Reproduce Bug with E2E Test
     - [ ] Create `e2e/scenarios.spec.ts`
     - [ ] Write a test that adds a scenario and asserts the presence of the scenario line on the chart
