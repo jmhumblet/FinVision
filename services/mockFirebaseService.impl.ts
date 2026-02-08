@@ -1,6 +1,9 @@
 import { Transaction, Projection } from '../types';
 import { mockUser, mockTransactions, mockProjections, mockSettings } from '../e2e/fixtures/mockData';
 
+// Mock Firestore
+export const db = {};
+
 // In-memory state for the mock service
 let currentTransactions = [...mockTransactions];
 let currentProjections = [...mockProjections];
