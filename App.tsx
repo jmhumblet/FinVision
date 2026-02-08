@@ -42,6 +42,8 @@ import {
   Scale
 } from 'lucide-react';
 
+console.log('App.tsx: Module top-level load');
+
 // --- Constants & Seed Data ---
 const DEFAULT_CATEGORIES: Category[] = [
   { id: '1', name: 'Salary', color: '#10b981' },
