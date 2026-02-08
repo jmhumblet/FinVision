@@ -11,8 +11,8 @@ Setup the tools necessary for TDD and coverage reporting.
 ## Phase 1: Domain Logic - Projection Engine (Solidification)
 Hardening the existing `financialUtils.ts` to ensure accuracy and 100% coverage.
 
-- [ ] Task: Verify types and interfaces
-    - [ ] Ensure `types.ts` covers all necessary domain models (Transactions, Projections, Scenarios)
+- [x] Task: Verify types and interfaces 563ac1d
+    - [x] Ensure `types.ts` covers all necessary domain models (Transactions, Projections, Scenarios)
 - [ ] Task: Implement comprehensive tests for financialUtils.ts (TDD)
     - [ ] Write unit tests for `formatCurrency` and `formatDate`
     - [ ] Write unit tests for `generateTimeline` covering:
