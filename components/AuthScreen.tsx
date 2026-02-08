@@ -53,6 +53,7 @@ const AuthScreen: React.FC<AuthScreenProps> = () => {
 
             <button
               onClick={handleGuestLogin}
+              data-testid="guest-login-button"
               className="w-full flex items-center justify-center space-x-3 px-6 py-4 bg-slate-50 border-2 border-slate-200 rounded-xl font-semibold text-slate-600 hover:bg-slate-100 hover:border-slate-300 transition-all shadow-sm"
             >
               <User className="w-5 h-5 text-slate-500" />

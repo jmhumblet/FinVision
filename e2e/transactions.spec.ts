@@ -2,13 +2,18 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Transaction Management', () => {
   test.beforeEach(async ({ page }) => {
+    page.on('console', msg => console.log('PAGE LOG:', msg.text()));
+    page.on('pageerror', err => console.log('PAGE ERROR:', err.message));
+    
     await page.goto('/');
+    
     await page.evaluate(() => {
       if ((window as any).__resetMockData) {
         (window as any).__resetMockData();
       }
     });
-    await page.getByRole('button', { name: 'Continue as Guest' }).click();
+    
+    await page.getByTestId('guest-login-button').click();
     await expect(page.getByRole('heading', { name: 'FinVision' })).toBeVisible();
   });
 

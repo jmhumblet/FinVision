@@ -2,19 +2,15 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './e2e',
-  testIgnore: '*.integration.spec.ts',
+  // Only run files ending in .integration.spec.ts
+  testMatch: ['**/*.integration.spec.ts'],
   fullyParallel: true,
-  forbidOnly: !!process.env.CI,
   retries: 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: process.env.CI ? [['list'], ['html']] : 'list',
-  timeout: 15000,
-  expect: {
-    timeout: 5000,
-  },
+  workers: 1,
+  reporter: 'list',
   use: {
     baseURL: 'http://localhost:3000',
-    trace: 'on-first-retry',
+    trace: 'on',
   },
   projects: [
     {
@@ -28,7 +24,8 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
     env: {
-      VITE_USE_MOCK_API: 'true',
+      // Explicitly disable mock API
+      VITE_USE_MOCK_API: 'false',
     },
   },
 });

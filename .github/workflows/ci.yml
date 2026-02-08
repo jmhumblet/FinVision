@@ -22,6 +22,12 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
+    - name: Run Type Check
+      run: npm run type-check
+
+    - name: Run Build
+      run: npm run build
+
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps chromium
 
@@ -32,3 +38,13 @@ jobs:
       run: npm run test:e2e
       env:
         CI: true
+        VITE_USE_MOCK_API: true
+        GEMINI_API_KEY: "dummy-key-for-ci"
+
+    - name: Upload Playwright report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 1
