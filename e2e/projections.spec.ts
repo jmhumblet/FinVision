@@ -8,7 +8,7 @@ test.describe('Projection Planning', () => {
         (window as any).__resetMockData();
       }
     });
-    await page.getByRole('button', { name: 'Continue as Guest' }).click();
+    await page.getByTestId('guest-login-button').click();
     await expect(page.getByRole('heading', { name: 'FinVision' })).toBeVisible();
   });
 

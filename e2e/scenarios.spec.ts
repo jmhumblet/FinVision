@@ -7,14 +7,13 @@ test.describe('FinVision Dashboard UI', () => {
     
     // Reset mock data before each test
     await page.evaluate(() => {
-      if ((window as any).__resetMockData) {
-        (window as any).__resetMockData();
-      }
-    });
-
-    await page.getByRole('button', { name: 'Continue as Guest' }).click();
-    await expect(page.getByRole('heading', { name: 'FinVision' })).toBeVisible();
-    
+            if ((window as any).__resetMockData) {
+              (window as any).__resetMockData();
+            }
+          });
+          
+          await page.getByTestId('guest-login-button').click();
+          await expect(page.getByRole('heading', { name: 'FinVision' })).toBeVisible();    
     // Verify mock data loaded
     await expect(page.locator('input[value="Monthly Salary"]')).toBeVisible({ timeout: 10000 });
   });

@@ -9,7 +9,7 @@ test.describe('Full Stack Integration', () => {
     
     // We do NOT reset mock data here because we are not mocking.
     
-    await page.getByRole('button', { name: 'Continue as Guest' }).click();
+    await page.getByTestId('guest-login-button').click();
     
     // Check if we land on dashboard
     await expect(page.getByRole('heading', { name: 'FinVision' })).toBeVisible({ timeout: 15000 });

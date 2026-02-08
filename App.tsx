@@ -85,8 +85,10 @@ const App: React.FC = () => {
 
   // --- Auth Observer ---
   useEffect(() => {
+    console.log('App init: hostname =', window.location.hostname);
     try {
       const unsubscribe = observeAuth(async (u) => {
+        console.log('App Auth change: user =', u ? u.uid : 'null');
         setUser(u);
         setIsInitializing(false);
         
@@ -434,8 +436,9 @@ const App: React.FC = () => {
 
   if (isInitializing) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
         <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+        <p className="text-xs text-slate-400 mt-4">Initializing Auth...</p>
       </div>
     );
   }
