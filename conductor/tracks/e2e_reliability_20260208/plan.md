@@ -18,17 +18,17 @@ Establish the patterns for mocking the service layer to ensure deterministic tes
 ## Phase 2: Critical Flow Automation
 Automate the core user journeys using the new deterministic infrastructure.
 
-- [ ] Task: Implement Onboarding & Transaction Tests
-    - [ ] Create `e2e/transactions.spec.ts`.
-    - [ ] Test: Guest login -> Dashboard load.
-    - [ ] Test: Add Transaction -> Verify in Table -> Verify Balance Update.
-    - [ ] Test: Edit Transaction -> Verify Update.
-    - [ ] Test: Delete Transaction -> Verify Removal.
-- [ ] Task: Implement Projection Tests
-    - [ ] Create `e2e/projections.spec.ts`.
-    - [ ] Test: Add Base Projection -> Verify Chart Update.
-    - [ ] Test: Edit Projection Frequency -> Verify Chart Change.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Critical Flow Automation' (Protocol in workflow.md)
+- [x] Task: Implement Onboarding & Transaction Tests
+    - [x] Create `e2e/transactions.spec.ts`.
+    - [x] Test: Guest login -> Dashboard load.
+    - [x] Test: Add Transaction -> Verify in Table -> Verify Balance Update.
+    - [x] Test: Edit Transaction -> Verify Update.
+    - [x] Test: Delete Transaction -> Verify Removal.
+- [x] Task: Implement Projection Tests
+    - [x] Create `e2e/projections.spec.ts`.
+    - [x] Test: Add Base Projection -> Verify Chart Update.
+    - [x] Test: Edit Projection Frequency -> Verify Chart Change.
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Critical Flow Automation' (Protocol in workflow.md)
 
 ## Phase 3: Integration Suite & Documentation
 Create the separate integration suite and update project guidelines.
