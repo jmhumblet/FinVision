@@ -1,4 +1,4 @@
-import { Transaction, Projection } from '../types';
+import { Transaction, Projection, MonthlySetup } from '../types';
 import { mockUser, mockTransactions, mockProjections, mockSettings } from '../e2e/fixtures/mockData';
 
 // Mock Firestore
@@ -8,6 +8,7 @@ export const db = {};
 let currentTransactions = [...mockTransactions];
 let currentProjections = [...mockProjections];
 let currentSettings = { ...mockSettings };
+let currentMonthlySetups: Record<string, MonthlySetup> = {};
 let currentUser = null;
 
 const authListeners: Array<(user: any) => void> = [];
@@ -93,16 +94,47 @@ export const updateRemoteProjection = async (uid: string, p: Projection) => {
 };
 
 export const updateRemoteSettings = async (uid: string, settings: any) => {
+
   currentSettings = { ...currentSettings, ...settings };
+
 };
 
+
+
+export const saveMonthlySetup = async (uid: string, setup: MonthlySetup) => {
+
+  currentMonthlySetups[setup.monthKey] = setup;
+
+};
+
+
+
+export const getMonthlySetup = async (uid: string, monthKey: string): Promise<MonthlySetup | null> => {
+
+  return currentMonthlySetups[monthKey] || null;
+
+};
+
+
+
 // Helper to reset state for tests (exposed to window for Playwright)
+
 if (typeof window !== 'undefined') {
+
   (window as any).__resetMockData = () => {
+
     currentTransactions = [...mockTransactions];
+
     currentProjections = [...mockProjections];
+
     currentSettings = { ...mockSettings };
+
+    currentMonthlySetups = {};
+
     currentUser = null;
+
     notifyAuthListeners();
+
   };
+
 }

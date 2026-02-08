@@ -21,7 +21,7 @@ import {
   orderBy,
   limit
 } from 'firebase/firestore/lite';
-import { Transaction, Projection, MonthlyCheckpoint, TransactionType } from '../types';
+import { Transaction, Projection, MonthlyCheckpoint, TransactionType, MonthlySetup } from '../types';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCOnTNxkj1f7VHlp6ppXdYbzsCi_9tCtWk",
@@ -282,5 +282,29 @@ export const updateRemoteProjection = async (uid: string, p: Projection) => {
 };
 
 export const updateRemoteSettings = async (uid: string, settings: any) => {
+
   await setDoc(doc(db, 'users', uid), settings, { merge: true });
+
+};
+
+
+
+export const saveMonthlySetup = async (uid: string, setup: MonthlySetup) => {
+
+  const setupDocRef = doc(db, 'users', uid, 'monthlySetups', setup.monthKey);
+
+  await setDoc(setupDocRef, setup);
+
+};
+
+
+
+export const getMonthlySetup = async (uid: string, monthKey: string): Promise<MonthlySetup | null> => {
+
+  const setupDocRef = doc(db, 'users', uid, 'monthlySetups', monthKey);
+
+  const setupDoc = await getDoc(setupDocRef);
+
+  return setupDoc.exists() ? setupDoc.data() as MonthlySetup : null;
+
 };
