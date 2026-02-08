@@ -1,0 +1,207 @@
+import { Transaction, Projection, DailyBalance, TransactionType, Frequency, Scenario, AdjustmentType } from "../types";
+
+export const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('en-IE', { 
+    style: 'currency',
+    currency: 'EUR',
+    maximumFractionDigits: 0
+  }).format(amount);
+};
+
+export const formatDate = (dateStr: string) => {
+  return new Date(dateStr).toLocaleDateString('en-GB', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+};
+
+// Helper to parse YYYY-MM-DD string to a Local Date object at 00:00:00
+const parseLocalYYYYMMDD = (dateStr: string): Date => {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
+export const generateTimeline = (
+  startingBalance: number,
+  transactions: Transaction[],
+  projections: Projection[],
+  daysToProject: number = 90,
+  scenarios: Scenario[] = []
+): DailyBalance[] => {
+  const timeline: DailyBalance[] = [];
+  
+  // 1. Sort Transactions
+  const sortedTransactions = [...transactions].sort((a, b) => a.date.localeCompare(b.date));
+  
+  // 2. Identify "Split Point"
+  const lastTx = sortedTransactions[sortedTransactions.length - 1];
+  const lastTransactionDate = lastTx ? parseLocalYYYYMMDD(lastTx.date) : new Date();
+  lastTransactionDate.setHours(0,0,0,0);
+
+  // 3. Determine Timeline Range
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  
+  let startDate = new Date(today);
+  startDate.setDate(startDate.getDate() - 30); 
+
+  if (sortedTransactions.length > 0) {
+    const firstTxDate = parseLocalYYYYMMDD(sortedTransactions[0].date);
+    if (firstTxDate < startDate) {
+      startDate = firstTxDate;
+    }
+  }
+
+  const endDate = new Date(today);
+  endDate.setDate(endDate.getDate() + daysToProject);
+
+  // 4. Pre-group transactions
+  const txMap = new Map<string, number>();
+  sortedTransactions.forEach(tx => {
+    const val = tx.type === TransactionType.INCOME ? tx.amount : -tx.amount;
+    const key = tx.date;
+    txMap.set(key, (txMap.get(key) || 0) + val);
+  });
+
+  // 5. Initialize Balances
+  let currentBalance = startingBalance;
+  
+  // Initialize scenario balances. They start identical to currentBalance.
+  // We only track scenarios that are Active.
+  const activeScenarios = scenarios.filter(s => s.isActive);
+  const scenarioBalances = new Map<string, number>();
+  activeScenarios.forEach(s => scenarioBalances.set(s.id, startingBalance));
+
+  // 6. Iterate Days
+  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    const isLocalMidnight = d.getHours() === 0;
+    if (!isLocalMidnight) d.setHours(0,0,0,0);
+
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const dateStr = `${y}-${m}-${day}`;
+
+    const isAfterLastTx = d.getTime() > lastTransactionDate.getTime();
+
+    // A. Apply Historical Transactions (Applies to Base AND Scenarios equally up to split point)
+    const txChange = txMap.get(dateStr) || 0;
+    
+    if (!isAfterLastTx) {
+      currentBalance += txChange;
+      activeScenarios.forEach(s => {
+        scenarioBalances.set(s.id, (scenarioBalances.get(s.id) || 0) + txChange);
+      });
+    }
+
+    // B. Apply Projections (Base)
+    let baseProjChange = 0;
+    
+    if (isAfterLastTx) {
+        projections.forEach(proj => {
+            if (!proj.isActive) return;
+            const val = calculateProjectionValueForDate(proj, d, dateStr);
+            baseProjChange += val;
+        });
+        currentBalance += baseProjChange;
+    }
+
+    // C. Apply Scenarios (Parallel Calculation)
+    if (isAfterLastTx) {
+        activeScenarios.forEach(s => {
+            let scenarioChange = 0;
+            
+            projections.forEach(proj => {
+                if (!proj.isActive) return;
+
+                // 1. Check if this scenario overrides this projection
+                const adjustment = s.adjustments.find(a => a.projectionId === proj.id);
+                
+                // 2. Determine the "Effective Projection" to apply
+                let effectiveAmount = proj.amount;
+                
+                if (adjustment) {
+                    // Check if adjustment is valid for this date
+                    const adjStart = adjustment.startDate ? parseLocalYYYYMMDD(adjustment.startDate) : null;
+                    const adjEnd = adjustment.endDate ? parseLocalYYYYMMDD(adjustment.endDate) : null;
+                    
+                    const isStarted = !adjStart || d >= adjStart;
+                    const isEnded = adjEnd && d > adjEnd;
+
+                    if (isStarted && !isEnded) {
+                        switch (adjustment.type) {
+                            case AdjustmentType.SET_AMOUNT:
+                                effectiveAmount = adjustment.value;
+                                break;
+                            case AdjustmentType.ADD_AMOUNT:
+                                effectiveAmount = proj.amount + adjustment.value;
+                                break;
+                            case AdjustmentType.PERCENTAGE_INCREASE:
+                                effectiveAmount = proj.amount * (1 + adjustment.value / 100);
+                                break;
+                            case AdjustmentType.PERCENTAGE_DECREASE:
+                                effectiveAmount = proj.amount * (1 - adjustment.value / 100);
+                                break;
+                        }
+                    }
+                }
+
+                // 3. Calculate value using effective amount
+                // Create a temporary proj object with the new amount to reuse logic
+                const effProj = { ...proj, amount: effectiveAmount };
+                const val = calculateProjectionValueForDate(effProj, d, dateStr);
+                scenarioChange += val;
+            });
+
+            scenarioBalances.set(s.id, (scenarioBalances.get(s.id) || 0) + scenarioChange);
+        });
+    }
+
+    // D. Construct Data Point
+    const dataPoint: DailyBalance = {
+        date: dateStr,
+        historicalBalance: !isAfterLastTx ? currentBalance : null,
+        projectedBalance: isAfterLastTx ? currentBalance : (d.getTime() === lastTransactionDate.getTime() ? currentBalance : null),
+        isProjected: isAfterLastTx
+    };
+
+    // Add scenario lines
+    activeScenarios.forEach(s => {
+        // Scenarios exist in history too (as base), but we usually only plot them in the future
+        // to avoid clutter, or we plot them identical to history.
+        // Let's plot them starting from Today/Split Point for clarity.
+        if (isAfterLastTx || d.getTime() === lastTransactionDate.getTime()) {
+             dataPoint[`scenario_${s.id}`] = scenarioBalances.get(s.id);
+        }
+    });
+
+    timeline.push(dataPoint);
+  }
+
+  return timeline;
+};
+
+const calculateProjectionValueForDate = (proj: Projection, d: Date, dateStr: string): number => {
+    const projStart = parseLocalYYYYMMDD(proj.startDate);
+    const projEnd = proj.endDate ? parseLocalYYYYMMDD(proj.endDate) : null;
+
+    if (projStart > d) return 0;
+    if (projEnd && projEnd < d) return 0;
+
+    const val = proj.type === TransactionType.INCOME ? proj.amount : -proj.amount;
+
+    if (proj.frequency === Frequency.ONCE) {
+        if (dateStr === proj.startDate) return val;
+    } else if (proj.frequency === Frequency.DAILY) {
+        return val;
+    } else if (proj.frequency === Frequency.MONTHLY) {
+        if (d.getDate() === projStart.getDate()) return val;
+    } else if (proj.frequency === Frequency.WEEKLY) {
+        if (d.getDay() === projStart.getDay()) return val;
+    } else if (proj.frequency === Frequency.YEARLY) {
+        if (d.getDate() === projStart.getDate() && d.getMonth() === projStart.getMonth()) return val;
+    }
+    
+    return 0;
+};
