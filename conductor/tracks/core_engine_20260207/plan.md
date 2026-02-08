@@ -3,10 +3,10 @@
 ## Phase 0: Testing Infrastructure
 Setup the tools necessary for TDD and coverage reporting.
 
-- [ ] Task: Install and configure Vitest and Coverage tools
-    - [ ] Install `vitest`, `@vitest/coverage-v8`, and `jsdom`
-    - [ ] Update `package.json` with a `test` script
-    - [ ] Configure `vitest.config.ts` (or `vite.config.ts`) for testing
+- [x] Task: Install and configure Vitest and Coverage tools 113f845
+    - [x] Install `vitest`, `@vitest/coverage-v8`, and `jsdom`
+    - [x] Update `package.json` with a `test` script
+    - [x] Configure `vitest.config.ts` (or `vite.config.ts`) for testing
 
 ## Phase 1: Domain Logic - Projection Engine (Solidification)
 Hardening the existing `financialUtils.ts` to ensure accuracy and 100% coverage.
