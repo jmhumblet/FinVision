@@ -15,20 +15,20 @@ Verify the existing GitHub Actions workflow and ensure it covers all required qu
 ## Phase 2: Git Flow Automation & PR Creation
 Implement the logic and documentation for the standardized branch and PR flow.
 
-- [ ] Task: Document Git Flow in Workflow
-    - [ ] Update `conductor/workflow.md` to formally define the `conductor/feat/<track-id>` branch naming and `gh pr create` usage.
-- [ ] Task: Implement PR Template/Helper
-    - [ ] Create a reusable PR description template that includes track metadata and links to `plan.md`.
-- [ ] Task: Verify GitHub CLI Integration
-    - [ ] Ensure `gh` is authenticated and functional in the environment.
-    - [ ] Test `gh pr create --draft` to verify the automated PR flow.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Git Flow Automation & PR Creation' (Protocol in workflow.md)
+- [x] Task: Document Git Flow in Workflow
+    - [x] Update `conductor/workflow.md` to formally define the `conductor/feat/<track-id>` branch naming and `gh pr create` usage.
+- [x] Task: Implement PR Template/Helper
+    - [x] Create a reusable PR description template that includes track metadata and links to `plan.md`.
+- [x] Task: Verify GitHub CLI Integration
+    - [x] Ensure `gh` is authenticated and functional in the environment.
+    - [x] Test `gh pr create --draft` to verify the automated PR flow.
+- [~] Task: Conductor - User Manual Verification 'Phase 2: Git Flow Automation & PR Creation' (Protocol in workflow.md)
 
 ## Phase 3: Status Monitoring & Finalization
 Implement the follow-up logic to ensure PRs are green.
 
-- [ ] Task: Implement CI Monitoring Pattern
-    - [ ] Define the process for checking `gh pr checks` status.
-- [ ] Task: Final Verification
+- [x] Task: Implement CI Monitoring Pattern
+    - [x] Define the process for checking `gh pr checks` status.
+- [~] Task: Final Verification
     - [ ] Run a dummy track to verify: Branch creation -> Commit -> PR Creation -> CI Status Check.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Status Monitoring & Finalization' (Protocol in workflow.md)

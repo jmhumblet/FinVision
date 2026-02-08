@@ -366,3 +366,10 @@ To ensure code quality and maintain a clean history, all development follows thi
    *The PR body should include a summary of the track and a link to the implementation plan.*
 4. **CI Checks:** Ensure all automated checks (Build, Lint, Type-Check, Test, E2E) pass.
 5. **Review & Merge:** Await manual review and merge.
+
+### CI Monitoring
+To ensure the PR is ready for merge, use the following command to monitor checks:
+```bash
+gh pr checks <pr_number> --watch
+```
+*Wait until all checks are green (passing) before requesting final human review.*
