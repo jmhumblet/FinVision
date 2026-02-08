@@ -13,15 +13,15 @@ Hardening the existing `financialUtils.ts` to ensure accuracy and 100% coverage.
 
 - [x] Task: Verify types and interfaces 563ac1d
     - [x] Ensure `types.ts` covers all necessary domain models (Transactions, Projections, Scenarios)
-- [ ] Task: Implement comprehensive tests for financialUtils.ts (TDD)
-    - [ ] Write unit tests for `formatCurrency` and `formatDate`
-    - [ ] Write unit tests for `generateTimeline` covering:
-        - [ ] Historical transaction application
-        - [ ] Base projections (Daily, Weekly, Monthly, Yearly frequencies)
-        - [ ] Scenario adjustments (Add, Set, Percent Inc/Dec)
-        - [ ] Edge cases: Leap years, month end (e.g., 31st), empty data
-    - [ ] Refactor `financialUtils.ts` only where necessary to pass tests or improve robustness
-    - [ ] Verify 100% coverage for `utils/financialUtils.ts`
+- [x] Task: Implement comprehensive tests for financialUtils.ts (TDD) 8369418
+    - [x] Write unit tests for `formatCurrency` and `formatDate`
+    - [x] Write unit tests for `generateTimeline` covering:
+        - [x] Historical transaction application
+        - [x] Base projections (Daily, Weekly, Monthly, Yearly frequencies)
+        - [x] Scenario adjustments (Add, Set, Percent Inc/Dec)
+        - [x] Edge cases: Leap years, month end (e.g., 31st), empty data
+    - [x] Refactor `financialUtils.ts` only where necessary to pass tests or improve robustness
+    - [x] Verify 100% coverage for `utils/financialUtils.ts`
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Domain Logic' (Protocol in workflow.md)
 
 ## Phase 2: UI Layer - Visualization Verification
