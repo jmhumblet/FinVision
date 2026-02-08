@@ -19,9 +19,10 @@ import {
   updateRemoteProjection, 
   updateRemoteSettings,
   deleteRemoteTransaction,
-  deleteRemoteProjection
+  deleteRemoteProjection,
+  observeAuth
 } from './services/firebaseService';
-import { onAuthStateChanged, User } from 'firebase/auth';
+import { User } from 'firebase/auth';
 import FinancialChart from './components/FinancialChart';
 import TransactionTable from './components/TransactionTable';
 import ProjectionTable from './components/ProjectionTable';
@@ -83,7 +84,7 @@ const App: React.FC = () => {
 
   // --- Auth Observer ---
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (u) => {
+    const unsubscribe = observeAuth(async (u) => {
       setUser(u);
       setIsInitializing(false);
       

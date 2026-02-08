@@ -62,6 +62,11 @@ export const signInGuest = async () => {
 
 export const logout = () => signOut(auth);
 
+// Wrapper for onAuthStateChanged to allow mocking
+export const observeAuth = (callback: (user: User | null) => void) => {
+  return onAuthStateChanged(auth, callback);
+};
+
 // Helper to calculate monthly checkpoints from all transactions
 // In a production app, this would be a Cloud Function.
 // Here we run it on Save to keep data optimized.

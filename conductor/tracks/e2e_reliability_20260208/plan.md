@@ -5,9 +5,9 @@ Establish the patterns for mocking the service layer to ensure deterministic tes
 
 - [x] Task: Create Mock Data Fixtures
     - [x] Create `e2e/fixtures/mockData.ts` with standard user data, transactions, and projections.
-- [ ] Task: Implement Playwright Network Mocking
-    - [ ] Update `playwright.config.ts` or create a `e2e/global-setup.ts` to support mocking.
-    - [ ] Create a helper function `mockFirebase` to intercept calls to `firebaseService`.
+- [x] Task: Implement Playwright Network Mocking
+    - [x] Update `playwright.config.ts` or create a `e2e/global-setup.ts` to support mocking.
+    - [x] Create a helper function `mockFirebase` to intercept calls to `firebaseService`.
 - [ ] Task: Refactor Existing `scenarios.spec.ts`
     - [ ] Apply the new mocking strategy to the existing flaky tests.
     - [ ] Verify they pass consistently without timeouts or retries.

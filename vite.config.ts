@@ -18,6 +18,9 @@ export default defineConfig(({ mode }) => {
       resolve: {
         alias: {
           '@': path.resolve(__dirname, '.'),
+          './services/firebaseService': process.env.VITE_USE_MOCK_API === 'true' 
+            ? path.resolve(__dirname, './services/mockFirebaseService.ts') 
+            : path.resolve(__dirname, './services/firebaseService.ts')
         }
       },
       test: {
