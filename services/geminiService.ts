@@ -2,7 +2,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { Category, Transaction, Projection, TransactionType, QuickActionResponse, Frequency } from "../types";
 
 const apiKey = process.env.API_KEY || "missing-key-for-testing";
-const ai = new GoogleGenAI(apiKey);
+const ai = new GoogleGenAI({ apiKey });
 
 const categorizeTransactions = async (
   transactions: Partial<Transaction>[],
