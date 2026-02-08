@@ -2,7 +2,7 @@
 
 FinVision is a sophisticated, AI-enhanced financial planning application designed to give users absolute clarity over their past spending and future cash flow. It combines real-time data synchronization with advanced predictive modeling and natural language intelligence.
 
-![FinVision Screenshot](https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1000)
+![FinVision Screenshot](./finvision-screenshot.png)
 
 ## ✨ Key Features
 
