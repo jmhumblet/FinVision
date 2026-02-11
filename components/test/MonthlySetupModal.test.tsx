@@ -19,7 +19,7 @@ describe('MonthlySetupModal', () => {
     expect(screen.getByText(/Monthly Setup for February 2026/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Actual Bank Balance/i)).toBeInTheDocument();
     expect(screen.getByText(/Monthly Salary/i)).toBeInTheDocument();
-    expect(screen.getByText(/Rent/i)).toBeInTheDocument();
+    expect(screen.getByText(/\bRent\b/i)).toBeInTheDocument();
   });
 
   it('submits the correct data when form is filled', () => {
@@ -37,11 +37,11 @@ describe('MonthlySetupModal', () => {
 
     // Clear one transaction (e.g., Rent occurred on Feb 1st)
     // Assuming each occurrence has a checkbox with an id or label
-    const rentCheckbox = screen.getByLabelText(/Rent/i);
+    const rentCheckbox = screen.getByRole('checkbox', { name: /\bRent\b/i });
     fireEvent.click(rentCheckbox);
 
     // Set as default view
-    const defaultViewCheckbox = screen.getByLabelText(/Set Monthly View as my default landing page/i);
+    const defaultViewCheckbox = screen.getByRole('checkbox', { name: /Set Monthly View as my default landing page/i });
     fireEvent.click(defaultViewCheckbox);
 
     // Submit

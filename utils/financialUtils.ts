@@ -272,7 +272,7 @@ export const generateTimeline = (
   return timeline;
 };
 
-const calculateProjectionValueForDate = (proj: Projection, d: Date, dateStr: string): number => {
+export const calculateProjectionValueForDate = (proj: Projection, d: Date, dateStr: string): number => {
     const projStart = parseLocalYYYYMMDD(proj.startDate);
     const projEnd = proj.endDate ? parseLocalYYYYMMDD(proj.endDate) : null;
 
