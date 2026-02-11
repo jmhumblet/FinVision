@@ -24,7 +24,7 @@
 - [x] Task: Update Hero Counter calculation to be "Projected End-of-Month Balance".
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Monthly View Enhancements' (Protocol in workflow.md)
 
-## Phase 4: Cross-Month Toast & Polish
+## Phase 4: Cross-Month Toast & Polish [checkpoint: aaa4d0c]
 
 - [x] Task: Update `Toast` component to support action buttons (e.g., "Go to Month"). [checkpoint: toast action]
 - [x] Task: Implement logic in `App.tsx` to detect when a new transaction is outside the current view. [checkpoint: toast action]
