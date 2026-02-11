@@ -26,16 +26,16 @@ In this phase, we'll build the mandatory full-screen modal that captures the sta
 
 In this phase, we'll create the dashboard for the Monthly View.
 
-- [ ] Task: Write failing tests for `MonthlyDashboard` component.
-- [ ] Task: Implement `MonthlyDashboard` with Hero Counter (Remaining Spendable).
-- [ ] Task: Implement Summary Card (Income vs. Expenses) and Budget Progress Bar.
-- [ ] Task: Implement navigation logic to respect `defaultView` preference.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Monthly Focus View UI' (Protocol in workflow.md)
+- [x] Task: Write failing tests for `MonthlyDashboard` component. e373ed8
+- [x] Task: Implement `MonthlyDashboard` with Hero Counter (Remaining Spendable). c7660e7
+- [x] Task: Implement Summary Card (Income vs. Expenses) and Budget Progress Bar. c7660e7
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Monthly Focus View UI' (Protocol in workflow.md) c7660e7
 
 ## Phase 4: Integration & E2E Verification
 
 In this phase, we'll wire everything together and verify the complete flow.
 
+- [ ] Task: Implement navigation logic to respect `defaultView` preference.
 - [ ] Task: Integrate `MonthlySetupModal` into `App.tsx` with conditional rendering.
 - [ ] Task: Add settings option to manually trigger Monthly Setup or change default view.
 - [ ] Task: Write E2E tests in `playwright` for the full monthly setup and dashboard flow.
