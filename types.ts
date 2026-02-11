@@ -91,6 +91,8 @@ export enum AppView {
 
 export interface UserPreferences {
   defaultView: AppView;
+  projectionDays: number;
+  lastReconciledDate?: string; // ISO Date string
 }
 
 export interface MonthlySetup {

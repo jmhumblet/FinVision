@@ -1,36 +1,60 @@
 import React from 'react';
 import { MonthlySummary } from '../utils/financialUtils';
 import { formatCurrency } from '../utils/financialUtils';
-import { ArrowUpCircle, ArrowDownCircle, Info, Settings } from 'lucide-react';
+import { ArrowUpCircle, ArrowDownCircle, Info, Settings, LayoutDashboard } from 'lucide-react';
+import { Transaction, Projection, Category } from '../types';
+import TransactionTable from './TransactionTable';
+import ProjectionTable from './ProjectionTable';
+import MonthNavigator from './MonthNavigator';
 
 interface MonthlyDashboardProps {
   summary: MonthlySummary;
-  monthName: string;
+  selectedDate: Date;
+  onNavigate: (date: Date) => void;
   onSwitchView: () => void;
   onOpenSettings: () => void;
+  // Table Props
+  transactions: Transaction[];
+  projections: Projection[];
+  categories: Category[];
+  onUpdateTransaction: (t: Transaction) => void;
+  onDeleteTransaction: (id: string) => void;
+  onAddTransaction: () => void;
+  onUpdateProjection: (p: Projection) => void;
+  onDeleteProjection: (id: string) => void;
+  onAddProjection: () => void;
 }
 
 const MonthlyDashboard: React.FC<MonthlyDashboardProps> = ({ 
   summary, 
-  monthName, 
+  selectedDate,
+  onNavigate,
   onSwitchView,
-  onOpenSettings
+  onOpenSettings,
+  transactions,
+  projections,
+  categories,
+  onUpdateTransaction,
+  onDeleteTransaction,
+  onAddTransaction,
+  onUpdateProjection,
+  onDeleteProjection,
+  onAddProjection
 }) => {
   return (
-    <div className="flex flex-col space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">{monthName}</h1>
-          <p className="text-slate-500">Monthly Focus</p>
-        </div>
-        <div className="flex space-x-2">
+    <div data-testid="monthly-dashboard" className="flex flex-col space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* Header & Navigator */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <MonthNavigator currentDate={selectedDate} onNavigate={onNavigate} />
+        
+        <div className="flex space-x-2 w-full md:w-auto">
            <button 
              onClick={onSwitchView}
-             className="p-2 bg-white border border-slate-200 rounded-xl shadow-sm text-slate-600 hover:bg-slate-50 transition-colors"
+             className="flex-1 md:flex-none flex items-center justify-center space-x-2 px-4 py-2 bg-white border border-slate-200 rounded-xl shadow-sm text-slate-600 hover:bg-slate-50 transition-colors"
              title="Switch to Charts"
            >
-             <Info size={20} />
+             <LayoutDashboard size={20} />
+             <span className="text-sm font-medium">Main Dashboard</span>
            </button>
            <button 
              onClick={onOpenSettings}
@@ -45,12 +69,12 @@ const MonthlyDashboard: React.FC<MonthlyDashboardProps> = ({
       {/* Hero Counter */}
       <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-200 flex flex-col items-center justify-center text-center relative overflow-hidden group">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-emerald-500"></div>
-        <span className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">Remaining Spendable</span>
+        <span className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2 italic">Forecasted End of Month</span>
         <div className={`text-6xl sm:text-7xl font-black transition-colors ${summary.remainingSpendable >= 0 ? 'text-slate-900' : 'text-red-600'}`}>
           {formatCurrency(summary.remainingSpendable)}
         </div>
         <div className="mt-4 flex items-center space-x-2 text-slate-400">
-            <span className="text-sm">Based on your current balance and projections</span>
+            <span className="text-sm">Your projected "Remaining Budget" for this month</span>
         </div>
       </div>
 
@@ -94,6 +118,24 @@ const MonthlyDashboard: React.FC<MonthlyDashboardProps> = ({
                 ? 'You have exceeded your projected expenses for this month.' 
                 : `You have cleared ${Math.round(summary.spentPercentage)}% of your expected monthly expenses.`}
         </p>
+      </div>
+
+      {/* Monthly Tables */}
+      <div className="flex flex-col space-y-8 pt-4 border-t border-slate-100">
+        <TransactionTable 
+          transactions={transactions} 
+          categories={categories}
+          onUpdateTransaction={onUpdateTransaction}
+          onDeleteTransaction={onDeleteTransaction}
+          onAddTransaction={onAddTransaction}
+        />
+        <ProjectionTable
+          projections={projections}
+          categories={categories}
+          onUpdateProjection={onUpdateProjection}
+          onDeleteProjection={onDeleteProjection}
+          onAddProjection={onAddProjection}
+        />
       </div>
     </div>
   );

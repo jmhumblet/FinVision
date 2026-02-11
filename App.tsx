@@ -34,7 +34,7 @@ import AuthScreen from './components/AuthScreen';
 import QuickActionManager from './components/QuickActionManager';
 import Toast, { ToastMessage } from './components/Toast';
 import ScenarioBuilder from './components/ScenarioBuilder';
-import MonthlySetupModal from './components/MonthlySetupModal';
+import ReconciliationModal from './components/ReconciliationModal';
 import MonthlyDashboard from './components/MonthlyDashboard';
 import { generateTimeline, formatCurrency, getMonthKey, calculateMonthlySummary } from './utils/financialUtils';
 import { 
@@ -86,9 +86,11 @@ const App: React.FC = () => {
   
   const [loadedInitialBalance, setLoadedInitialBalance] = useState<number>(0);
   const [projectionDays, setProjectionDays] = useState(180);
+  const [lastReconciledDate, setLastReconciledDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [currentView, setCurrentView] = useState<AppView>(AppView.MAIN);
+  const [selectedMonthDate, setSelectedMonthDate] = useState<Date>(new Date());
   const [monthlySetup, setMonthlySetup] = useState<MonthlySetup | null>(null);
-  const [showMonthlySetupModal, setShowMonthlySetupModal] = useState(false);
+  const [showReconciliationModal, setShowReconciliationModal] = useState(false);
   const [isCategorizing, setIsCategorizing] = useState(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -108,6 +110,9 @@ const App: React.FC = () => {
             if (data.settings) {
               setLoadedInitialBalance(data.settings.initialBalance || 0);
               setProjectionDays(data.settings.projectionDays || 180);
+              if (data.settings.lastReconciledDate) {
+                setLastReconciledDate(data.settings.lastReconciledDate);
+              }
               if (data.settings.defaultView) {
                 setCurrentView(data.settings.defaultView);
               }
@@ -121,13 +126,13 @@ const App: React.FC = () => {
               setProjections(data.projections);
             }
 
-            // Check Monthly Setup
+            // Check if reconciliation is needed for current month
             const monthKey = getMonthKey();
             const setup = await getMonthlySetup(u.uid, monthKey);
             if (setup) {
               setMonthlySetup(setup);
             } else {
-              setShowMonthlySetupModal(true);
+              setShowReconciliationModal(true);
             }
           } catch (error) {
             console.error("Error loading user data:", error);
@@ -168,18 +173,79 @@ const App: React.FC = () => {
   }, [timelineData, currentBalance]);
 
   const monthlySummary = useMemo(() => {
-    if (!monthlySetup) return null;
-    return calculateMonthlySummary(
-      monthlySetup.monthKey,
-      monthlySetup.actualBalance,
-      monthlySetup.clearedProjectionIds,
-      projections
-    );
-  }, [monthlySetup, projections]);
+    // We calculate summary for the SELECTED month, not always current
+    const monthKey = getMonthKey(selectedMonthDate);
+    
+    // If it's the current month, use actual balance from setup.
+    // If it's a different month, we'd need more complex logic. 
+    // For now, let's keep it simple: if setup exists for THIS key, use it.
+    // Otherwise, we might need to derive it from timeline.
+    
+    if (monthlySetup && monthlySetup.monthKey === monthKey) {
+        return calculateMonthlySummary(
+            monthlySetup.monthKey,
+            monthlySetup.actualBalance,
+            monthlySetup.clearedProjectionIds,
+            projections
+        );
+    }
+
+    // Fallback: Calculate from timeline for other months
+    const monthPoints = timelineData.filter(d => d.date.startsWith(monthKey));
+    if (monthPoints.length === 0) return null;
+
+    const lastPoint = monthPoints[monthPoints.length - 1];
+    const remainingSpendable = lastPoint.projectedBalance || lastPoint.historicalBalance || 0;
+
+    return {
+        remainingSpendable,
+        totalProjectedIncome: 0, // Simplified fallback
+        totalProjectedExpenses: 0,
+        spentPercentage: 0
+    };
+  }, [monthlySetup, projections, selectedMonthDate, timelineData]);
+
+  const filteredTransactions = useMemo(() => {
+    if (currentView !== AppView.MONTHLY) return transactions;
+    const key = getMonthKey(selectedMonthDate);
+    // Explicitly check for year and month
+    return transactions.filter(t => {
+        const tKey = t.date.substring(0, 7);
+        return tKey === key;
+    });
+  }, [transactions, currentView, selectedMonthDate]);
+
+  const filteredProjections = useMemo(() => {
+    if (currentView !== AppView.MONTHLY) return projections;
+    const startStr = `${getMonthKey(selectedMonthDate)}-01`;
+    const end = new Date(selectedMonthDate.getFullYear(), selectedMonthDate.getMonth() + 1, 0);
+    const endStr = end.toISOString().split('T')[0];
+
+    return projections.filter(p => {
+        if (!p.isActive) return false;
+        if (p.endDate && p.endDate < startStr) return false;
+        if (p.startDate > endStr) return false;
+        return true;
+    });
+  }, [projections, currentView, selectedMonthDate]);
 
   // --- Toast Logic ---
-  const addToast = (message: string, type: 'success' | 'error') => {
-    setToasts(prev => [...prev, { id: uuidv4(), message, type }]);
+  const addToast = (message: string, type: 'success' | 'error' | 'info', action?: { label: string, onClick: () => void }) => {
+    setToasts(prev => [...prev, { id: uuidv4(), message, type, action }]);
+  };
+
+  const checkMonthVisibility = (date: string) => {
+    if (currentView !== AppView.MONTHLY) return;
+    const targetKey = date.substring(0, 7);
+    const currentKey = getMonthKey(selectedMonthDate);
+    if (targetKey !== currentKey) {
+        const targetDate = new Date(date);
+        const monthName = targetDate.toLocaleDateString('en-GB', { month: 'long' });
+        addToast(`Entry added for ${date}. Not visible in current month.`, "info", {
+            label: `Go to ${monthName}`,
+            onClick: () => setSelectedMonthDate(targetDate)
+        });
+    }
   };
 
   const removeToast = (id: string) => {
@@ -264,6 +330,11 @@ const App: React.FC = () => {
   const handleUpdateTransaction = (updated: Transaction) => {
     setTransactions(prev => prev.map(t => t.id === updated.id ? updated : t));
     debouncedSyncTransaction(updated);
+    // If the date changed, check visibility
+    const oldTx = transactions.find(t => t.id === updated.id);
+    if (oldTx && oldTx.date !== updated.date) {
+        checkMonthVisibility(updated.date);
+    }
   };
 
   const handleDeleteTransaction = async (id: string) => {
@@ -276,9 +347,13 @@ const App: React.FC = () => {
   };
 
   const handleAddTransaction = () => {
+    const date = currentView === AppView.MONTHLY 
+        ? new Date(selectedMonthDate.getFullYear(), selectedMonthDate.getMonth(), new Date().getDate()).toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0];
+
     const newTx: Transaction = {
       id: uuidv4(),
-      date: new Date().toISOString().split('T')[0],
+      date,
       description: 'New Transaction',
       amount: 0,
       categoryId: '8',
@@ -302,6 +377,7 @@ const App: React.FC = () => {
     };
     setTransactions(prev => [newTx, ...prev]);
     immediateSyncTransaction(newTx);
+    if (newTx.date) checkMonthVisibility(newTx.date);
   };
 
   const handleCreateProjectionFromAI = (data: Partial<Projection>) => {
@@ -321,6 +397,7 @@ const App: React.FC = () => {
     };
     setProjections(prev => [...prev, newProj]);
     immediateSyncProjection(newProj);
+    if (newProj.startDate) checkMonthVisibility(newProj.startDate);
   };
 
   const handleUpdateProjectionFromAI = (id: string, data: Partial<Projection>) => {
@@ -400,38 +477,50 @@ const App: React.FC = () => {
     setScenarios(prev => [...prev, s]);
   };
   
-  const handleMonthlySetupSubmit = async (data: { 
+  const handleReconciliationSubmit = async (data: { 
     actualBalance: number; 
     clearedProjectionIds: string[]; 
-    setDefaultView: boolean 
+    setDefaultView: boolean;
+    adjustmentTransaction: Transaction | null;
   }) => {
     if (!user) return;
     
+    const today = new Date().toISOString().split('T')[0];
+    const monthKey = getMonthKey();
+
     const setup: MonthlySetup = {
-      monthKey: getMonthKey(),
+      monthKey,
       actualBalance: data.actualBalance,
       clearedProjectionIds: data.clearedProjectionIds,
       completedAt: new Date().toISOString()
     };
 
     setMonthlySetup(setup);
-    setShowMonthlySetupModal(false);
+    setLastReconciledDate(today);
+    setShowReconciliationModal(false);
 
     if (data.setDefaultView) {
       setCurrentView(AppView.MONTHLY);
+    }
+
+    if (data.adjustmentTransaction) {
+      setTransactions(prev => [data.adjustmentTransaction!, ...prev]);
+      immediateSyncTransaction(data.adjustmentTransaction);
     }
 
     // Persist
     incrementSync();
     try {
       await saveMonthlySetup(user.uid, setup);
+      const settingsUpdates: any = { lastReconciledDate: today };
       if (data.setDefaultView) {
-        await updateRemoteSettings(user.uid, { defaultView: AppView.MONTHLY });
+        settingsUpdates.defaultView = AppView.MONTHLY;
       }
-      addToast("Monthly setup saved!", "success");
+      await updateRemoteSettings(user.uid, settingsUpdates);
+      addToast("Reconciliation complete!", "success");
     } catch (e) {
       console.error(e);
-      addToast("Error saving monthly setup.", "error");
+      addToast("Error saving reconciliation.", "error");
     } finally {
       decrementSync();
     }
@@ -551,11 +640,13 @@ const App: React.FC = () => {
         onToast={addToast}
       />
 
-      {showMonthlySetupModal && (
-        <MonthlySetupModal 
+      {showReconciliationModal && (
+        <ReconciliationModal 
           projections={projections}
+          lastReconciledDate={lastReconciledDate}
+          initialBalance={currentBalance}
           monthKey={getMonthKey()}
-          onSubmit={handleMonthlySetupSubmit}
+          onSubmit={handleReconciliationSubmit}
         />
       )}
 
@@ -645,9 +736,19 @@ const App: React.FC = () => {
         {currentView === AppView.MONTHLY && monthlySummary ? (
           <MonthlyDashboard 
             summary={monthlySummary}
-            monthName={new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
+            selectedDate={selectedMonthDate}
+            onNavigate={setSelectedMonthDate}
             onSwitchView={() => setCurrentView(AppView.MAIN)}
-            onOpenSettings={() => setShowMonthlySetupModal(true)}
+            onOpenSettings={() => setShowReconciliationModal(true)}
+            transactions={filteredTransactions}
+            projections={filteredProjections}
+            categories={categories}
+            onUpdateTransaction={handleUpdateTransaction}
+            onDeleteTransaction={handleDeleteTransaction}
+            onAddTransaction={handleAddTransaction}
+            onUpdateProjection={handleUpdateProjection}
+            onDeleteProjection={handleDeleteProjection}
+            onAddProjection={handleAddProjection}
           />
         ) : (
           <>

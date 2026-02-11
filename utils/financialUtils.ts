@@ -29,6 +29,49 @@ export interface MonthlySummary {
   spentPercentage: number;
 }
 
+export interface UnreconciledOccurrence {
+  id: string; // projId_dateStr
+  projId: string;
+  name: string;
+  amount: number;
+  dateStr: string;
+  type: TransactionType;
+}
+
+export const getUnreconciledProjections = (
+  startDate: string,
+  endDate: string,
+  projections: Projection[]
+): UnreconciledOccurrence[] => {
+  const start = parseLocalYYYYMMDD(startDate);
+  const end = parseLocalYYYYMMDD(endDate);
+  const list: UnreconciledOccurrence[] = [];
+
+  projections.forEach(proj => {
+    if (!proj.isActive) return;
+    // Iterate day by day from start to end
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const dateStr = `${y}-${m}-${day}`;
+      
+      const val = calculateProjectionValueForDate(proj, d, dateStr);
+      if (val !== 0) {
+        list.push({
+          id: `${proj.id}_${dateStr}`,
+          projId: proj.id,
+          name: proj.name,
+          amount: Math.abs(val),
+          dateStr,
+          type: proj.type
+        });
+      }
+    }
+  });
+  return list.sort((a, b) => a.dateStr.localeCompare(b.dateStr));
+};
+
 export const calculateMonthlySummary = (
   monthKey: string,
   actualBalance: number,
@@ -89,6 +132,21 @@ export const calculateMonthlySummary = (
     totalProjectedIncome: totalMonthIncome,
     totalProjectedExpenses: totalMonthExpenses,
     spentPercentage
+  };
+};
+
+export const createReconciliationTransaction = (
+  amount: number,
+  date: string,
+  description: string = 'Balance Correction'
+): Partial<Transaction> => {
+  return {
+    description,
+    amount: Math.abs(amount),
+    date,
+    categoryId: '8', // 'Other'
+    type: amount >= 0 ? TransactionType.INCOME : TransactionType.EXPENSE,
+    skipAutoCategorization: true
   };
 };
 
