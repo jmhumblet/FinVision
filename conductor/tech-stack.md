@@ -15,6 +15,7 @@
 - **Database**: Firebase Firestore (Lite)
 - **Authentication**: Firebase Auth (Google Authentication & Guest Mode)
 - **Real-time**: Real-time synchronization across devices.
+- **Persistence**: Monthly checkpoints and user preferences for view defaults.
 
 ## Testing
 - **Unit & Integration**: Vitest, React Testing Library
