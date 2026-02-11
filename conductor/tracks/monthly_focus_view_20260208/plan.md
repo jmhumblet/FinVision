@@ -22,7 +22,7 @@ In this phase, we'll build the mandatory full-screen modal that captures the sta
 - [x] Task: Implement logic to mark projected transactions as "occurred" based on setup selection. 06a1335
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Initial Setup UI' (Protocol in workflow.md) 06a1335
 
-## Phase 3: Monthly Focus View UI (TDD)
+## Phase 3: Monthly Focus View UI (TDD) [checkpoint: b5f9222]
 
 In this phase, we'll create the dashboard for the Monthly View.
 
