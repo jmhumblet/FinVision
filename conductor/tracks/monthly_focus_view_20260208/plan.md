@@ -35,8 +35,8 @@ In this phase, we'll create the dashboard for the Monthly View.
 
 In this phase, we'll wire everything together and verify the complete flow.
 
-- [ ] Task: Implement navigation logic to respect `defaultView` preference.
-- [ ] Task: Integrate `MonthlySetupModal` into `App.tsx` with conditional rendering.
-- [ ] Task: Add settings option to manually trigger Monthly Setup or change default view.
-- [ ] Task: Write E2E tests in `playwright` for the full monthly setup and dashboard flow.
-- [ ] Task: Conductor - User Manual Verification 'Phase 4: Integration & E2E Verification' (Protocol in workflow.md)
+- [x] Task: Implement navigation logic to respect `defaultView` preference. 06a1335
+- [x] Task: Integrate `MonthlySetupModal` into `App.tsx` with conditional rendering. 06a1335
+- [x] Task: Add settings option to manually trigger Monthly Setup or change default view. 06a1335
+- [x] Task: Write E2E tests in `playwright` for the full monthly setup and dashboard flow. 06a1335
+- [x] Task: Conductor - User Manual Verification 'Phase 4: Integration & E2E Verification' (Protocol in workflow.md) 06a1335

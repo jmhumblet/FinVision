@@ -8,7 +8,9 @@ import {
   TransactionType, 
   Frequency,
   DailyBalance,
-  Scenario
+  Scenario,
+  AppView,
+  MonthlySetup
 } from './types';
 import { geminiService } from './services/geminiService';
 import { 
@@ -20,7 +22,9 @@ import {
   updateRemoteSettings,
   deleteRemoteTransaction,
   deleteRemoteProjection,
-  observeAuth
+  observeAuth,
+  getMonthlySetup,
+  saveMonthlySetup
 } from '@/services/firebaseService';
 import { User } from 'firebase/auth';
 import FinancialChart from './components/FinancialChart';
@@ -30,7 +34,9 @@ import AuthScreen from './components/AuthScreen';
 import QuickActionManager from './components/QuickActionManager';
 import Toast, { ToastMessage } from './components/Toast';
 import ScenarioBuilder from './components/ScenarioBuilder';
-import { generateTimeline, formatCurrency } from './utils/financialUtils';
+import MonthlySetupModal from './components/MonthlySetupModal';
+import MonthlyDashboard from './components/MonthlyDashboard';
+import { generateTimeline, formatCurrency, getMonthKey, calculateMonthlySummary } from './utils/financialUtils';
 import { 
   Wallet, 
   Wand2, 
@@ -39,7 +45,8 @@ import {
   LogOut,
   Loader2,
   Check,
-  Scale
+  Scale,
+  LayoutDashboard
 } from 'lucide-react';
 
 // --- Constants & Seed Data ---
@@ -79,6 +86,9 @@ const App: React.FC = () => {
   
   const [loadedInitialBalance, setLoadedInitialBalance] = useState<number>(0);
   const [projectionDays, setProjectionDays] = useState(180);
+  const [currentView, setCurrentView] = useState<AppView>(AppView.MAIN);
+  const [monthlySetup, setMonthlySetup] = useState<MonthlySetup | null>(null);
+  const [showMonthlySetupModal, setShowMonthlySetupModal] = useState(false);
   const [isCategorizing, setIsCategorizing] = useState(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -98,6 +108,9 @@ const App: React.FC = () => {
             if (data.settings) {
               setLoadedInitialBalance(data.settings.initialBalance || 0);
               setProjectionDays(data.settings.projectionDays || 180);
+              if (data.settings.defaultView) {
+                setCurrentView(data.settings.defaultView);
+              }
             }
             
             if (data.transactions.length > 0) {
@@ -106,6 +119,15 @@ const App: React.FC = () => {
             
             if (data.projections.length > 0) {
               setProjections(data.projections);
+            }
+
+            // Check Monthly Setup
+            const monthKey = getMonthKey();
+            const setup = await getMonthlySetup(u.uid, monthKey);
+            if (setup) {
+              setMonthlySetup(setup);
+            } else {
+              setShowMonthlySetupModal(true);
             }
           } catch (error) {
             console.error("Error loading user data:", error);
@@ -144,6 +166,16 @@ const App: React.FC = () => {
      if (!last) return currentBalance;
      return last.projectedBalance !== null ? last.projectedBalance : (last.historicalBalance || 0);
   }, [timelineData, currentBalance]);
+
+  const monthlySummary = useMemo(() => {
+    if (!monthlySetup) return null;
+    return calculateMonthlySummary(
+      monthlySetup.monthKey,
+      monthlySetup.actualBalance,
+      monthlySetup.clearedProjectionIds,
+      projections
+    );
+  }, [monthlySetup, projections]);
 
   // --- Toast Logic ---
   const addToast = (message: string, type: 'success' | 'error') => {
@@ -368,6 +400,43 @@ const App: React.FC = () => {
     setScenarios(prev => [...prev, s]);
   };
   
+  const handleMonthlySetupSubmit = async (data: { 
+    actualBalance: number; 
+    clearedProjectionIds: string[]; 
+    setDefaultView: boolean 
+  }) => {
+    if (!user) return;
+    
+    const setup: MonthlySetup = {
+      monthKey: getMonthKey(),
+      actualBalance: data.actualBalance,
+      clearedProjectionIds: data.clearedProjectionIds,
+      completedAt: new Date().toISOString()
+    };
+
+    setMonthlySetup(setup);
+    setShowMonthlySetupModal(false);
+
+    if (data.setDefaultView) {
+      setCurrentView(AppView.MONTHLY);
+    }
+
+    // Persist
+    incrementSync();
+    try {
+      await saveMonthlySetup(user.uid, setup);
+      if (data.setDefaultView) {
+        await updateRemoteSettings(user.uid, { defaultView: AppView.MONTHLY });
+      }
+      addToast("Monthly setup saved!", "success");
+    } catch (e) {
+      console.error(e);
+      addToast("Error saving monthly setup.", "error");
+    } finally {
+      decrementSync();
+    }
+  };
+
   const handleUpdateScenario = (updated: Scenario) => {
     setScenarios(prev => prev.map(s => s.id === updated.id ? updated : s));
   };
@@ -482,6 +551,14 @@ const App: React.FC = () => {
         onToast={addToast}
       />
 
+      {showMonthlySetupModal && (
+        <MonthlySetupModal 
+          projections={projections}
+          monthKey={getMonthKey()}
+          onSubmit={handleMonthlySetupSubmit}
+        />
+      )}
+
       {/* Header */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -535,6 +612,14 @@ const App: React.FC = () => {
               <span className="hidden sm:inline">AI Smart Categorize</span>
             </button>
 
+            <button 
+              onClick={() => setCurrentView(currentView === AppView.MAIN ? AppView.MONTHLY : AppView.MAIN)}
+              className="p-2 bg-white border border-slate-200 rounded-xl shadow-sm text-slate-600 hover:bg-slate-50 transition-all active:scale-95"
+              title={currentView === AppView.MAIN ? "Switch to Monthly Focus" : "Switch to Dashboard"}
+            >
+              <LayoutDashboard size={20} />
+            </button>
+
             <div className="h-8 w-[1px] bg-slate-200 mx-1 hidden sm:block"></div>
 
             <div className="flex items-center space-x-3">
@@ -557,91 +642,102 @@ const App: React.FC = () => {
       {/* Main Content */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         
-        {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow relative overflow-hidden">
-             <div className="flex items-center justify-between mb-4">
-                <span className="text-slate-500 text-sm font-semibold">Current Available Balance</span>
-                <span className="bg-emerald-100 text-emerald-700 text-[10px] px-2 py-0.5 rounded-lg font-bold uppercase tracking-wider">Live</span>
-             </div>
-             <div className="flex items-end justify-between">
-                <div>
-                   <div className="text-4xl font-extrabold text-slate-800 tracking-tight">{formatCurrency(currentBalance)}</div>
-                   <div className="text-xs text-emerald-600 mt-2 font-semibold flex items-center">
-                      <TrendingUp size={14} className="mr-1.5" />
-                      Calculated from history
-                   </div>
-                </div>
-                <button 
-                  onClick={handleAlignBalance}
-                  className="flex items-center space-x-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition-colors"
-                >
-                  <Scale size={16} />
-                  <span>Align Balance</span>
-                </button>
-             </div>
-           </div>
-
-           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-             <div className="flex items-center justify-between mb-4">
-                <span className="text-slate-500 text-sm font-semibold">Projected Balance ({projectionDays} days)</span>
-                <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-lg font-bold uppercase tracking-wider">Future</span>
-             </div>
-             <div className={`text-4xl font-extrabold tracking-tight ${projectedFinalBalance >= 0 ? 'text-slate-800' : 'text-red-600'}`}>
-                {formatCurrency(projectedFinalBalance)}
-             </div>
-             <div className="text-xs text-slate-400 mt-2 font-semibold">
-                {projectedFinalBalance < 0 ? (
-                    <span className="flex items-center text-red-500 bg-red-50 px-2 py-1 rounded-lg w-fit">
-                        <AlertCircle size={14} className="mr-1.5" />
-                        Risk: Deficit predicted
-                    </span>
-                ) : (
-                    <span className="text-slate-400">Estimated position at end of period</span>
-                )}
-             </div>
-           </div>
-        </div>
-        
-        {/* Scenario Builder */}
-        <ScenarioBuilder 
-            projections={projections} 
-            scenarios={scenarios}
-            onAddScenario={handleAddScenario}
-            onUpdateScenario={handleUpdateScenario}
-            onDeleteScenario={handleDeleteScenario}
-        />
-
-        {/* Chart Section */}
-        <div className="relative">
-          {isLoadingData && (
-             <div className="absolute inset-0 bg-white/50 backdrop-blur-[2px] z-10 flex items-center justify-center rounded-2xl">
-                <div className="flex flex-col items-center">
-                  <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-2" />
-                  <p className="text-sm font-bold text-slate-600">Loading Cloud Data...</p>
-                </div>
-             </div>
-          )}
-          <FinancialChart data={timelineData} scenarios={scenarios} />
-        </div>
-
-        {/* Dynamic Tables Grid - Stacked Vertically */}
-        <div className="flex flex-col space-y-8">
-          <TransactionTable 
-            transactions={transactions} 
-            categories={categories}
-            onUpdateTransaction={handleUpdateTransaction}
-            onDeleteTransaction={handleDeleteTransaction}
-            onAddTransaction={handleAddTransaction}
+        {currentView === AppView.MONTHLY && monthlySummary ? (
+          <MonthlyDashboard 
+            summary={monthlySummary}
+            monthName={new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
+            onSwitchView={() => setCurrentView(AppView.MAIN)}
+            onOpenSettings={() => setShowMonthlySetupModal(true)}
           />
-          <ProjectionTable
-            projections={projections}
-            categories={categories}
-            onUpdateProjection={handleUpdateProjection}
-            onDeleteProjection={handleDeleteProjection}
-            onAddProjection={handleAddProjection}
-          />
-        </div>
+        ) : (
+          <>
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow relative overflow-hidden">
+                 <div className="flex items-center justify-between mb-4">
+                    <span className="text-slate-500 text-sm font-semibold">Current Available Balance</span>
+                    <span className="bg-emerald-100 text-emerald-700 text-[10px] px-2 py-0.5 rounded-lg font-bold uppercase tracking-wider">Live</span>
+                 </div>
+                 <div className="flex items-end justify-between">
+                    <div>
+                       <div className="text-4xl font-extrabold text-slate-800 tracking-tight">{formatCurrency(currentBalance)}</div>
+                       <div className="text-xs text-emerald-600 mt-2 font-semibold flex items-center">
+                          <TrendingUp size={14} className="mr-1.5" />
+                          Calculated from history
+                       </div>
+                    </div>
+                    <button 
+                      onClick={handleAlignBalance}
+                      className="flex items-center space-x-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      <Scale size={16} />
+                      <span>Align Balance</span>
+                    </button>
+                 </div>
+               </div>
+
+               <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                 <div className="flex items-center justify-between mb-4">
+                    <span className="text-slate-500 text-sm font-semibold">Projected Balance ({projectionDays} days)</span>
+                    <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-lg font-bold uppercase tracking-wider">Future</span>
+                 </div>
+                 <div className={`text-4xl font-extrabold tracking-tight ${projectedFinalBalance >= 0 ? 'text-slate-800' : 'text-red-600'}`}>
+                    {formatCurrency(projectedFinalBalance)}
+                 </div>
+                 <div className="text-xs text-slate-400 mt-2 font-semibold">
+                    {projectedFinalBalance < 0 ? (
+                        <span className="flex items-center text-red-500 bg-red-50 px-2 py-1 rounded-lg w-fit">
+                            <AlertCircle size={14} className="mr-1.5" />
+                            Risk: Deficit predicted
+                        </span>
+                    ) : (
+                        <span className="text-slate-400">Estimated position at end of period</span>
+                    )}
+                 </div>
+               </div>
+            </div>
+            
+            {/* Scenario Builder */}
+            <ScenarioBuilder 
+                projections={projections} 
+                scenarios={scenarios}
+                onAddScenario={handleAddScenario}
+                onUpdateScenario={handleUpdateScenario}
+                onDeleteScenario={handleDeleteScenario}
+            />
+
+            {/* Chart Section */}
+            <div className="relative">
+              {isLoadingData && (
+                 <div className="absolute inset-0 bg-white/50 backdrop-blur-[2px] z-10 flex items-center justify-center rounded-2xl">
+                    <div className="flex flex-col items-center">
+                      <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-2" />
+                      <p className="text-sm font-bold text-slate-600">Loading Cloud Data...</p>
+                    </div>
+                 </div>
+              )}
+              <FinancialChart data={timelineData} scenarios={scenarios} />
+            </div>
+
+            {/* Dynamic Tables Grid - Stacked Vertically */}
+            <div className="flex flex-col space-y-8">
+              <TransactionTable 
+                transactions={transactions} 
+                categories={categories}
+                onUpdateTransaction={handleUpdateTransaction}
+                onDeleteTransaction={handleDeleteTransaction}
+                onAddTransaction={handleAddTransaction}
+              />
+              <ProjectionTable
+                projections={projections}
+                categories={categories}
+                onUpdateProjection={handleUpdateProjection}
+                onDeleteProjection={handleDeleteProjection}
+                onAddProjection={handleAddProjection}
+              />
+            </div>
+          </>
+        )}
       </main>
       
       {/* Footer Info */}
