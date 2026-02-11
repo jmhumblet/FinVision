@@ -31,7 +31,7 @@ In this phase, we'll create the dashboard for the Monthly View.
 - [x] Task: Implement Summary Card (Income vs. Expenses) and Budget Progress Bar. c7660e7
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Monthly Focus View UI' (Protocol in workflow.md) c7660e7
 
-## Phase 4: Integration & E2E Verification
+## Phase 4: Integration & E2E Verification [checkpoint: 7faea72]
 
 In this phase, we'll wire everything together and verify the complete flow.
 
