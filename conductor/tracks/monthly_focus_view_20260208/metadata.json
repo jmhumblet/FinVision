@@ -1,0 +1,8 @@
+{
+  "track_id": "monthly_focus_view_20260208",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-02-08T20:10:00Z",
+  "updated_at": "2026-02-08T20:10:00Z",
+  "description": "feature: add another view focusing on the current month with initial setup modal and spendable hero counter."
+}
