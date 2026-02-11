@@ -12,7 +12,7 @@ In this phase, we'll update the data structures and services to support monthly 
 - [x] Task: Implement logic to detect the "first visit of the month" in `financialUtils.ts`. 5373240
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Foundation & Data Layer' (Protocol in workflow.md) 5373240
 
-## Phase 2: Initial Setup UI (TDD)
+## Phase 2: Initial Setup UI (TDD) [checkpoint: e2b03a4]
 
 In this phase, we'll build the mandatory full-screen modal that captures the starting balance and clears transactions.
 
