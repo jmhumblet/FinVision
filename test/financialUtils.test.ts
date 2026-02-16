@@ -1,8 +1,84 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { formatCurrency, formatDate, generateTimeline } from '../utils/financialUtils';
+import { formatCurrency, formatDate, generateTimeline, getMonthKey, calculateMonthlySummary } from '../utils/financialUtils';
 import { Transaction, Projection, TransactionType, Frequency, AdjustmentType, Scenario } from '../types';
 
 describe('financialUtils', () => {
+  describe('getMonthKey', () => {
+    it('should return YYYY-MM for a given date', () => {
+      expect(getMonthKey(new Date('2026-02-07'))).toBe('2026-02');
+      expect(getMonthKey(new Date('2026-12-25'))).toBe('2026-12');
+    });
+
+    it('should default to today', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-05-10T00:00:00Z'));
+      expect(getMonthKey()).toBe('2026-05');
+      vi.useRealTimers();
+    });
+  });
+
+  describe('calculateMonthlySummary', () => {
+    const projections: Projection[] = [
+      {
+        id: 'p1',
+        name: 'Salary',
+        amount: 3000,
+        frequency: Frequency.MONTHLY,
+        startDate: '2026-02-25',
+        categoryId: 'salary',
+        type: TransactionType.INCOME,
+        isActive: true
+      },
+      {
+        id: 'p2',
+        name: 'Rent',
+        amount: 1000,
+        frequency: Frequency.MONTHLY,
+        startDate: '2026-02-01',
+        categoryId: 'rent',
+        type: TransactionType.EXPENSE,
+        isActive: true
+      },
+      {
+        id: 'p3',
+        name: 'Internet',
+        amount: 50,
+        frequency: Frequency.MONTHLY,
+        startDate: '2026-02-15',
+        categoryId: 'util',
+        type: TransactionType.EXPENSE,
+        isActive: true
+      }
+    ];
+
+    it('should calculate summary correctly with no cleared transactions', () => {
+      const summary = calculateMonthlySummary('2026-02', 1000, [], projections);
+      
+      // Total Income: 3000 (Salary)
+      // Total Expenses: 1000 (Rent) + 50 (Internet) = 1050
+      // Remaining Spendable: 1000 (balance) + 3000 - 1050 = 2950
+      expect(summary.totalProjectedIncome).toBe(3000);
+      expect(summary.totalProjectedExpenses).toBe(1050);
+      expect(summary.remainingSpendable).toBe(2950);
+      expect(summary.spentPercentage).toBe(0);
+    });
+
+    it('should handle cleared transactions', () => {
+      // Clear Rent (occurred on 2026-02-01)
+      const cleared = ['p2_2026-02-01'];
+      const summary = calculateMonthlySummary('2026-02', 0, cleared, projections);
+      
+      // Total Income: 3000
+      // Total Expenses: 1050
+      // Remaining Income: 3000
+      // Remaining Expenses: 50 (Rent is cleared)
+      // Remaining Spendable: 0 (balance) + 3000 - 50 = 2950
+      expect(summary.remainingSpendable).toBe(2950);
+      // Spent %: (1050 - 50) / 1050 * 100 = 1000 / 1050 * 100 approx 95.2%
+      expect(summary.spentPercentage).toBeCloseTo(95.23, 1);
+    });
+  });
+
   describe('formatCurrency', () => {
     it('should format numbers as EUR currency', () => {
       // Use regex because of non-breaking spaces or different space characters in different environments

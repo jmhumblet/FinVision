@@ -1,6 +1,6 @@
 import * as RealService from './firebaseService.impl';
 import * as MockService from './mockFirebaseService.impl';
-import { Transaction, Projection } from '../types';
+import { Transaction, Projection, MonthlySetup } from '../types';
 import { User } from 'firebase/auth';
 
 const useMock = import.meta.env.VITE_USE_MOCK_API === 'true';
@@ -40,4 +40,12 @@ export const updateRemoteProjection = async (uid: string, p: Projection) => {
 
 export const updateRemoteSettings = async (uid: string, settings: any) => {
   return useMock ? MockService.updateRemoteSettings(uid, settings) : RealService.updateRemoteSettings(uid, settings);
+};
+
+export const saveMonthlySetup = async (uid: string, setup: MonthlySetup) => {
+  return useMock ? MockService.saveMonthlySetup(uid, setup) : RealService.saveMonthlySetup(uid, setup);
+};
+
+export const getMonthlySetup = async (uid: string, monthKey: string) => {
+  return useMock ? MockService.getMonthlySetup(uid, monthKey) : RealService.getMonthlySetup(uid, monthKey);
 };

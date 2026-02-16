@@ -1,11 +1,8 @@
-## Track Summary
-<!-- Provide a high-level summary of the track's goals here -->
+## Overview
+<!-- What does this PR do? -->
 
-## Implementation Plan
-See the detailed [Implementation Plan](./tracks/<track_id>/plan.md).
+## Context
+<!-- Link to the spec.md and plan.md or summarize them -->
 
-## Checklist
-- [ ] All automated tests passed (Unit, E2E).
-- [ ] Build and Type-Check passed.
-- [ ] Code style guidelines followed.
-- [ ] Documentation updated.
+## Testing
+<!-- How was this verified? -->

@@ -373,3 +373,19 @@ To ensure the PR is ready for merge, use the following command to monitor checks
 gh pr checks <pr_number> --watch
 ```
 *Wait until all checks are green (passing) before requesting final human review.*
+
+### Automated Archive Protocol
+When a track is ready to be archived (completed via `conductor:archive` or equivalent agent flow):
+
+1. **Push Changes:** Ensure all local commits are pushed to the remote.
+   ```bash
+   git push origin <branch_name>
+   ```
+2. **Create/Update PR:**
+   - If no PR exists, create one using `conductor/pr_template.md`.
+   - If a PR exists, update it with the final status.
+   ```bash
+   # Create
+   gh pr create --title "feat: <Track Description>" --body-file conductor/pr_template.md
+   ```
+3. **Archive Track:** Proceed with moving the track folder to `conductor/archive/` and updating `tracks.md`.

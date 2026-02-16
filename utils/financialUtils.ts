@@ -16,6 +16,140 @@ export const formatDate = (dateStr: string) => {
   });
 };
 
+export const getMonthKey = (date: Date = new Date()): string => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  return `${y}-${m}`;
+};
+
+export interface MonthlySummary {
+  remainingSpendable: number;
+  totalProjectedIncome: number;
+  totalProjectedExpenses: number;
+  spentPercentage: number;
+}
+
+export interface UnreconciledOccurrence {
+  id: string; // projId_dateStr
+  projId: string;
+  name: string;
+  amount: number;
+  dateStr: string;
+  type: TransactionType;
+}
+
+export const getUnreconciledProjections = (
+  startDate: string,
+  endDate: string,
+  projections: Projection[]
+): UnreconciledOccurrence[] => {
+  const start = parseLocalYYYYMMDD(startDate);
+  const end = parseLocalYYYYMMDD(endDate);
+  const list: UnreconciledOccurrence[] = [];
+
+  projections.forEach(proj => {
+    if (!proj.isActive) return;
+    // Iterate day by day from start to end
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const dateStr = `${y}-${m}-${day}`;
+      
+      const val = calculateProjectionValueForDate(proj, d, dateStr);
+      if (val !== 0) {
+        list.push({
+          id: `${proj.id}_${dateStr}`,
+          projId: proj.id,
+          name: proj.name,
+          amount: Math.abs(val),
+          dateStr,
+          type: proj.type
+        });
+      }
+    }
+  });
+  return list.sort((a, b) => a.dateStr.localeCompare(b.dateStr));
+};
+
+export const calculateMonthlySummary = (
+  monthKey: string,
+  actualBalance: number,
+  clearedProjectionIds: string[],
+  projections: Projection[]
+): MonthlySummary => {
+  const [year, month] = monthKey.split('-').map(Number);
+  const startOfMonth = new Date(year, month - 1, 1);
+  const endOfMonth = new Date(year, month, 0);
+  
+  let remainingIncome = 0;
+  let remainingExpenses = 0;
+  let totalMonthIncome = 0;
+  let totalMonthExpenses = 0;
+
+  projections.forEach(proj => {
+    if (!proj.isActive) return;
+
+    // Calculate all occurrences in this month
+    for (let d = new Date(startOfMonth); d <= endOfMonth; d.setDate(d.getDate() + 1)) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const dateStr = `${y}-${m}-${day}`;
+      
+      const val = calculateProjectionValueForDate(proj, d, dateStr);
+      
+      if (val !== 0) {
+        const absVal = Math.abs(val);
+        if (val > 0) {
+          totalMonthIncome += absVal;
+        } else {
+          totalMonthExpenses += absVal;
+        }
+
+        // If not cleared, it's "remaining"
+        if (!clearedProjectionIds.includes(`${proj.id}_${dateStr}`)) {
+          if (val > 0) {
+            remainingIncome += absVal;
+          } else {
+            remainingExpenses += absVal;
+          }
+        }
+      }
+    }
+  });
+
+  const remainingSpendable = actualBalance + remainingIncome - remainingExpenses;
+  
+  // Progress bar logic: how much of our expected total expenses have we "cleared" or still have?
+  // Actually, usually progress is spent/budget.
+  // Let's say: (TotalExpenses - RemainingExpenses) / TotalExpenses
+  const spent = totalMonthExpenses - remainingExpenses;
+  const spentPercentage = totalMonthExpenses > 0 ? (spent / totalMonthExpenses) * 100 : 0;
+
+  return {
+    remainingSpendable,
+    totalProjectedIncome: totalMonthIncome,
+    totalProjectedExpenses: totalMonthExpenses,
+    spentPercentage
+  };
+};
+
+export const createReconciliationTransaction = (
+  amount: number,
+  date: string,
+  description: string = 'Balance Correction'
+): Partial<Transaction> => {
+  return {
+    description,
+    amount: Math.abs(amount),
+    date,
+    categoryId: '8', // 'Other'
+    type: amount >= 0 ? TransactionType.INCOME : TransactionType.EXPENSE,
+    skipAutoCategorization: true
+  };
+};
+
 // Helper to parse YYYY-MM-DD string to a Local Date object at 00:00:00
 const parseLocalYYYYMMDD = (dateStr: string): Date => {
   const [year, month, day] = dateStr.split('-').map(Number);
@@ -196,7 +330,7 @@ export const generateTimeline = (
   return timeline;
 };
 
-const calculateProjectionValueForDate = (proj: Projection, d: Date, dateStr: string): number => {
+export const calculateProjectionValueForDate = (proj: Projection, d: Date, dateStr: string): number => {
     const projStart = parseLocalYYYYMMDD(proj.startDate);
     const projEnd = proj.endDate ? parseLocalYYYYMMDD(proj.endDate) : null;
 

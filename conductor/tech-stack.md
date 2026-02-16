@@ -15,6 +15,7 @@
 - **Database**: Firebase Firestore (Lite)
 - **Authentication**: Firebase Auth (Google Authentication & Guest Mode)
 - **Real-time**: Real-time synchronization across devices.
+- **Persistence**: Monthly reconciliation checkpoints and user preferences for view defaults.
 
 ## Testing
 - **Unit & Integration**: Vitest, React Testing Library
@@ -25,4 +26,4 @@
 ## Build & Infrastructure
 - **Build Tool**: Vite (6.2.0)
 - **Deployment**: Configured for modern ES6 module environments.
-- **Git Flow**: GitHub CLI (`gh`) for PR automation.
+- **Git Flow**: Automated PR creation and Git Push on track archive via GitHub CLI (`gh`).

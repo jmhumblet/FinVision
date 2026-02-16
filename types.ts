@@ -82,6 +82,26 @@ export interface MonthlyCheckpoint {
   endBalance: number;
 }
 
+// --- User Settings & Setup Types ---
+
+export enum AppView {
+  MAIN = 'MAIN',
+  MONTHLY = 'MONTHLY'
+}
+
+export interface UserPreferences {
+  defaultView: AppView;
+  projectionDays: number;
+  lastReconciledDate?: string; // ISO Date string
+}
+
+export interface MonthlySetup {
+  monthKey: string; // YYYY-MM
+  actualBalance: number;
+  clearedProjectionIds: string[];
+  completedAt: string; // ISO Date
+}
+
 // --- Quick Action / Chat Types ---
 
 export interface ChatMessage {
