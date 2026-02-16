@@ -1,34 +1,26 @@
-# Implementation Plan: GitHub-Native Git Flow Integration
+# Implementation Plan: Automated PR & Push on Archive
 
-## Phase 1: Workflow Audit & CI Hardening
-Verify the existing GitHub Actions workflow and ensure it covers all required quality gates.
+This plan outlines the steps to integrate Git Push and PR automation into the Conductor archive workflow.
 
-- [x] Task: Audit `.github/workflows/ci.yml`
-    - [x] Check for `npm run build` step.
-    - [x] Check for `npm run lint` step.
-    - [x] Check for `npm run type-check` (or `tsc`) step.
-- [x] Task: Implement missing CI steps
-    - [x] Update `.github/workflows/ci.yml` to include any missing checks identified in the audit.
-    - [x] Verify the workflow triggers on `pull_request` to `master`/`main`.
-- [x] Task: Conductor - User Manual Verification 'Phase 1: Workflow Audit & CI Hardening' (Protocol in workflow.md) [checkpoint: 5fdd977]
+## Phase 1: Preparation & Templates [checkpoint: fbce943]
 
-## Phase 2: Git Flow Automation & PR Creation
-Implement the logic and documentation for the standardized branch and PR flow.
+- [x] Task: Create `conductor/pr_template.md` with the standard sections (Overview, Context, Testing). [checkpoint: templates]
+- [x] Task: Update `conductor/workflow.md` to document the new Archive Protocol. [checkpoint: templates]
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Preparation & Templates' (Protocol in workflow.md) [checkpoint: templates]
 
-- [x] Task: Document Git Flow in Workflow
-    - [x] Update `conductor/workflow.md` to formally define the `conductor/feat/<track-id>` branch naming and `gh pr create` usage.
-- [x] Task: Implement PR Template/Helper
-    - [x] Create a reusable PR description template that includes track metadata and links to `plan.md`.
-- [x] Task: Verify GitHub CLI Integration
-    - [x] Ensure `gh` is authenticated and functional in the environment.
-    - [x] Test `gh pr create --draft` to verify the automated PR flow.
-- [x] Task: Conductor - User Manual Verification 'Phase 2: Git Flow Automation & PR Creation' (Protocol in workflow.md)
+## Phase 2: Workflow Automation (Agent Instructions) [checkpoint: b83b5d7]
 
-## Phase 3: Status Monitoring & Finalization
-Implement the follow-up logic to ensure PRs are green.
+Since Conductor is agent-driven, we update the "System Directive" / "Workflow" instructions that the agent follows.
 
-- [x] Task: Implement CI Monitoring Pattern
-    - [x] Define the process for checking `gh pr checks` status.
-- [x] Task: Final Verification
-    - [x] Run a dummy track to verify: Branch creation -> Commit -> PR Creation -> CI Status Check.
-- [x] Task: Conductor - User Manual Verification 'Phase 3: Status Monitoring & Finalization' (Protocol in workflow.md) [checkpoint: 40ff91a]
+- [x] Task: Update `GEMINI.md` (or the equivalent system prompt file if accessible, otherwise `conductor/workflow.md` serves as the source of truth) to include the "Pre-Archive Actions" step. [checkpoint: workflow automation]
+- [x] Task: Create a shell script or helper function `scripts/create_pr.sh` (or `ps1`) that encapsulates the `gh` logic? [checkpoint: workflow automation]
+- [x] Task: Update the "TRACK CLEANUP" section in `conductor/workflow.md` to explicitly list the `git push` and `gh pr create` steps before the "Move Item" step. [checkpoint: workflow automation]
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Workflow Automation' (Protocol in workflow.md) [checkpoint: workflow automation]
+
+## Phase 3: Verification [checkpoint: 193643a]
+
+- [x] Task: Test the new flow by "archiving" this very track (`git_flow_20260208`). [checkpoint: verification]
+- [x] Task: Verify that the code is pushed. [checkpoint: verification]
+- [x] Task: Verify that a PR is created for this track. [checkpoint: verification]
+- [x] Task: Verify that the track is then moved to archive. [checkpoint: verification]
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Verification' (Protocol in workflow.md) [checkpoint: verification]

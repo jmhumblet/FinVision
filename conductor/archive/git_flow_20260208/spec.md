@@ -1,29 +1,39 @@
-# Specification - GitHub-Native Git Flow Integration
+# Specification: Automated PR & Push on Archive
 
 ## Overview
-Implement a state-of-the-art Git flow for the FinVision repository that leverages GitHub's native capabilities. All development work performed by Conductor will occur on dedicated feature branches, culminating in a Pull Request (PR) where automated CI checks (build, lint, type-check, tests) are executed before merging.
+This feature enhances the Conductor `archive` workflow. Currently, archiving a track simply moves files and updates the registry. This feature ensures that before a track is archived, its code is pushed to the remote repository and a Pull Request (PR) is automatically created or updated. This enforces a "Code Review Ready" state before a track is considered "Done" and filed away.
 
 ## Functional Requirements
-- **Branch Management**: 
-    - Automatically create a new branch for every track.
-    - Branch naming convention: `conductor/feat/<track-id>` (or `conductor/fix/`, etc.).
-- **CI/CD Integration**:
-    - **Workflow Audit**: Review `.github/workflows/ci.yml` to ensure it includes all required checks (Build, Lint, Type-check, Unit, E2E) and is compatible with the new branching strategy.
-    - **CI Verification**: After opening a PR, Conductor must monitor and report the CI status, ensuring all checks are green.
-- **PR Automation**:
-    - Use GitHub CLI (`gh`) to automate the creation of Pull Requests once a track is ready for review.
-    - PR descriptions must include a high-level summary of the track's goals and a relative link to the track's `plan.md`.
+
+### 1. Enhanced Archive Protocol
+- **Trigger**: The existing `conductor:archive` command or workflow step.
+- **Pre-Archive Actions**:
+    1.  **Git Push**: Automatically push the current local branch to the remote `origin`.
+    2.  **PR Creation/Update**:
+        - Check if a PR already exists for the current branch.
+        - **If No PR**: Create a new PR using the GitHub CLI (`gh`).
+        - **If Existing PR**: Update the title and body of the existing PR.
+- **Post-Archive Actions**:
+    - Once the PR step is successful, proceed with the standard archive operations (move folder, update `tracks.md`, commit).
+
+### 2. PR Content Standard
+- **Title**: Format as `feat: <Track Description>` or `fix: <Track Description>` based on track type.
+- **Body Template**: Use a standard markdown template with sections:
+    - **Overview**: What does this PR do?
+    - **Context**: Link to the `spec.md` and `plan.md` (which are about to be archived, so maybe link to the commit or just summarize). *Refinement: Since files are moving, links might break. We will embed the summary.*
+    - **Testing**: How was this verified?
+
+### 3. Error Handling
+- If `git push` fails, abort the archive process and report the error.
+- If `gh pr create` fails, abort the archive process and report the error.
 
 ## Non-Functional Requirements
-- **Reliability**: Ensure branch creation and PR submission are robust and handle potential Git/network errors gracefully.
-- **Traceability**: Maintain a clear link between the Conductor track artifacts and the GitHub PR/branch.
+- **Tooling**: Use `gh` (GitHub CLI) for PR operations.
+- **Idempotency**: Running the command multiple times should be safe (updates existing PR instead of creating duplicates).
 
 ## Acceptance Criteria
-- [ ] Conductor can initialize a track by creating a correctly named branch.
-- [ ] Conductor can successfully push changes and open a PR via `gh pr create`.
-- [ ] The existing GitHub Actions CI suite is verified to cover build, lint, and type-checking in addition to tests.
-- [ ] The PR body contains the required summary and links.
-- [ ] Conductor can successfully check and report the 'Green' status of a PR.
-
-## Out of Scope
-- Automated merging of PRs (manual review/merge is still required for final quality assurance).
+- [ ] Running the archive command pushes the current branch.
+- [ ] A PR is created if none exists.
+- [ ] An existing PR is updated if it exists.
+- [ ] The PR body follows the defined template.
+- [ ] The track is only moved to `conductor/archive/` IF the Push and PR steps succeed.
