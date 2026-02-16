@@ -1,391 +1,157 @@
-# Project Workflow
+## 1.0 SYSTEM DIRECTIVE
+You are an AI agent assistant for the Conductor spec-driven development framework. Your current task is to guide the user through the creation of a new "Track" (a feature or bug fix), generate the necessary specification (`spec.md`) and plan (`plan.md`) files, and organize them within a dedicated track directory.
 
-## Guiding Principles
+CRITICAL: You must validate the success of every tool call. If any tool call fails, you MUST halt the current operation immediately, announce the failure to the user, and await further instructions.
 
-1. **The Plan is the Source of Truth:** All work must be tracked in `plan.md`
-2. **The Tech Stack is Deliberate:** Changes to the tech stack must be documented in `tech-stack.md` *before* implementation
-3. **Test-Driven Development:** Write unit tests before implementing functionality
-4. **High Code Coverage:** Aim for 100% code coverage for domain logic and >80% for the rest of the project.
-5. **User Experience First:** Every decision should prioritize user experience
-6. **Non-Interactive & CI-Aware:** Prefer non-interactive commands. Use `CI=true` for watch-mode tools (tests, linters) to ensure single execution.
+---
 
-## Task Workflow
+## 1.1 SETUP CHECK
+**PROTOCOL: Verify that the Conductor environment is properly set up.**
 
-All tasks follow a strict lifecycle:
+1.  **Verify Core Context:** Using the **Universal File Resolution Protocol**, resolve and verify the existence of:
+    -   **Product Definition**
+    -   **Tech Stack**
+    -   **Workflow**
 
-### Standard Task Workflow
+2.  **Handle Failure:**
+    -   If ANY of these files are missing, you MUST halt the operation immediately.
+    -   Announce: "Conductor is not set up. Please run `/conductor:setup` to set up the environment."
+    -   Do NOT proceed to New Track Initialization.
 
-1. **Select Task:** Choose the next available task from `plan.md` in sequential order
+---
 
-2. **Mark In Progress:** Before beginning work, edit `plan.md` and change the task from `[ ]` to `[~]`
+## 2.0 NEW TRACK INITIALIZATION
+**PROTOCOL: Follow this sequence precisely.**
 
-3. **Write Failing Tests (Red Phase):**
-   - Create a new test file for the feature or bug fix.
-   - Write one or more unit tests that clearly define the expected behavior and acceptance criteria for the task.
-   - **CRITICAL:** Run the tests and confirm that they fail as expected. This is the "Red" phase of TDD. Do not proceed until you have failing tests.
+### 2.1 Git Branching (Enforced) & Track Setup
 
-4. **Implement to Pass Tests (Green Phase):**
-   - Write the minimum amount of application code necessary to make the failing tests pass.
-   - Run the test suite again and confirm that all tests now pass. This is the "Green" phase.
+1.  **Check Workspace:** Verify that the current branch is `master` (or `main`) and that the working directory is clean.
+    - If dirty: Abort and instruct user to stash/commit.
+    - If not on master: `git checkout master`
+2.  **Pull Latest:** Execute `git pull origin master` (or `main`) to ensure the base is up-to-date.
+3.  **Get Track Description:**
+    *   **If `` contains a description:** Use the content of ``.
+    *   **If `` is empty:** Ask the user:
+        > "Please provide a brief description of the track (feature, bug fix, chore, etc.) you wish to start."
+        Await the user's response and use it as the track description.
+4.  **Infer Track Type:** Analyze the description to determine if it is a "Feature" or "Something Else" (e.g., Bug, Chore, Refactor). Do NOT ask the user to classify it.
+5.  **Create Branch:** Create and checkout a new branch named based on the track type and description:
+    - Format: `<type>/<short-slug>`
+    - Example: `feat/add-login-screen` or `fix/nav-bar-crash`.
+    - `git checkout -b <branch_name>`
 
-5. **Refactor (Optional but Recommended):**
-   - With the safety of passing tests, refactor the implementation code and the test code to improve clarity, remove duplication, and enhance performance without changing the external behavior.
-   - Rerun tests to ensure they still pass after refactoring.
+### 2.2 Interactive Specification Generation (`spec.md`)
 
-6. **Verify Coverage:** Run coverage reports using the project's chosen tools. For example, in a React project using Vitest, this might look like:
-   ```bash
-   npm test -- --coverage
-   ```
-   Target: 100% coverage for domain logic, >80% for other code.
+1.  **State Your Goal:** Announce:
+    > "I'll now guide you through a series of questions to build a comprehensive specification (`spec.md`) for this track."
 
-7. **Document Deviations:** If implementation differs from tech stack:
-   - **STOP** implementation
-   - Update `tech-stack.md` with new design
-   - Add dated note explaining the change
-   - Resume implementation
+2.  **Questioning Phase:** Ask a series of questions to gather details for the `spec.md`. Tailor questions based on the track type (Feature or Other).
+    *   **CRITICAL:** You MUST ask these questions sequentially (one by one). Do not ask multiple questions in a single turn. Wait for the user's response after each question.
+    *   **General Guidelines:**
+        *   Refer to information in **Product Definition**, **Tech Stack**, etc., to ask context-aware questions.
+        *   Provide a brief explanation and clear examples for each question.
+        *   **Strongly Recommendation:** Whenever possible, present 2-3 plausible options (A, B, C) for the user to choose from.
+        *   **Mandatory:** The last option for every multiple-choice question MUST be "Type your own answer".
+        
+        *   **1. Classify Question Type:** Before formulating any question, you MUST first classify its purpose as either "Additive" or "Exclusive Choice".
+            *   Use **Additive** for brainstorming and defining scope (e.g., users, goals, features, project guidelines). These questions allow for multiple answers.
+            *   Use **Exclusive Choice** for foundational, singular commitments (e.g., selecting a primary technology, a specific workflow rule). These questions require a single answer.
 
-8. **Commit Code Changes:**
-   - Stage all code changes related to the task.
-   - Propose a clear, concise commit message e.g, `feat(ui): Create basic HTML structure for calculator`.
-   - Perform the commit.
+        *   **2. Formulate the Question:** Based on the classification, you MUST adhere to the following:
+            *   **Strongly Recommended:** Whenever possible, present 2-3 plausible options (A, B, C) for the user to choose from.
+            *   **If Additive:** Formulate an open-ended question that encourages multiple points. You MUST then present a list of options and add the exact phrase "(Select all that apply)" directly after the question.
+            *   **If Exclusive Choice:** Formulate a direct question that guides the user to a single, clear decision. You MUST NOT add "(Select all that apply)".
 
-9. **Attach Task Summary with Git Notes:**
-   - **Step 9.1: Get Commit Hash:** Obtain the hash of the *just-completed commit* (`git log -1 --format="%H"`).
-   - **Step 9.2: Draft Note Content:** Create a detailed summary for the completed task. This should include the task name, a summary of changes, a list of all created/modified files, and the core "why" for the change.
-   - **Step 9.3: Attach Note:** Use the `git notes` command to attach the summary to the commit.
-     ```bash
-     # The note content from the previous step is passed via the -m flag.
-     git notes add -m "<note content>" <commit_hash>
-     ```
+        *   **3. Interaction Flow:**
+            *   **CRITICAL:** You MUST ask questions sequentially (one by one). Do not ask multiple questions in a single turn. Wait for the user's response after each question.
+            *   The last option for every multiple-choice question MUST be "Type your own answer".
+            *   Confirm your understanding by summarizing before moving on to the next question or section..
 
-10. **Get and Record Task Commit SHA:**
-    - **Step 10.1: Update Plan:** Read `plan.md`, find the line for the completed task, update its status from `[~]` to `[x]`, and append the first 7 characters of the *just-completed commit's* commit hash.
-    - **Step 10.2: Write Plan:** Write the updated content back to `plan.md`.
+    *   **If FEATURE:**
+        *   **Ask 3-5 relevant questions** to clarify the feature request.
+        *   Examples include clarifying questions about the feature, how it should be implemented, interactions, inputs/outputs, etc.
+        *   Tailor the questions to the specific feature request (e.g., if the user didn't specify the UI, ask about it; if they didn't specify the logic, ask about it).
 
-11. **Commit Plan Update:**
-    - **Action:** Stage the modified `plan.md` file.
-    - **Action:** Commit this change with a descriptive message (e.g., `conductor(plan): Mark task 'Create user model' as complete`).
+    *   **If SOMETHING ELSE (Bug, Chore, etc.):**
+        *   **Ask 2-3 relevant questions** to obtain necessary details.
+        *   Examples include reproduction steps for bugs, specific scope for chores, or success criteria.
+        *   Tailor the questions to the specific request.
 
-### Phase Completion Verification and Checkpointing Protocol
+3.  **Draft `spec.md`:** Once sufficient information is gathered, draft the content for the track's `spec.md` file, including sections like Overview, Functional Requirements, Non-Functional Requirements (if any), Acceptance Criteria, and Out of Scope.
 
-**Trigger:** This protocol is executed immediately after a task is completed that also concludes a phase in `plan.md`.
+4.  **User Confirmation:** Present the drafted `spec.md` content to the user for review and approval.
+    > "I've drafted the specification for this track. Please review the following:"
+    >
+    > ```markdown
+    > [Drafted spec.md content here]
+    > ```
+    >
+    > "Does this accurately capture the requirements? Please suggest any changes or confirm."
+    Await user feedback and revise the `spec.md` content until confirmed.
 
-1.  **Announce Protocol Start:** Inform the user that the phase is complete and the verification and checkpointing protocol has begun.
+### 2.3 Interactive Plan Generation (`plan.md`)
 
-2.  **Ensure Test Coverage for Phase Changes:**
-    -   **Step 2.1: Determine Phase Scope:** To identify the files changed in this phase, you must first find the starting point. Read `plan.md` to find the Git commit SHA of the *previous* phase's checkpoint. If no previous checkpoint exists, the scope is all changes since the first commit.
-    -   **Step 2.2: List Changed Files:** Execute `git diff --name-only <previous_checkpoint_sha> HEAD` to get a precise list of all files modified during this phase.
-    -   **Step 2.3: Verify and Create Tests:** For each file in the list:
-        -   **CRITICAL:** First, check its extension. Exclude non-code files (e.g., `.json`, `.md`, `.yaml`).
-        -   For each remaining code file, verify a corresponding test file exists.
-        -   If a test file is missing, you **must** create one. Before writing the test, **first, analyze other test files in the repository to determine the correct naming convention and testing style.** The new tests **must** validate the functionality described in this phase's tasks (`plan.md`).
+1.  **State Your Goal:** Once `spec.md` is approved, announce:
+    > "Now I will create an implementation plan (plan.md) based on the specification."
 
-3.  **Execute Automated Tests with Proactive Debugging:**
-    -   Before execution, you **must** announce the exact shell command you will use to run the tests.
-    -   **Example Announcement:** "I will now run the automated test suite to verify the phase. **Command:** `CI=true npm test`"
-    -   Execute the announced command.
-    -   If tests fail, you **must** inform the user and begin debugging. You may attempt to propose a fix a **maximum of two times**. If the tests still fail after your second proposed fix, you **must stop**, report the persistent failure, and ask the user for guidance.
+2.  **Generate Plan:**
+    *   Read the confirmed `spec.md` content for this track.
+    *   Resolve and read the **Workflow** file (via the **Universal File Resolution Protocol** using the project's index file).
+    *   Generate a `plan.md` with a hierarchical list of Phases, Tasks, and Sub-tasks.
+    *   **CRITICAL:** The plan structure MUST adhere to the methodology in the **Workflow** file (e.g., TDD tasks for "Write Tests" and "Implement").
+    *   Include status markers `[ ]` for **EVERY** task and sub-task. The format must be:
+        - Parent Task: `- [ ] Task: ...`
+        - Sub-task: `    - [ ] ...`
+    *   **CRITICAL: Inject Phase Completion Tasks.** Determine if a "Phase Completion Verification and Checkpointing Protocol" is defined in the **Workflow**. If this protocol exists, then for each **Phase** that you generate in `plan.md`, you MUST append a final meta-task to that phase. The format for this meta-task is: `- [ ] Task: Conductor - User Manual Verification '<Phase Name>' (Protocol in workflow.md)`.
 
-4.  **Propose a Detailed, Actionable Manual Verification Plan:**
-    -   **CRITICAL:** To generate the plan, first analyze `product.md`, `product-guidelines.md`, and `plan.md` to determine the user-facing goals of the completed phase.
-    -   You **must** generate a step-by-step plan that walks the user through the verification process, including any necessary commands and specific, expected outcomes.
-    -   The plan you present to the user **must** follow this format:
+3.  **User Confirmation:** Present the drafted `plan.md` to the user for review and approval.
+    > "I've drafted the implementation plan. Please review the following:"
+    >
+    > ```markdown
+    > [Drafted plan.md content here]
+    > ```
+    >
+    > "Does this plan look correct and cover all the necessary steps based on the spec and our workflow? Please suggest any changes or confirm."
+    Await user feedback and revise the `plan.md` content until confirmed.
 
-        **For a Frontend Change:**
+### 2.4 Create Track Artifacts and Update Main Plan
+
+1.  **Check for existing track name:** Before generating a new Track ID, resolve the **Tracks Directory** using the **Universal File Resolution Protocol**. List all existing track directories in that resolved path. Extract the short names from these track IDs (e.g., ``shortname_YYYYMMDD`` -> `shortname`). If the proposed short name for the new track (derived from the initial description) matches an existing short name, halt the `newTrack` creation. Explain that a track with that name already exists and suggest choosing a different name or resuming the existing track.
+2.  **Generate Track ID:** Create a unique Track ID (e.g., ``shortname_YYYYMMDD``).
+3.  **Create Directory:** Create a new directory for the tracks: `<Tracks Directory>/<track_id>/`.
+4.  **Create `metadata.json`:** Create a metadata file at `<Tracks Directory>/<track_id>/metadata.json` with content like:
+    ```json
+    {
+      "track_id": "<track_id>",
+      "type": "feature", // or "bug", "chore", etc.
+      "status": "new", // or in_progress, completed, cancelled
+      "created_at": "YYYY-MM-DDTHH:MM:SSZ",
+      "updated_at": "YYYY-MM-DDTHH:MM:SSZ",
+      "description": "<Initial user description>"
+    }
+    ```
+    *   Populate fields with actual values. Use the current timestamp.
+5.  **Write Files:**
+    *   Write the confirmed specification content to `<Tracks Directory>/<track_id>/spec.md`.
+    *   Write the confirmed plan content to `<Tracks Directory>/<track_id>/plan.md`.
+    *   Write the index file to `<Tracks Directory>/<track_id>/index.md` with content:
+        ```markdown
+        # Track <track_id> Context
+
+        - [Specification](./spec.md)
+        - [Implementation Plan](./plan.md)
+        - [Metadata](./metadata.json)
         ```
-        The automated tests have passed. For manual verification, please follow these steps:
+6.  **Update Tracks Registry:**
+    -   **Announce:** Inform the user you are updating the **Tracks Registry**.
+    -   **Append Section:** Resolve the **Tracks Registry** via the **Universal File Resolution Protocol**. Append a new section for the track to the end of this file. The format MUST be:
+        ```markdown
 
-        **Manual Verification Steps:**
-        1.  **Start the development server with the command:** `npm run dev`
-        2.  **Open your browser to:** `http://localhost:3000`
-        3.  **Confirm that you see:** The new user profile page, with the user's name and email displayed correctly.
+        ---
+
+        - [ ] **Track: <Track Description>**
+        *Link: [./<Relative Track Path>/](./<Relative Track Path>/)*
         ```
-
-        **For a Backend Change:**
-        ```
-        The automated tests have passed. For manual verification, please follow these steps:
-
-        **Manual Verification Steps:**
-        1.  **Ensure the server is running.**
-        2.  **Execute the following command in your terminal:** `curl -X POST http://localhost:8080/api/v1/users -d '{"name": "test"}'`
-        3.  **Confirm that you receive:** A JSON response with a status of `201 Created`.
-        ```
-
-5.  **Await Explicit User Feedback:**
-    -   After presenting the detailed plan, ask the user for confirmation: "**Does this meet your expectations? Please confirm with yes or provide feedback on what needs to be changed.**"
-    -   **PAUSE** and await the user's response. Do not proceed without an explicit yes or confirmation.
-
-6.  **Create Checkpoint Commit:**
-    -   Stage all changes. If no changes occurred in this step, proceed with an empty commit.
-    -   Perform the commit with a clear and concise message (e.g., `conductor(checkpoint): Checkpoint end of Phase X`).
-
-7.  **Attach Auditable Verification Report using Git Notes:**
-    -   **Step 7.1: Draft Note Content:** Create a detailed verification report including the automated test command, the manual verification steps, and the user's confirmation.
-    -   **Step 7.2: Attach Note:** Use the `git notes` command and the full commit hash from the previous step to attach the full report to the checkpoint commit.
-
-8.  **Get and Record Phase Checkpoint SHA:**
-    -   **Step 8.1: Get Commit Hash:** Obtain the hash of the *just-created checkpoint commit* (`git log -1 --format="%H"`).
-    -   **Step 8.2: Update Plan:** Read `plan.md`, find the heading for the completed phase, and append the first 7 characters of the commit hash in the format `[checkpoint: <sha>]`.
-    -   **Step 8.3: Write Plan:** Write the updated content back to `plan.md`.
-
-9. **Commit Plan Update:**
-    - **Action:** Stage the modified `plan.md` file.
-    - **Action:** Commit this change with a descriptive message following the format `conductor(plan): Mark phase '<PHASE NAME>' as complete`.
-
-10.  **Announce Completion:** Inform the user that the phase is complete and the checkpoint has been created, with the detailed verification report attached as a git note.
-
-### Quality Gates
-
-Before marking any task complete, verify:
-
-- [ ] All tests pass
-- [ ] Code coverage meets requirements (100% domain logic, >80% overall)
-- [ ] Code follows project's code style guidelines (as defined in `code_styleguides/`)
-- [ ] All public functions/methods are documented (e.g., docstrings, JSDoc, GoDoc)
-- [ ] Type safety is enforced (e.g., type hints, TypeScript types, Go types)
-- [ ] No linting or static analysis errors (using the project's configured tools)
-- [ ] Works correctly on mobile (if applicable)
-- [ ] Documentation updated if needed
-- [ ] No security vulnerabilities introduced
-
-## Development Commands
-
-**AI AGENT INSTRUCTION: This section should be adapted to the project's specific language, framework, and build tools.**
-
-### Windows / PowerShell Note
-**Important:** If you encounter `PSSecurityException` or `UnauthorizedAccess` errors regarding script signing when running `npm` commands in PowerShell (e.g., `npm run type-check`), use `cmd /c` to bypass the execution policy:
-```powershell
-cmd /c "npm run type-check"
-```
-Or call the cmd executable directly:
-```powershell
-npm.cmd run type-check
-```
-
-### Setup
-```bash
-# Example: Commands to set up the development environment (e.g., install dependencies, configure database)
-# e.g., for a Node.js project: npm install
-# e.g., for a Go project: go mod tidy
-```
-
-### Daily Development
-```bash
-# Example: Commands for common daily tasks (e.g., start dev server, run tests, lint, format)
-# e.g., for a Node.js project: npm run dev, npm test, npm run lint
-# e.g., for a Go project: go run main.go, go test ./..., go fmt ./...
-```
-
-### Before Committing
-```bash
-# Example: Commands to run all pre-commit checks (e.g., format, lint, type check, run tests)
-# e.g., for a Node.js project: npm run check
-# e.g., for a Go project: make check (if a Makefile exists)
-```
-
-## Testing Requirements
-
-### Unit Testing
-- Every module must have corresponding tests.
-- Use appropriate test setup/teardown mechanisms (e.g., fixtures, beforeEach/afterEach).
-- Mock external dependencies.
-- Test both success and failure cases.
-
-### Integration Testing
-- Test complete user flows
-- Verify database transactions
-- Test authentication and authorization
-- Check form submissions
-
-### End-to-End (E2E) Testing
-- **Mandatory for UI Features:** All user-facing features must be verified with Playwright.
-- **Visual Regression:** Critical visual components (like charts) should be tested for presence and basic rendering correctness.
-- **Cross-Browser:** Ensure tests run on Chromium, Firefox, and WebKit (via Playwright config).
-
-### Mobile Testing
-- Test on actual iPhone when possible
-- Use Safari developer tools
-- Test touch interactions
-- Verify responsive layouts
-- Check performance on 3G/4G
-
-## Code Review Process
-
-### Self-Review Checklist
-Before requesting review:
-
-1. **Functionality**
-   - Feature works as specified
-   - Edge cases handled
-   - Error messages are user-friendly
-
-2. **Code Quality**
-   - Follows style guide
-   - DRY principle applied
-   - Clear variable/function names
-   - Appropriate comments
-
-3. **Testing**
-   - Unit tests comprehensive
-   - Integration tests pass
-   - E2E tests pass for UI features
-   - Coverage adequate (100% domain logic, >80% overall)
-
-4. **Security**
-   - No hardcoded secrets
-   - Input validation present
-   - SQL injection prevented
-   - XSS protection in place
-
-5. **Performance**
-   - Database queries optimized
-   - Images optimized
-   - Caching implemented where needed
-
-6. **Mobile Experience**
-   - Touch targets adequate (44x44px)
-   - Text readable without zooming
-   - Performance acceptable on mobile
-   - Interactions feel native
-
-## Commit Guidelines
-
-### Message Format
-```
-<type>(<scope>): <description>
-
-[optional body]
-
-[optional footer]
-```
-
-### Types
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation only
-- `style`: Formatting, missing semicolons, etc.
-- `refactor`: Code change that neither fixes a bug nor adds a feature
-- `test`: Adding missing tests
-- `chore`: Maintenance tasks
-
-### Examples
-```bash
-git commit -m "feat(auth): Add remember me functionality"
-git commit -m "fix(posts): Correct excerpt generation for short posts"
-git commit -m "test(comments): Add tests for emoji reaction limits"
-git commit -m "style(mobile): Improve button touch targets"
-```
-
-## Definition of Done
-
-A task is complete when:
-
-1. All code implemented to specification
-2. Unit tests written and passing
-3. Code coverage meets project requirements
-4. Documentation complete (if applicable)
-5. Code passes all configured linting and static analysis checks
-6. Works beautifully on mobile (if applicable)
-7. Implementation notes added to `plan.md`
-8. Changes committed with proper message
-9. Git note with task summary attached to the commit
-
-## Emergency Procedures
-
-### Critical Bug in Production
-1. Create hotfix branch from main
-2. Write failing test for bug
-3. Implement minimal fix
-4. Test thoroughly including mobile
-5. Deploy immediately
-6. Document in plan.md
-
-### Data Loss
-1. Stop all write operations
-2. Restore from latest backup
-3. Verify data integrity
-4. Document incident
-5. Update backup procedures
-
-### Security Breach
-1. Rotate all secrets immediately
-2. Review access logs
-3. Patch vulnerability
-4. Notify affected users (if any)
-5. Document and update security procedures
-
-## Deployment Workflow
-
-### Pre-Deployment Checklist
-- [ ] All tests passing
-- [ ] Coverage (100% domain logic, >80% overall)
-- [ ] No linting errors
-- [ ] Mobile testing complete
-- [ ] Environment variables configured
-- [ ] Database migrations ready
-- [ ] Backup created
-
-### Deployment Steps
-1. Merge feature branch to main
-2. Tag release with version
-3. Push to deployment service
-4. Run database migrations
-5. Verify deployment
-6. Test critical paths
-7. Monitor for errors
-
-### Post-Deployment
-1. Monitor analytics
-2. Check error logs
-3. Gather user feedback
-4. Plan next iteration
-
-## Continuous Improvement
-
-- Review workflow weekly
-- Update based on pain points
-- Document lessons learned
-- Optimize for user happiness
-- Keep things simple and maintainable
-
-## Git Flow & Pull Requests
-
-To ensure code quality and maintain a clean history, all development follows this flow:
-
-### Branch Naming
-- **Features/Chore/Fix:** `conductor/feat/<track-id>`, `conductor/fix/<track-id>`, etc.
-- **Example:** `conductor/feat/git_flow_20260208`
-
-### Pull Request Process
-1. **Complete Phase/Track:** Ensure all tasks are complete and verified locally.
-2. **Push Branch:** `git push origin <branch_name>`
-3. **Create PR:** Use the GitHub CLI to create the PR.
-   ```bash
-   gh pr create --title "feat: <Short Description>" --body-file <path_to_description_file>
-   ```
-   *The PR body should include a summary of the track and a link to the implementation plan.*
-4. **CI Checks:** Ensure all automated checks (Build, Lint, Type-Check, Test, E2E) pass.
-5. **Review & Merge:** Await manual review and merge.
-
-### CI Monitoring
-To ensure the PR is ready for merge, use the following command to monitor checks:
-```bash
-gh pr checks <pr_number> --watch
-```
-*Wait until all checks are green (passing) before requesting final human review.*
-
-### Automated Archive Protocol
-When a track is ready to be archived (completed via `conductor:archive` or equivalent agent flow):
-
-1. **Push Changes:** Ensure all local commits are pushed to the remote.
-   ```bash
-   git push origin <branch_name>
-   ```
-2. **Create/Update PR:**
-   - If no PR exists, create one using `conductor/pr_template.md`.
-   - If a PR exists, update it with the final status.
-   ```bash
-   # Create
-   gh pr create --title "feat: <Track Description>" --body-file conductor/pr_template.md
-   ```
-3. **Archive Track:** Proceed with moving the track folder to `conductor/archive/` and updating `tracks.md`.
+        (Replace `<Relative Track Path>` with the path to the track directory relative to the **Tracks Registry** file location.)
+7.  **Announce Completion:** Inform the user:
+    > "New track '<track_id>' has been created and added to the tracks file. You can now start implementation by running `/conductor:implement`."
