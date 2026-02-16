@@ -1,8 +1,7 @@
 import React from 'react';
-import { MonthlySummary } from '../utils/financialUtils';
+import { MonthlySummary, Transaction, Projection, Category } from '../types';
 import { formatCurrency } from '../utils/financialUtils';
 import { ArrowUpCircle, ArrowDownCircle, Info, Settings, LayoutDashboard } from 'lucide-react';
-import { Transaction, Projection, Category } from '../types';
 import TransactionTable from './TransactionTable';
 import ProjectionTable from './ProjectionTable';
 import MonthNavigator from './MonthNavigator';

@@ -1,4 +1,4 @@
-import { Transaction, Projection, DailyBalance, TransactionType, Frequency, Scenario, AdjustmentType } from "../types";
+import { Transaction, Projection, DailyBalance, TransactionType, Frequency, Scenario, AdjustmentType, MonthlySummary, UnreconciledOccurrence } from "../types";
 
 export const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-IE', { 
@@ -21,22 +21,6 @@ export const getMonthKey = (date: Date = new Date()): string => {
   const m = String(date.getMonth() + 1).padStart(2, '0');
   return `${y}-${m}`;
 };
-
-export interface MonthlySummary {
-  remainingSpendable: number;
-  totalProjectedIncome: number;
-  totalProjectedExpenses: number;
-  spentPercentage: number;
-}
-
-export interface UnreconciledOccurrence {
-  id: string; // projId_dateStr
-  projId: string;
-  name: string;
-  amount: number;
-  dateStr: string;
-  type: TransactionType;
-}
 
 export const getUnreconciledProjections = (
   startDate: string,

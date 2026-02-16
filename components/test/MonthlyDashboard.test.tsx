@@ -1,8 +1,8 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import MonthlyDashboard from '../MonthlyDashboard';
-import { vi } from 'vitest';
+import { mockTransactions, mockProjections, mockCategories } from '../../e2e/fixtures/mockData';
 
 describe('MonthlyDashboard', () => {
   const mockSummary = {
@@ -14,28 +14,46 @@ describe('MonthlyDashboard', () => {
 
   const mockOnSwitchView = vi.fn();
   const mockOnOpenSettings = vi.fn();
+  const mockOnNavigate = vi.fn();
+  const mockOnUpdateTransaction = vi.fn();
+  const mockOnDeleteTransaction = vi.fn();
+  const mockOnAddTransaction = vi.fn();
+  const mockOnUpdateProjection = vi.fn();
+  const mockOnDeleteProjection = vi.fn();
+  const mockOnAddProjection = vi.fn();
+
+  const defaultProps = {
+    summary: mockSummary,
+    selectedDate: new Date('2026-02-01'),
+    onSwitchView: mockOnSwitchView,
+    onOpenSettings: mockOnOpenSettings,
+    onNavigate: mockOnNavigate,
+    transactions: mockTransactions,
+    projections: mockProjections,
+    categories: mockCategories,
+    onUpdateTransaction: mockOnUpdateTransaction,
+    onDeleteTransaction: mockOnDeleteTransaction,
+    onAddTransaction: mockOnAddTransaction,
+    onUpdateProjection: mockOnUpdateProjection,
+    onDeleteProjection: mockOnDeleteProjection,
+    onAddProjection: mockOnAddProjection,
+  };
 
   it('renders the hero counter with remaining spendable', () => {
     render(
       <MonthlyDashboard 
-        summary={mockSummary} 
-        monthName="February 2026" 
-        onSwitchView={mockOnSwitchView}
-        onOpenSettings={mockOnOpenSettings}
+        {...defaultProps}
       />
     );
     
-    expect(screen.getByText(/Remaining Spendable/i)).toBeInTheDocument();
+    expect(screen.getByText(/Forecasted End of Month/i)).toBeInTheDocument();
     expect(screen.getByText(/€1,500/i)).toBeInTheDocument();
   });
 
   it('renders the income and expenses summary', () => {
     render(
       <MonthlyDashboard 
-        summary={mockSummary} 
-        monthName="February 2026" 
-        onSwitchView={mockOnSwitchView}
-        onOpenSettings={mockOnOpenSettings}
+        {...defaultProps}
       />
     );
     
@@ -48,16 +66,12 @@ describe('MonthlyDashboard', () => {
   it('renders the progress bar with correct percentage', () => {
     render(
       <MonthlyDashboard 
-        summary={mockSummary} 
-        monthName="February 2026" 
-        onSwitchView={mockOnSwitchView}
-        onOpenSettings={mockOnOpenSettings}
+        {...defaultProps}
       />
     );
     
     const progressBar = screen.getByRole('progressbar');
     expect(progressBar).toBeInTheDocument();
-    // In Tailwind, we might use style={{ width: '60%' }}
     expect(progressBar).toHaveStyle({ width: '60%' });
   });
 });
