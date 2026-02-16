@@ -2,7 +2,7 @@
 
 This plan outlines the steps to resolve the TypeScript errors blocking the CI build.
 
-## Phase 1: Investigation & Fix (TDD)
+## Phase 1: Investigation & Fix (TDD) [checkpoint: c422e58]
 
 - [x] Task: Run `npm run type-check` to reproduce the errors locally. [checkpoint: fix complete]
 - [x] Task: Fix `types.ts` or imports to resolve `UnreconciledOccurrence` error. [checkpoint: fix complete]
