@@ -1,8 +1,0 @@
-{
-  "track_id": "git_branching_20260208",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-02-08T21:55:00Z",
-  "updated_at": "2026-02-08T21:55:00Z",
-  "description": "feature: enforce git branching workflow for all tracks"
-}
