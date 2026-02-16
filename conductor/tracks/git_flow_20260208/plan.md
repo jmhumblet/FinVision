@@ -17,7 +17,7 @@ Since Conductor is agent-driven, we update the "System Directive" / "Workflow" i
 - [x] Task: Update the "TRACK CLEANUP" section in `conductor/workflow.md` to explicitly list the `git push` and `gh pr create` steps before the "Move Item" step. [checkpoint: workflow automation]
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Workflow Automation' (Protocol in workflow.md) [checkpoint: workflow automation]
 
-## Phase 3: Verification
+## Phase 3: Verification [checkpoint: 193643a]
 
 - [x] Task: Test the new flow by "archiving" this very track (`git_flow_20260208`). [checkpoint: verification]
 - [x] Task: Verify that the code is pushed. [checkpoint: verification]
