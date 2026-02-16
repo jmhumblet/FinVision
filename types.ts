@@ -102,6 +102,22 @@ export interface MonthlySetup {
   completedAt: string; // ISO Date
 }
 
+export interface MonthlySummary {
+  remainingSpendable: number;
+  totalProjectedIncome: number;
+  totalProjectedExpenses: number;
+  spentPercentage: number;
+}
+
+export interface UnreconciledOccurrence {
+  id: string; // projId_dateStr
+  projId: string;
+  name: string;
+  amount: number;
+  dateStr: string;
+  type: TransactionType;
+}
+
 // --- Quick Action / Chat Types ---
 
 export interface ChatMessage {
