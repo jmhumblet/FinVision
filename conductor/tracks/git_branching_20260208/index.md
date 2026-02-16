@@ -1,4 +1,4 @@
-# Track reconciliation_tables_20260208 Context
+# Track git_branching_20260208 Context
 
 - [Specification](./spec.md)
 - [Implementation Plan](./plan.md)
