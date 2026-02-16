@@ -8,7 +8,7 @@ This plan outlines the steps to integrate Git Push and PR automation into the Co
 - [x] Task: Update `conductor/workflow.md` to document the new Archive Protocol. [checkpoint: templates]
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Preparation & Templates' (Protocol in workflow.md) [checkpoint: templates]
 
-## Phase 2: Workflow Automation (Agent Instructions)
+## Phase 2: Workflow Automation (Agent Instructions) [checkpoint: b83b5d7]
 
 Since Conductor is agent-driven, we update the "System Directive" / "Workflow" instructions that the agent follows.
 
