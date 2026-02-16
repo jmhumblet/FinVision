@@ -19,8 +19,8 @@ Since Conductor is agent-driven, we update the "System Directive" / "Workflow" i
 
 ## Phase 3: Verification
 
-- [ ] Task: Test the new flow by "archiving" this very track (`git_flow_20260208`).
-- [ ] Task: Verify that the code is pushed.
-- [ ] Task: Verify that a PR is created for this track.
-- [ ] Task: Verify that the track is then moved to archive.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Verification' (Protocol in workflow.md)
+- [x] Task: Test the new flow by "archiving" this very track (`git_flow_20260208`). [checkpoint: verification]
+- [x] Task: Verify that the code is pushed. [checkpoint: verification]
+- [x] Task: Verify that a PR is created for this track. [checkpoint: verification]
+- [x] Task: Verify that the track is then moved to archive. [checkpoint: verification]
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Verification' (Protocol in workflow.md) [checkpoint: verification]
