@@ -26,4 +26,4 @@
 ## Build & Infrastructure
 - **Build Tool**: Vite (6.2.0)
 - **Deployment**: Configured for modern ES6 module environments.
-- **Git Flow**: GitHub CLI (`gh`) for PR automation.
+- **Git Flow**: Automated PR creation and Git Push on track archive via GitHub CLI (`gh`).
