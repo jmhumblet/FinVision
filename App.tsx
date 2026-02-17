@@ -352,7 +352,7 @@ const App: React.FC = () => {
         : new Date().toISOString().split('T')[0];
 
     const newTx: Transaction = {
-      id: uuidv4(),
+      id: `manual-${uuidv4()}`,
       date,
       description: 'New Transaction',
       amount: 0,
@@ -367,7 +367,7 @@ const App: React.FC = () => {
   // Logic for Quick Action Creation (Data from AI)
   const handleCreateTransactionFromAI = (data: Partial<Transaction>) => {
     const newTx: Transaction = {
-      id: uuidv4(),
+      id: `ai-${uuidv4()}`,
       date: data.date || new Date().toISOString().split('T')[0],
       description: data.description || 'New AI Transaction',
       amount: data.amount || 0,

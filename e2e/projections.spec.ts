@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { dismissInitialModals } from './fixtures/utils';
 
 test.describe('Projection Planning', () => {
   test.beforeEach(async ({ page }) => {
@@ -8,7 +9,8 @@ test.describe('Projection Planning', () => {
         (window as any).__resetMockData();
       }
     });
-    await page.getByTestId('guest-login-button').click();
+    // Use helper to handle guest login and initial modals (reconciliation/setup)
+    await dismissInitialModals(page);
     await expect(page.getByRole('heading', { name: 'FinVision' })).toBeVisible();
   });
 
