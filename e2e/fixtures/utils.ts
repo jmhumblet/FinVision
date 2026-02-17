@@ -3,7 +3,10 @@ import { Page, expect } from '@playwright/test';
 /**
  * Handles initial modals and login flow to ensure the app is in a stable state.
  */
-export async function dismissInitialModals(page: Page) {
+export async function dismissInitialModals(page: Page, options: { 
+  actualBalance?: string, 
+  setDefaultView?: boolean 
+} = {}) {
   // 1. Handle Guest Login if visible
   const guestBtn = page.getByRole('button', { name: /Continue as Guest/i });
   if (await guestBtn.isVisible()) {
@@ -15,6 +18,15 @@ export async function dismissInitialModals(page: Page) {
   if (await reconHeader.isVisible()) {
     // Step 1 -> Step 2
     await page.getByRole('button', { name: /Next: Verify Balance/i }).click();
+    
+    // Step 2
+    if (options.actualBalance) {
+      await page.getByLabel(/What is your actual bank balance today?/i).fill(options.actualBalance);
+    }
+    if (options.setDefaultView) {
+      await page.getByLabel(/Set Monthly View as my default landing page/i).check();
+    }
+
     // Step 2 -> Finish
     await page.getByRole('button', { name: /Save & Finish/i }).click();
     await waitForOverlayToDismiss(page);
@@ -23,6 +35,12 @@ export async function dismissInitialModals(page: Page) {
   // 3. Handle Monthly Setup Modal
   const setupHeader = page.getByText(/Monthly Setup for/i);
   if (await setupHeader.isVisible()) {
+    if (options.actualBalance) {
+      await page.getByLabel(/Actual Bank Balance/i).fill(options.actualBalance);
+    }
+    if (options.setDefaultView) {
+      await page.getByLabel(/Set Monthly View as my default landing page/i).check();
+    }
     await page.getByRole('button', { name: /Save & Continue/i }).click();
     await waitForOverlayToDismiss(page);
   }

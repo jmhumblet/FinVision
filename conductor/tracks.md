@@ -7,6 +7,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: fix: resolve E2E test failures on master build**
+- [~] **Track: fix: resolve E2E test failures on master build**
 *Link: [./tracks/fix_e2e_20260217/](./tracks/fix_e2e_20260217/)*
 
