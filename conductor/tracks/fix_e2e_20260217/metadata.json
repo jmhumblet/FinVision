@@ -1,0 +1,8 @@
+{
+  "track_id": "fix_e2e_20260217",
+  "type": "bug",
+  "status": "new",
+  "created_at": "2026-02-17T14:45:00Z",
+  "updated_at": "2026-02-17T14:45:00Z",
+  "description": "The build on master is failing at E2E tests. Retrieve the build output and playwright artifact from github and fix the problem in a robust and future proof way"
+}
