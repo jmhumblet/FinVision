@@ -123,8 +123,8 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-slate-200">
-              {filteredAndSortedTransactions.map((t) => (
-                <tr key={t.id} className="hover:bg-slate-50 group">
+              {filteredAndSortedTransactions.map((t, idx) => (
+                <tr key={`${t.id}-${idx}`} className="hover:bg-slate-50 group">
                   <td className="px-4 py-2 whitespace-nowrap">
                     <input 
                       type="date" 

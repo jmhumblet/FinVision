@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { dismissInitialModals } from './fixtures/utils';
 
 test.describe('Transaction Management', () => {
   test.beforeEach(async ({ page }) => {
@@ -13,7 +14,8 @@ test.describe('Transaction Management', () => {
       }
     });
     
-    await page.getByTestId('guest-login-button').click();
+    // Use helper to handle guest login and initial modals
+    await dismissInitialModals(page);
     await expect(page.getByRole('heading', { name: 'FinVision' })).toBeVisible();
   });
 
