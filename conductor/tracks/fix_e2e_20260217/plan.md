@@ -21,5 +21,5 @@ This plan focuses on resolving the intermittent and consistent E2E test failures
 - [x] Task: Verify `mockFirebaseService` data used in E2E tests for potential race conditions. [a6db0ed]
 - [x] Task: Adjust Playwright configuration (e.g., `expect` timeout, global timeout) if necessary for CI stability. [837e65b]
 - [x] Task: Run full suite locally multiple times to ensure zero flakiness. [837e65b]
-- [~] Task: Push changes and verify successful GitHub Actions run.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Data Consistency & CI Optimization' (Protocol in workflow.md)
+- [x] Task: Push changes and verify successful GitHub Actions run. [a527773]
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Data Consistency & CI Optimization' (Protocol in workflow.md)
