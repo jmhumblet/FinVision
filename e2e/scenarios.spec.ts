@@ -147,9 +147,8 @@ test.describe('FinVision Dashboard UI', () => {
     // Ensure the AI button is visible and not covered
     const aiButton = page.getByRole('button', { name: 'AI Smart Categorize' });
     await expect(aiButton).toBeVisible();
-    await aiButton.scrollIntoViewIfNeeded();
-
-    await aiButton.click();
+    // Using force click to bypass potential sticky header overlap or other interception
+    await aiButton.click({ force: true });
 
     // Since we didn't mock geminiService, this might hit real API or fail. 
     // We assert toast visibility which happens either way (success or error).

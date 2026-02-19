@@ -47,9 +47,9 @@ test.describe('Debt Payoff Strategist', () => {
     await page.waitForTimeout(500);
 
     // Verify Total Balance updated in header
-    // The text might be split in spans. "Total:" and ",000.00" - locally it's "Total: €5,000"
-    // We use a looser regex to match currency format
-    await expect(page.locator('text=5,000.00')).toBeVisible();
+    // The text matches "Total: €5,000" (no decimals due to formatCurrency config)
+    // We search for "5,000" to be safe and robust against currency symbol differences if any.
+    await expect(page.locator('text=5,000')).toBeVisible();
 
     // Verify Chart shows data (not empty state)
     await expect(page.getByText('Add debts to see projection.')).not.toBeVisible();
@@ -71,27 +71,12 @@ test.describe('Debt Payoff Strategist', () => {
 
     // Verify persistence
     await page.reload();
-    // After reload, we might need to handle modals again if session isn't persisted perfectly in test env
-    // But dismissInitialModals handles login flow. If session persists, we might just be on dashboard.
-    // Let's check where we are.
-
-    // If we were redirected to login (unlikely with mock), we'd need to login.
-    // Assuming we stay logged in or can just navigate.
-
-    // If modal reappears (because monthly setup isn't saved in mock or resets), we need to close it.
-    // However, the test resets data in beforeEach, so save *should* persist for the duration of the test unless we cleared storage.
-    // We rely on standard navigation.
-
-    // Check if we need to dismiss modal again?
-    // Just in case, let's try to dismiss if visible, or just proceed.
-    // Playwright's reload might not clear localStorage if using same context.
-
     // Wait for app load
     await expect(page.getByRole('heading', { name: 'FinVision' })).toBeVisible();
 
     await page.getByTitle('Debt Strategist').click();
 
-    await expect(page.locator('text=5,000.00')).toBeVisible();
+    await expect(page.locator('text=5,000')).toBeVisible();
     await expect(page.inputValue('input[value="Test Credit Card"]')).toBe('Test Credit Card');
   });
 });
