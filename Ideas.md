@@ -31,3 +31,12 @@ Empower users to personalize their main dashboard.
 - Drag-and-drop interface to reorder KPI cards and widgets.
 - Toggle visibility of specific sections (e.g., hide "Recent Transactions" if preferred).
 - Save layout preferences to the user profile.
+
+## Debt Payoff Strategist
+**Status:** Unimplemented
+**Description:**
+A dedicated tool to visualize and plan debt reduction.
+- List various debts (Credit Cards, Loans) with balances and interest rates.
+- Toggle between "Snowball" (lowest balance first) and "Avalanche" (highest interest first) strategies.
+- Visual chart comparing payoff timelines and interest saved vs. minimum payments.
+**Stitch Screen:** `e0be571bcf2a4426aa446c221a0dfd9c`
