@@ -15,6 +15,7 @@ FinVision is an AI-enhanced financial planning application designed to provide u
 - **Dynamic Cash Flow Visualization**: Interactive, high-performance charts to visualize bank balances and trends up to a year into the future.
 - **"What-If" Scenario Builder**: Tools to create and compare parallel financial realities without affecting the base plan.
 - **Monthly Focus View**: A numerical-first dashboard for the current month, featuring a "Projected Remaining" hero counter and a smart reconciliation workflow for high-accuracy tracking.
+- **Debt Payoff Strategist**: A specialized module for managing debt, featuring Snowball vs. Avalanche strategy comparison and interactive payoff visualization.
 
 ## User Experience & Design
 - **Multi-View Navigation**: Choice between a graphic-heavy main dashboard and a numerical-first monthly focus view.

@@ -21,7 +21,7 @@ import {
   orderBy,
   limit
 } from 'firebase/firestore/lite';
-import { Transaction, Projection, MonthlyCheckpoint, TransactionType, MonthlySetup } from '../types';
+import { Transaction, Projection, MonthlyCheckpoint, TransactionType, MonthlySetup, Debt } from '../types';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCOnTNxkj1f7VHlp6ppXdYbzsCi_9tCtWk",
@@ -189,6 +189,11 @@ export const fetchUserData = async (uid: string) => {
   const txDocs = await getDocs(txQuery);
   const transactions = txDocs.docs.map(d => d.data() as Transaction);
 
+  // Fetch Debts
+  const debtQuery = query(collection(db, 'users', uid, 'debts'));
+  const debtDocs = await getDocs(debtQuery);
+  const debts = debtDocs.docs.map(d => d.data() as Debt);
+
   // 2. Fetch Checkpoint for prevMonthKey
   // This checkpoint contains the startBalance and endBalance for that month.
   // We actually need the checkpoint of the month BEFORE the window to get the starting balance.
@@ -228,6 +233,7 @@ export const fetchUserData = async (uid: string) => {
               settings: userData,
               transactions: allTxs,
               projections,
+              debts,
               optimized: false
           };
       }
@@ -242,6 +248,7 @@ export const fetchUserData = async (uid: string) => {
     settings: { ...userData, initialBalance: calculatedInitialBalance }, // Override initial balance with the checkpoint
     transactions, // Only the window transactions
     projections,
+    debts,
     optimized: true
   };
 };
@@ -287,8 +294,6 @@ export const updateRemoteSettings = async (uid: string, settings: any) => {
 
 };
 
-
-
 export const saveMonthlySetup = async (uid: string, setup: MonthlySetup) => {
 
   const setupDocRef = doc(db, 'users', uid, 'monthlySetups', setup.monthKey);
@@ -296,8 +301,6 @@ export const saveMonthlySetup = async (uid: string, setup: MonthlySetup) => {
   await setDoc(setupDocRef, setup);
 
 };
-
-
 
 export const getMonthlySetup = async (uid: string, monthKey: string): Promise<MonthlySetup | null> => {
 
@@ -307,4 +310,12 @@ export const getMonthlySetup = async (uid: string, monthKey: string): Promise<Mo
 
   return setupDoc.exists() ? setupDoc.data() as MonthlySetup : null;
 
+};
+
+export const updateRemoteDebt = async (uid: string, debt: Debt) => {
+  await setDoc(doc(db, 'users', uid, 'debts', debt.id), debt);
+};
+
+export const deleteRemoteDebt = async (uid: string, debtId: string) => {
+  await deleteDoc(doc(db, 'users', uid, 'debts', debtId));
 };

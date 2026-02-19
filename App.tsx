@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { 
@@ -10,7 +9,9 @@ import {
   DailyBalance,
   Scenario,
   AppView,
-  MonthlySetup
+  MonthlySetup,
+  Debt,
+  DebtStrategy
 } from './types';
 import { geminiService } from './services/geminiService';
 import { 
@@ -24,7 +25,9 @@ import {
   deleteRemoteProjection,
   observeAuth,
   getMonthlySetup,
-  saveMonthlySetup
+  saveMonthlySetup,
+  updateRemoteDebt,
+  deleteRemoteDebt
 } from '@/services/firebaseService';
 import { User } from 'firebase/auth';
 import FinancialChart from './components/FinancialChart';
@@ -36,6 +39,7 @@ import Toast, { ToastMessage } from './components/Toast';
 import ScenarioBuilder from './components/ScenarioBuilder';
 import ReconciliationModal from './components/ReconciliationModal';
 import MonthlyDashboard from './components/MonthlyDashboard';
+import DebtDashboard from './components/DebtDashboard';
 import { generateTimeline, formatCurrency, getMonthKey, calculateMonthlySummary } from './utils/financialUtils';
 import { 
   Wallet, 
@@ -46,7 +50,8 @@ import {
   Loader2,
   Check,
   Scale,
-  LayoutDashboard
+  LayoutDashboard,
+  CreditCard
 } from 'lucide-react';
 
 // --- Constants & Seed Data ---
@@ -83,11 +88,15 @@ const App: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [projections, setProjections] = useState<Projection[]>([]);
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
+  const [debts, setDebts] = useState<Debt[]>([]);
   
   const [loadedInitialBalance, setLoadedInitialBalance] = useState<number>(0);
   const [projectionDays, setProjectionDays] = useState(180);
   const [lastReconciledDate, setLastReconciledDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [currentView, setCurrentView] = useState<AppView>(AppView.MAIN);
+  const [debtStrategy, setDebtStrategy] = useState<DebtStrategy>(DebtStrategy.SNOWBALL);
+  const [monthlyExtra, setMonthlyExtra] = useState<number>(0);
+
   const [selectedMonthDate, setSelectedMonthDate] = useState<Date>(new Date());
   const [monthlySetup, setMonthlySetup] = useState<MonthlySetup | null>(null);
   const [showReconciliationModal, setShowReconciliationModal] = useState(false);
@@ -105,7 +114,7 @@ const App: React.FC = () => {
         if (u) {
           setIsLoadingData(true);
           try {
-            const data = await fetchUserData(u.uid);
+            const data: any = await fetchUserData(u.uid);
             
             if (data.settings) {
               setLoadedInitialBalance(data.settings.initialBalance || 0);
@@ -116,6 +125,12 @@ const App: React.FC = () => {
               if (data.settings.defaultView) {
                 setCurrentView(data.settings.defaultView);
               }
+              if (data.settings.debtStrategy) {
+                setDebtStrategy(data.settings.debtStrategy);
+              }
+              if (data.settings.debtMonthlyExtra) {
+                setMonthlyExtra(data.settings.debtMonthlyExtra);
+              }
             }
             
             if (data.transactions.length > 0) {
@@ -124,6 +139,10 @@ const App: React.FC = () => {
             
             if (data.projections.length > 0) {
               setProjections(data.projections);
+            }
+
+            if (data.debts && data.debts.length > 0) {
+              setDebts(data.debts);
             }
 
             // Check if reconciliation is needed for current month
@@ -295,6 +314,25 @@ const App: React.FC = () => {
     }, 1500);
   };
 
+  const debouncedSyncDebt = (d: Debt) => {
+    if (!user) return;
+
+    if (saveTimeouts.current[d.id]) {
+      clearTimeout(saveTimeouts.current[d.id]);
+    } else {
+      incrementSync();
+    }
+
+    saveTimeouts.current[d.id] = setTimeout(async () => {
+      try {
+        await updateRemoteDebt(user.uid, d);
+      } finally {
+        delete saveTimeouts.current[d.id];
+        decrementSync();
+      }
+    }, 1500);
+  };
+
   const immediateSyncTransaction = async (tx: Transaction) => {
     if (!user) return;
     incrementSync();
@@ -315,11 +353,24 @@ const App: React.FC = () => {
     }
   };
 
-  const syncSettings = async (bal: number, days: number) => {
+  const immediateSyncDebt = async (d: Debt) => {
     if (!user) return;
     incrementSync();
     try {
-        await updateRemoteSettings(user.uid, { initialBalance: bal, projectionDays: days });
+      await updateRemoteDebt(user.uid, d);
+    } finally {
+      decrementSync();
+    }
+  };
+
+  const syncSettings = async (bal: number, days: number, dStrat?: DebtStrategy, dExtra?: number) => {
+    if (!user) return;
+    incrementSync();
+    try {
+        const update: any = { initialBalance: bal, projectionDays: days };
+        if (dStrat) update.debtStrategy = dStrat;
+        if (dExtra !== undefined) update.debtMonthlyExtra = dExtra;
+        await updateRemoteSettings(user.uid, update);
     } finally {
         decrementSync();
     }
@@ -470,6 +521,36 @@ const App: React.FC = () => {
     };
     setProjections(prev => [...prev, newProj]);
     immediateSyncProjection(newProj);
+  };
+
+  // --- Debt Handlers ---
+  const handleAddDebt = (debt: Debt) => {
+    setDebts(prev => [...prev, debt]);
+    immediateSyncDebt(debt);
+  };
+
+  const handleUpdateDebt = (debt: Debt) => {
+    setDebts(prev => prev.map(d => d.id === debt.id ? debt : d));
+    debouncedSyncDebt(debt);
+  };
+
+  const handleDeleteDebt = async (id: string) => {
+    setDebts(prev => prev.filter(d => d.id !== id));
+    if (user) {
+        incrementSync();
+        await deleteRemoteDebt(user.uid, id);
+        decrementSync();
+    }
+  };
+
+  const handleStrategyChange = (s: DebtStrategy) => {
+    setDebtStrategy(s);
+    syncSettings(loadedInitialBalance, projectionDays, s, monthlyExtra);
+  };
+
+  const handleMonthlyExtraChange = (val: number) => {
+    setMonthlyExtra(val);
+    syncSettings(loadedInitialBalance, projectionDays, debtStrategy, val);
   };
 
   // --- Scenario Handlers ---
@@ -674,23 +755,25 @@ const App: React.FC = () => {
           </div>
           
           <div className="flex items-center space-x-3 md:space-x-4">
-             <div className="hidden md:flex items-center text-sm text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
-                <span className="mr-2 font-medium">Projection:</span>
-                <select 
-                  value={projectionDays} 
-                  onChange={(e) => {
-                    const val = Number(e.target.value);
-                    setProjectionDays(val);
-                    syncSettings(loadedInitialBalance, val);
-                  }}
-                  className="bg-transparent font-bold text-slate-700 outline-none cursor-pointer"
-                >
-                  <option value={30}>30 Days</option>
-                  <option value={90}>3 Months</option>
-                  <option value={180}>6 Months</option>
-                  <option value={365}>1 Year</option>
-                </select>
-             </div>
+             {currentView === AppView.MAIN && (
+                <div className="hidden md:flex items-center text-sm text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
+                    <span className="mr-2 font-medium">Projection:</span>
+                    <select
+                    value={projectionDays}
+                    onChange={(e) => {
+                        const val = Number(e.target.value);
+                        setProjectionDays(val);
+                        syncSettings(loadedInitialBalance, val);
+                    }}
+                    className="bg-transparent font-bold text-slate-700 outline-none cursor-pointer"
+                    >
+                    <option value={30}>30 Days</option>
+                    <option value={90}>3 Months</option>
+                    <option value={180}>6 Months</option>
+                    <option value={365}>1 Year</option>
+                    </select>
+                </div>
+             )}
           
             <button 
               onClick={handleAutoCategorize}
@@ -700,16 +783,33 @@ const App: React.FC = () => {
               title="Automatically categorize transactions labeled as 'Other'"
             >
               <Wand2 size={16} className={isCategorizing ? 'animate-spin' : ''} />
-              <span className="hidden sm:inline">AI Smart Categorize</span>
+              <span className="hidden sm:inline">AI Categorize</span>
             </button>
 
-            <button 
-              onClick={() => setCurrentView(currentView === AppView.MAIN ? AppView.MONTHLY : AppView.MAIN)}
-              className="p-2 bg-white border border-slate-200 rounded-xl shadow-sm text-slate-600 hover:bg-slate-50 transition-all active:scale-95"
-              title={currentView === AppView.MAIN ? "Switch to Monthly Focus" : "Switch to Dashboard"}
-            >
-              <LayoutDashboard size={20} />
-            </button>
+            {/* View Switchers */}
+            <div className="flex space-x-1 bg-slate-100 p-1 rounded-xl">
+                <button
+                  onClick={() => setCurrentView(AppView.MAIN)}
+                  className={`p-2 rounded-lg transition-all ${currentView === AppView.MAIN ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+                  title="Dashboard"
+                >
+                  <TrendingUp size={20} />
+                </button>
+                <button
+                  onClick={() => setCurrentView(AppView.MONTHLY)}
+                  className={`p-2 rounded-lg transition-all ${currentView === AppView.MONTHLY ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+                  title="Monthly Focus"
+                >
+                  <LayoutDashboard size={20} />
+                </button>
+                <button
+                  onClick={() => setCurrentView(AppView.DEBT_STRATEGIST)}
+                  className={`p-2 rounded-lg transition-all ${currentView === AppView.DEBT_STRATEGIST ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+                  title="Debt Strategist"
+                >
+                  <CreditCard size={20} />
+                </button>
+            </div>
 
             <div className="h-8 w-[1px] bg-slate-200 mx-1 hidden sm:block"></div>
 
@@ -750,6 +850,17 @@ const App: React.FC = () => {
             onDeleteProjection={handleDeleteProjection}
             onAddProjection={handleAddProjection}
           />
+        ) : currentView === AppView.DEBT_STRATEGIST ? (
+            <DebtDashboard
+                debts={debts}
+                onAddDebt={handleAddDebt}
+                onUpdateDebt={handleUpdateDebt}
+                onDeleteDebt={handleDeleteDebt}
+                strategy={debtStrategy}
+                onStrategyChange={handleStrategyChange}
+                monthlyExtra={monthlyExtra}
+                onMonthlyExtraChange={handleMonthlyExtraChange}
+            />
         ) : (
           <>
             {/* KPI Cards */}

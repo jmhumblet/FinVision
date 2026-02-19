@@ -33,7 +33,7 @@ Empower users to personalize their main dashboard.
 - Save layout preferences to the user profile.
 
 ## Debt Payoff Strategist
-**Status:** Unimplemented
+**Status:** Implemented
 **Description:**
 A dedicated tool to visualize and plan debt reduction.
 - List various debts (Credit Cards, Loans) with balances and interest rates.
