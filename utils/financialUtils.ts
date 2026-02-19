@@ -314,6 +314,12 @@ export const generateTimeline = (
   return timeline;
 };
 
+const isLastDayOfMonth = (date: Date): boolean => {
+  const nextDay = new Date(date);
+  nextDay.setDate(date.getDate() + 1);
+  return nextDay.getMonth() !== date.getMonth();
+};
+
 export const calculateProjectionValueForDate = (proj: Projection, d: Date, dateStr: string): number => {
     const projStart = parseLocalYYYYMMDD(proj.startDate);
     const projEnd = proj.endDate ? parseLocalYYYYMMDD(proj.endDate) : null;
@@ -328,11 +334,23 @@ export const calculateProjectionValueForDate = (proj: Projection, d: Date, dateS
     } else if (proj.frequency === Frequency.DAILY) {
         return val;
     } else if (proj.frequency === Frequency.MONTHLY) {
-        if (d.getDate() === projStart.getDate()) return val;
+        const targetDay = projStart.getDate();
+        const currentDay = d.getDate();
+        if (currentDay === targetDay) return val;
+        // Handle end of month if the target day doesn't exist in this month
+        if (isLastDayOfMonth(d) && targetDay > currentDay) return val;
     } else if (proj.frequency === Frequency.WEEKLY) {
         if (d.getDay() === projStart.getDay()) return val;
     } else if (proj.frequency === Frequency.YEARLY) {
-        if (d.getDate() === projStart.getDate() && d.getMonth() === projStart.getMonth()) return val;
+        const targetMonth = projStart.getMonth();
+        const targetDay = projStart.getDate();
+        const currentMonth = d.getMonth();
+        const currentDay = d.getDate();
+        if (currentMonth === targetMonth) {
+            if (currentDay === targetDay) return val;
+            // Handle Feb 29th in non-leap years
+            if (isLastDayOfMonth(d) && targetDay > currentDay) return val;
+        }
     }
     
     return 0;
