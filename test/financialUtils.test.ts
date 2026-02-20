@@ -2,6 +2,14 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { formatCurrency, formatDate, generateTimeline, getMonthKey, calculateMonthlySummary } from '../utils/financialUtils';
 import { Transaction, Projection, TransactionType, Frequency, AdjustmentType, Scenario } from '../types';
 
+// Shim for Bun test compatibility
+if (typeof vi.useFakeTimers !== 'function') {
+  const { setSystemTime } = await import('bun:test');
+  (vi as any).useFakeTimers = () => {};
+  (vi as any).useRealTimers = () => { setSystemTime(); };
+  (vi as any).setSystemTime = (date: any) => setSystemTime(date);
+}
+
 describe('financialUtils', () => {
   describe('getMonthKey', () => {
     it('should return YYYY-MM for a given date', () => {
@@ -597,6 +605,46 @@ describe('financialUtils', () => {
         // Scenario: 1000 + 3000 (feb) + 4000 (march) + 3000 (april) = 11000
         expect(april25?.projectedBalance).toBe(10000);
         expect(april25?.scenario_s1).toBe(11000);
+    });
+
+    it('should handle monthly projections starting on the 31st in February (leap and non-leap)', () => {
+        vi.setSystemTime(new Date('2023-01-01T00:00:00Z'));
+        const startingBalance = 1000;
+        const projections: Projection[] = [
+          {
+            id: 'p1',
+            name: 'Monthly on 31st',
+            amount: 100,
+            frequency: Frequency.MONTHLY,
+            startDate: '2023-01-31',
+            categoryId: 'income',
+            type: TransactionType.INCOME,
+            isActive: true
+          }
+        ];
+
+        // Project far enough to cover Feb 2023 and Feb 2024
+        // ~450 days from Jan 1 2023 reaches March 2024
+        const timeline = generateTimeline(startingBalance, [], projections, 450);
+
+        // 2023 is NOT a leap year. Feb has 28 days.
+        // Expect projection to trigger on Feb 28th.
+        const feb27_2023 = timeline.find(p => p.date === '2023-02-27');
+        const feb28_2023 = timeline.find(p => p.date === '2023-02-28');
+
+        // Feb 27 balance should be 1100 (from Jan 31 trigger)
+        expect(feb27_2023?.projectedBalance).toBe(1100);
+        // Feb 28 balance should be 1200
+        expect(feb28_2023?.projectedBalance).toBe(1200);
+
+        // 2024 IS a leap year. Feb has 29 days.
+        // Expect projection to trigger on Feb 29th, NOT Feb 28th.
+        const feb28_2024 = timeline.find(p => p.date === '2024-02-28');
+        const feb29_2024 = timeline.find(p => p.date === '2024-02-29');
+
+        // Jan 31 2024 trigger adds 100 -> 2300
+        expect(feb28_2024?.projectedBalance).toBe(2300); // Hasn't triggered yet
+        expect(feb29_2024?.projectedBalance).toBe(2400); // Triggered
     });
   });
 });
