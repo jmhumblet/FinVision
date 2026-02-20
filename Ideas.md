@@ -40,3 +40,13 @@ A dedicated tool to visualize and plan debt reduction.
 - Toggle between "Snowball" (lowest balance first) and "Avalanche" (highest interest first) strategies.
 - Visual chart comparing payoff timelines and interest saved vs. minimum payments.
 **Stitch Screen:** `e0be571bcf2a4426aa446c221a0dfd9c`
+
+## Subscription Manager
+**Status:** Unimplemented
+**Description:**
+A dedicated view to track and manage recurring subscriptions.
+- List all recurring transactions with next due date and amount.
+- Toggle between Monthly/Yearly cost views.
+- Cancellation workflow assistant with guides on how to cancel popular services.
+- Alerts for price increases or upcoming renewals.
+**Stitch Screen:** `PENDING_DESIGN_SUBSCRIPTION_MGR`
