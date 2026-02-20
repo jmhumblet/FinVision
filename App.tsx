@@ -10,7 +10,8 @@ import {
   DailyBalance,
   Scenario,
   AppView,
-  MonthlySetup
+  MonthlySetup,
+  SavingsGoal
 } from './types';
 import { geminiService } from './services/geminiService';
 import { 
@@ -24,7 +25,9 @@ import {
   deleteRemoteProjection,
   observeAuth,
   getMonthlySetup,
-  saveMonthlySetup
+  saveMonthlySetup,
+  saveSavingsGoal,
+  deleteSavingsGoal
 } from '@/services/firebaseService';
 import { User } from 'firebase/auth';
 import FinancialChart from './components/FinancialChart';
@@ -36,6 +39,7 @@ import Toast, { ToastMessage } from './components/Toast';
 import ScenarioBuilder from './components/ScenarioBuilder';
 import ReconciliationModal from './components/ReconciliationModal';
 import MonthlyDashboard from './components/MonthlyDashboard';
+import SavingsGoalsWidget from './components/SavingsGoalsWidget';
 import { generateTimeline, formatCurrency, getMonthKey, calculateMonthlySummary } from './utils/financialUtils';
 import { 
   Wallet, 
@@ -82,6 +86,7 @@ const App: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [projections, setProjections] = useState<Projection[]>([]);
+  const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([]);
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   
   const [loadedInitialBalance, setLoadedInitialBalance] = useState<number>(0);
@@ -124,6 +129,10 @@ const App: React.FC = () => {
             
             if (data.projections.length > 0) {
               setProjections(data.projections);
+            }
+
+            if (data.savingsGoals && data.savingsGoals.length > 0) {
+              setSavingsGoals(data.savingsGoals);
             }
 
             // Check if reconciliation is needed for current month
@@ -472,6 +481,33 @@ const App: React.FC = () => {
     immediateSyncProjection(newProj);
   };
 
+  const handleAddGoal = async (goal: SavingsGoal) => {
+    setSavingsGoals(prev => [...prev, goal]);
+    if (user) {
+        incrementSync();
+        await saveSavingsGoal(user.uid, goal);
+        decrementSync();
+    }
+  };
+
+  const handleUpdateGoal = async (goal: SavingsGoal) => {
+    setSavingsGoals(prev => prev.map(g => g.id === goal.id ? goal : g));
+    if (user) {
+        incrementSync();
+        await saveSavingsGoal(user.uid, goal);
+        decrementSync();
+    }
+  };
+
+  const handleDeleteGoal = async (id: string) => {
+    setSavingsGoals(prev => prev.filter(g => g.id !== id));
+    if (user) {
+        incrementSync();
+        await deleteSavingsGoal(user.uid, id);
+        decrementSync();
+    }
+  };
+
   // --- Scenario Handlers ---
   const handleAddScenario = (s: Scenario) => {
     setScenarios(prev => [...prev, s]);
@@ -802,6 +838,14 @@ const App: React.FC = () => {
                  </div>
                </div>
             </div>
+
+            {/* Savings Goals */}
+            <SavingsGoalsWidget
+                goals={savingsGoals}
+                onAddGoal={handleAddGoal}
+                onUpdateGoal={handleUpdateGoal}
+                onDeleteGoal={handleDeleteGoal}
+            />
             
             {/* Scenario Builder */}
             <ScenarioBuilder 

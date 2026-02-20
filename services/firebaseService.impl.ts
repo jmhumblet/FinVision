@@ -21,7 +21,7 @@ import {
   orderBy,
   limit
 } from 'firebase/firestore/lite';
-import { Transaction, Projection, MonthlyCheckpoint, TransactionType, MonthlySetup } from '../types';
+import { Transaction, Projection, MonthlyCheckpoint, TransactionType, MonthlySetup, SavingsGoal } from '../types';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCOnTNxkj1f7VHlp6ppXdYbzsCi_9tCtWk",
@@ -224,10 +224,15 @@ export const fetchUserData = async (uid: string) => {
           const projDocs = await getDocs(projQuery);
           const projections = projDocs.docs.map(d => d.data() as Projection);
 
+          const goalsQuery = query(collection(db, 'users', uid, 'savingsGoals'));
+          const goalsDocs = await getDocs(goalsQuery);
+          const savingsGoals = goalsDocs.docs.map(d => d.data() as SavingsGoal);
+
           return {
               settings: userData,
               transactions: allTxs,
               projections,
+              savingsGoals,
               optimized: false
           };
       }
@@ -238,10 +243,15 @@ export const fetchUserData = async (uid: string) => {
   const projDocs = await getDocs(projQuery);
   const projections = projDocs.docs.map(d => d.data() as Projection);
 
+  const goalsQuery = query(collection(db, 'users', uid, 'savingsGoals'));
+  const goalsDocs = await getDocs(goalsQuery);
+  const savingsGoals = goalsDocs.docs.map(d => d.data() as SavingsGoal);
+
   return {
     settings: { ...userData, initialBalance: calculatedInitialBalance }, // Override initial balance with the checkpoint
     transactions, // Only the window transactions
     projections,
+    savingsGoals,
     optimized: true
   };
 };
@@ -307,4 +317,12 @@ export const getMonthlySetup = async (uid: string, monthKey: string): Promise<Mo
 
   return setupDoc.exists() ? setupDoc.data() as MonthlySetup : null;
 
+};
+
+export const saveSavingsGoal = async (uid: string, goal: SavingsGoal) => {
+  await setDoc(doc(db, 'users', uid, 'savingsGoals', goal.id), goal);
+};
+
+export const deleteSavingsGoal = async (uid: string, goalId: string) => {
+  await deleteDoc(doc(db, 'users', uid, 'savingsGoals', goalId));
 };

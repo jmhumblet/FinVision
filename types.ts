@@ -141,3 +141,15 @@ export interface ChatSession {
   isLoading: boolean;
   hasUnread: boolean; // For visual indicator when minimized
 }
+
+// --- Savings Goals Types ---
+
+export interface SavingsGoal {
+  id: string;
+  name: string;
+  targetAmount: number;
+  currentAmount: number;
+  targetDate: string; // ISO Date YYYY-MM-DD
+  icon?: string; // Optional icon name
+  color: string;
+}

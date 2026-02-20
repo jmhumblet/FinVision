@@ -1,4 +1,4 @@
-import { Transaction, Projection, MonthlySetup } from '../types';
+import { Transaction, Projection, MonthlySetup, SavingsGoal } from '../types';
 import { mockUser, mockTransactions, mockProjections, mockSettings } from '../e2e/fixtures/mockData';
 
 // Mock Firestore
@@ -37,6 +37,8 @@ let currentProjections = getStored('projections', [...mockProjections]);
 let currentSettings = getStored('settings', { ...mockSettings });
 
 let currentMonthlySetups = getStored('monthlySetups', {});
+
+let currentSavingsGoals = getStored('savingsGoals', []);
 
 let currentUser = getStored('user', null);
 
@@ -140,6 +142,8 @@ export const fetchUserData = async (uid: string) => {
 
     projections: currentProjections,
 
+    savingsGoals: currentSavingsGoals,
+
     optimized: true
 
   };
@@ -242,6 +246,32 @@ export const getMonthlySetup = async (uid: string, monthKey: string): Promise<Mo
 
 };
 
+export const saveSavingsGoal = async (uid: string, goal: SavingsGoal) => {
+
+  const index = currentSavingsGoals.findIndex((g: any) => g.id === goal.id);
+
+  if (index > -1) {
+
+    currentSavingsGoals[index] = goal;
+
+  } else {
+
+    currentSavingsGoals.push(goal);
+
+  }
+
+  setStored('savingsGoals', currentSavingsGoals);
+
+};
+
+export const deleteSavingsGoal = async (uid: string, goalId: string) => {
+
+  currentSavingsGoals = currentSavingsGoals.filter((g: any) => g.id !== goalId);
+
+  setStored('savingsGoals', currentSavingsGoals);
+
+};
+
 
 
 // Helper to reset state for tests (exposed to window for Playwright)
@@ -259,6 +289,8 @@ if (typeof window !== 'undefined') {
     currentSettings = { ...mockSettings };
 
     currentMonthlySetups = {};
+
+    currentSavingsGoals = [];
 
     currentUser = null;
 
