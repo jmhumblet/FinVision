@@ -25,7 +25,7 @@ FinVision is a sophisticated, AI-enhanced financial planning application designe
 
 1. **Prerequisites**: Ensure you have an environment capable of serving ES6 modules.
 2. **Environment Variables**:
-   - The application expects `process.env.API_KEY` to be configured with a valid Google Gemini API Key.
+   - The application expects `process.env.GEMINI_API_KEY` to be configured with a valid Google Gemini API Key.
    - Firebase configuration is pre-wired to the demo instance but can be swapped in `services/firebaseService.ts`.
 3. **Usage**:
    - Log in via Google or Guest mode.
