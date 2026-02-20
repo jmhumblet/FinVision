@@ -41,17 +41,30 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
         categories.find(c => c.id === t.categoryId)?.name.toLowerCase().includes(filterText.toLowerCase())
       )
       .sort((a, b) => {
-        let valA: any = a[sortField as keyof Transaction];
-        let valB: any = b[sortField as keyof Transaction];
+        let valA: string | number;
+        let valB: string | number;
 
         if (sortField === 'category') {
           valA = categories.find(c => c.id === a.categoryId)?.name || '';
           valB = categories.find(c => c.id === b.categoryId)?.name || '';
+        } else {
+          // When sortField is not 'category', it must be a valid key of Transaction
+          // and based on SortField type, it can be 'date', 'description', or 'amount'
+          valA = a[sortField as keyof Transaction] as string | number;
+          valB = b[sortField as keyof Transaction] as string | number;
         }
 
-        if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
-        if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
-        return 0;
+        if (valA === valB) return 0;
+
+        const isAsc = sortDirection === 'asc';
+
+        if (typeof valA === 'number' && typeof valB === 'number') {
+          return isAsc ? valA - valB : valB - valA;
+        }
+
+        return isAsc
+          ? String(valA).localeCompare(String(valB))
+          : String(valB).localeCompare(String(valA));
       });
   }, [transactions, categories, filterText, sortField, sortDirection]);
 
