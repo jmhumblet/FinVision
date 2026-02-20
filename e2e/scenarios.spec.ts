@@ -145,7 +145,9 @@ test.describe('FinVision Dashboard UI', () => {
     await row.locator('input[type="text"]').fill('Netflix');
     
     // Ensure the AI button is visible and not covered
-    const aiButton = page.getByRole('button', { name: 'AI Smart Categorize' });
+    // The text on the button is "AI Categorize", usually with an icon.
+    // We use a looser regex to match both "AI Categorize" and "AI Smart Categorize" in case it changes back.
+    const aiButton = page.getByRole('button', { name: /AI.*Categorize/i });
     await expect(aiButton).toBeVisible();
     // Using force click to bypass potential sticky header overlap or other interception
     await aiButton.click({ force: true });

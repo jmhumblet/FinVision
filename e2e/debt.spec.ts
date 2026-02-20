@@ -48,7 +48,6 @@ test.describe('Debt Payoff Strategist', () => {
 
     // Verify Total Balance updated in header
     // The text matches "Total: €5,000" (no decimals due to formatCurrency config)
-    // We search for "5,000" to be safe and robust against currency symbol differences if any.
     await expect(page.locator('text=5,000')).toBeVisible();
 
     // Verify Chart shows data (not empty state)
@@ -77,6 +76,9 @@ test.describe('Debt Payoff Strategist', () => {
     await page.getByTitle('Debt Strategist').click();
 
     await expect(page.locator('text=5,000')).toBeVisible();
-    await expect(page.inputValue('input[value="Test Credit Card"]')).toBe('Test Credit Card');
+
+    // Correct assertion for input value
+    const nameInput = page.locator('tbody tr input[type="text"]').first();
+    await expect(nameInput).toHaveValue('Test Credit Card');
   });
 });

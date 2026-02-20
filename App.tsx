@@ -619,15 +619,7 @@ const App: React.FC = () => {
   const handleAutoCategorize = async () => {
     setIsCategorizing(true);
     try {
-      const toCategorize: Transaction[] = [];
-      const indices: number[] = [];
-
-      transactions.forEach((t, i) => {
-        if (t.categoryId === '8' && !t.skipAutoCategorization) {
-          toCategorize.push(t);
-          indices.push(i);
-        }
-      });
+      const toCategorize = transactions.filter(t => t.categoryId === '8' && !t.skipAutoCategorization);
       
       if (toCategorize.length === 0) {
         alert("No eligible transactions found in 'Other' to analyze.");
@@ -639,27 +631,30 @@ const App: React.FC = () => {
       
       let updateCount = 0;
       let skippedCount = 0;
-      const newTransactions = [...transactions];
+      const updatesToSync: Transaction[] = [];
 
-      toCategorize.forEach((t, i) => {
-        const index = indices[i];
-        const resultCategoryId = mapping.get(t.id);
-        let updated: Transaction;
-
-        if (resultCategoryId) {
-          updateCount++;
-          updated = { ...t, categoryId: resultCategoryId };
-        } else {
-          skippedCount++;
-          updated = { ...t, skipAutoCategorization: true };
+      const newTransactions = transactions.map(t => {
+        if (t.categoryId === '8' && !t.skipAutoCategorization) {
+            if (mapping.has(t.id)) {
+                updateCount++;
+                const updated = { ...t, categoryId: mapping.get(t.id)! };
+                updatesToSync.push(updated);
+                return updated;
+            } else {
+                skippedCount++;
+                const updated = { ...t, skipAutoCategorization: true };
+                updatesToSync.push(updated);
+                return updated;
+            }
         }
-
-        newTransactions[index] = updated;
-        immediateSyncTransaction(updated);
+        return t;
       });
 
       setTransactions(newTransactions);
       
+      // Batch sync changes (using individual immediate syncs for simplicity in this structure)
+      updatesToSync.forEach(tx => immediateSyncTransaction(tx));
+
       if (updateCount > 0) {
           addToast(`Successfully categorized ${updateCount} transactions!`, 'success');
       } else if (skippedCount > 0) {
