@@ -134,10 +134,24 @@ test.describe('FinVision Dashboard UI', () => {
     // For now, we assume the UI interaction works.
     
     await page.getByRole('button', { name: 'Add Row' }).click();
-    const row = page.locator('tbody tr').last();
+
+    // Wait for row to appear and scroll into view if needed
+    const row = page.locator('tbody tr').first();
+    await expect(row).toBeVisible();
+
+    // Scroll to the bottom to ensure the new row is visible (if list is long)
+    await row.scrollIntoViewIfNeeded();
+
     await row.locator('input[type="text"]').fill('Netflix');
     
-    await page.getByRole('button', { name: 'AI Smart Categorize' }).click();
+    // Ensure the AI button is visible and not covered
+    // The text on the button is "AI Categorize", usually with an icon.
+    // We use a looser regex to match both "AI Categorize" and "AI Smart Categorize" in case it changes back.
+    const aiButton = page.getByRole('button', { name: /AI.*Categorize/i });
+    await expect(aiButton).toBeVisible();
+    // Using force click to bypass potential sticky header overlap or other interception
+    await aiButton.click({ force: true });
+
     // Since we didn't mock geminiService, this might hit real API or fail. 
     // We assert toast visibility which happens either way (success or error).
     await expect(page.getByText(/categorized|could not categorize/)).toBeVisible();

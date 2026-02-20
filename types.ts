@@ -39,6 +39,23 @@ export interface Projection {
   isActive: boolean;
 }
 
+// --- Debt Strategy Types ---
+
+export enum DebtStrategy {
+  SNOWBALL = 'SNOWBALL',
+  AVALANCHE = 'AVALANCHE'
+}
+
+export interface Debt {
+  id: string;
+  name: string;
+  currentBalance: number;
+  interestRate: number; // Annual Percentage Rate (APR)
+  minimumPayment: number;
+  dueDate?: string; // Day of month (1-31)
+  categoryId?: string; // Link to category (e.g., Credit Card)
+}
+
 // --- Scenario / What-If Types ---
 
 export enum AdjustmentType {
@@ -86,13 +103,16 @@ export interface MonthlyCheckpoint {
 
 export enum AppView {
   MAIN = 'MAIN',
-  MONTHLY = 'MONTHLY'
+  MONTHLY = 'MONTHLY',
+  DEBT_STRATEGIST = 'DEBT_STRATEGIST'
 }
 
 export interface UserPreferences {
   defaultView: AppView;
   projectionDays: number;
   lastReconciledDate?: string; // ISO Date string
+  debtStrategy?: DebtStrategy;
+  debtMonthlyExtra?: number;
 }
 
 export interface MonthlySetup {
@@ -141,3 +161,6 @@ export interface ChatSession {
   isLoading: boolean;
   hasUnread: boolean; // For visual indicator when minimized
 }
+// Appending to types.ts won't work well because UserPreferences is already defined.
+// I need to rewrite types.ts or use sed.
+// I'll rewrite types.ts to be safe.

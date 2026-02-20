@@ -1,4 +1,4 @@
-import { Transaction, Projection, MonthlySetup } from '../types';
+import { Transaction, Projection, MonthlySetup, Debt } from '../types';
 import { mockUser, mockTransactions, mockProjections, mockSettings } from '../e2e/fixtures/mockData';
 
 // Mock Firestore
@@ -37,6 +37,8 @@ let currentProjections = getStored('projections', [...mockProjections]);
 let currentSettings = getStored('settings', { ...mockSettings });
 
 let currentMonthlySetups = getStored('monthlySetups', {});
+
+let currentDebts = getStored('debts', []);
 
 let currentUser = getStored('user', null);
 
@@ -140,6 +142,8 @@ export const fetchUserData = async (uid: string) => {
 
     projections: currentProjections,
 
+    debts: currentDebts,
+
     optimized: true
 
   };
@@ -242,7 +246,20 @@ export const getMonthlySetup = async (uid: string, monthKey: string): Promise<Mo
 
 };
 
+export const updateRemoteDebt = async (uid: string, debt: Debt) => {
+  const index = currentDebts.findIndex((d: any) => d.id === debt.id);
+  if (index > -1) {
+    currentDebts[index] = debt;
+  } else {
+    currentDebts.push(debt);
+  }
+  setStored('debts', currentDebts);
+};
 
+export const deleteRemoteDebt = async (uid: string, debtId: string) => {
+  currentDebts = currentDebts.filter((d: any) => d.id !== debtId);
+  setStored('debts', currentDebts);
+};
 
 // Helper to reset state for tests (exposed to window for Playwright)
 
@@ -260,6 +277,8 @@ if (typeof window !== 'undefined') {
 
     currentMonthlySetups = {};
 
+    currentDebts = [];
+
     currentUser = null;
 
     notifyAuthListeners();
@@ -267,5 +286,3 @@ if (typeof window !== 'undefined') {
   };
 
 }
-
-
