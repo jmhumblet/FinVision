@@ -44,6 +44,7 @@ A dedicated tool to visualize and plan debt reduction.
 ## Smart Savings Goals
 **Status:** Unimplemented
 **Description:**
+Define specific savings targets (e.g., Vacation, Emergency Fund) and allocate 'Projected Remaining' cash flow towards them. Includes visual progress tracking, 'Safe to Spend' calculation, and integration with the Monthly Focus View.
 A dedicated module to help users set and track savings targets.
 - Users can define multiple savings goals (e.g., "New Car", "Emergency Fund", "Vacation").
 - Each goal has a target amount and target date.
