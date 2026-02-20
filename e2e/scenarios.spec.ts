@@ -53,7 +53,7 @@ test.describe('FinVision Dashboard UI', () => {
     const scenarioHeader = page.getByText('What-If Scenarios');
     await scenarioHeader.click();
     await page.getByPlaceholder('Scenario Name (e.g. New Job, Baby)').fill('Test Scenario');
-    await page.getByRole('button', { name: 'Create' }).click();
+    await page.getByRole('button', { name: 'Create', exact: true }).click();
     
     // 3. Edit Scenario - Auto-edit mode
     const scenarioCard = page.locator('div.border-slate-200', { hasText: 'Test Scenario' }).first();
@@ -84,7 +84,7 @@ test.describe('FinVision Dashboard UI', () => {
     // 2. Create Scenario
     await page.getByText('What-If Scenarios').click();
     await page.getByPlaceholder('Scenario Name (e.g. New Job, Baby)').fill('Removal Scenario');
-    await page.getByRole('button', { name: 'Create' }).click();
+    await page.getByRole('button', { name: 'Create', exact: true }).click();
     
     const scenarioCard = page.locator('div.border-slate-200', { hasText: 'Removal Scenario' }).first();
     
@@ -106,7 +106,7 @@ test.describe('FinVision Dashboard UI', () => {
   test('should allow adding scenario-only items', async ({ page }) => {
     await page.getByText('What-If Scenarios').click();
     await page.getByPlaceholder('Scenario Name (e.g. New Job, Baby)').fill('Budget Cut');
-    await page.getByRole('button', { name: 'Create' }).click();
+    await page.getByRole('button', { name: 'Create', exact: true }).click();
     
     const scenarioCard = page.locator('div.border-slate-200', { hasText: 'Budget Cut' }).first();
     
