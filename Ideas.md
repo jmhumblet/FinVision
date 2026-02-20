@@ -45,4 +45,10 @@ A dedicated tool to visualize and plan debt reduction.
 **Status:** Unimplemented
 **Description:**
 Define specific savings targets (e.g., Vacation, Emergency Fund) and allocate 'Projected Remaining' cash flow towards them. Includes visual progress tracking, 'Safe to Spend' calculation, and integration with the Monthly Focus View.
+A dedicated module to help users set and track savings targets.
+- Users can define multiple savings goals (e.g., "New Car", "Emergency Fund", "Vacation").
+- Each goal has a target amount and target date.
+- Visualize progress towards each goal with charts and percentage indicators.
+- Calculate required monthly contributions to reach the goal by the target date.
+- Option to allocate "Available Balance" to specific goals, reducing the spendable amount in the main dashboard.
 **Stitch Screen:** `75da098631554e8d8616eeb630dcf5a8`
