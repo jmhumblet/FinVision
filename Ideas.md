@@ -40,3 +40,13 @@ A dedicated tool to visualize and plan debt reduction.
 - Toggle between "Snowball" (lowest balance first) and "Avalanche" (highest interest first) strategies.
 - Visual chart comparing payoff timelines and interest saved vs. minimum payments.
 **Stitch Screen:** `e0be571bcf2a4426aa446c221a0dfd9c`
+
+## Smart Savings Goals
+**Status:** Unimplemented
+**Description:**
+A dedicated feature to create and track specific financial goals (e.g., "Emergency Fund", "New Car", "Vacation") with a target date and amount.
+- Users can set a target amount and a target date for each goal.
+- The system calculates the required monthly contribution and suggests adjustments based on current cash flow.
+- Visual progress bars and "On Track" status indicators provide motivation.
+- AI-driven insights suggest when extra funds are available to allocate towards goals.
+**Stitch Screen:** `PENDING_DESIGN_SMART_SAVINGS`
