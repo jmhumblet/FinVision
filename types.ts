@@ -15,6 +15,7 @@ export interface Category {
   id: string;
   name: string;
   color: string;
+  budgetLimit?: number; // Monthly budget limit
 }
 
 export interface Transaction {

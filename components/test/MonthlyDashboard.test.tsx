@@ -21,6 +21,7 @@ describe('MonthlyDashboard', () => {
   const mockOnUpdateProjection = vi.fn();
   const mockOnDeleteProjection = vi.fn();
   const mockOnAddProjection = vi.fn();
+  const mockOnUpdateCategories = vi.fn();
 
   const defaultProps = {
     summary: mockSummary,
@@ -37,6 +38,7 @@ describe('MonthlyDashboard', () => {
     onUpdateProjection: mockOnUpdateProjection,
     onDeleteProjection: mockOnDeleteProjection,
     onAddProjection: mockOnAddProjection,
+    onUpdateCategories: mockOnUpdateCategories,
   };
 
   it('renders the hero counter with remaining spendable', () => {
