@@ -32,11 +32,20 @@ Empower users to personalize their main dashboard.
 - Toggle visibility of specific sections (e.g., hide "Recent Transactions" if preferred).
 - Save layout preferences to the user profile.
 
-## Debt Payoff Strategist
-**Status:** Implemented
+## Smart Savings Goals
+**Status:** Completely Missing
 **Description:**
-A dedicated tool to visualize and plan debt reduction.
-- List various debts (Credit Cards, Loans) with balances and interest rates.
-- Toggle between "Snowball" (lowest balance first) and "Avalanche" (highest interest first) strategies.
-- Visual chart comparing payoff timelines and interest saved vs. minimum payments.
-**Stitch Screen:** `e0be571bcf2a4426aa446c221a0dfd9c`
+A dedicated module to help users set and track financial goals.
+- Create named goals (e.g., "New Car", "Emergency Fund").
+- Set target amounts and target dates.
+- Track progress through contributions and visualize time-to-goal.
+**Stitch Screen:** `75da098631554e8d8616eeb630dcf5a8`
+
+## Subscription Manager
+**Status:** Completely Missing
+**Description:**
+A feature to track and manage recurring subscriptions.
+- List detected recurring expenses with their costs and frequencies.
+- Allow users to add renewal dates and set reminders for cancellations.
+- Analyze total monthly/yearly subscription costs.
+**Stitch Screen:** `PENDING_DESIGN_SUBSCRIPTION_MGR`
