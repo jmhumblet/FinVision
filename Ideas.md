@@ -9,7 +9,7 @@ A dedicated module to provide users with external financial context. This featur
 - Include a news feed or curated articles related to personal finance and market movements.
 
 ## Category-based Budgeting
-**Status:** Enhancement needed in `Expense & Budget Tracker`
+**Status:** Implemented
 **Description:**
 Extend the `MonthlyDashboard` to support strict budgeting per category.
 - Allow users to set a "Budget Limit" for each category (e.g., "Dining Out: $200/month").

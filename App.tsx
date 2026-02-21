@@ -131,6 +131,9 @@ const App: React.FC = () => {
               if (data.settings.debtMonthlyExtra) {
                 setMonthlyExtra(data.settings.debtMonthlyExtra);
               }
+              if (data.settings.categories) {
+                setCategories(data.settings.categories);
+              }
             }
             
             if (data.transactions.length > 0) {
@@ -376,6 +379,16 @@ const App: React.FC = () => {
     }
   };
 
+  const syncCategories = async (cats: Category[]) => {
+    if (!user) return;
+    incrementSync();
+    try {
+        await updateRemoteSettings(user.uid, { categories: cats });
+    } finally {
+        decrementSync();
+    }
+  };
+
   // --- Action Handlers ---
 
   const handleUpdateTransaction = (updated: Transaction) => {
@@ -521,6 +534,11 @@ const App: React.FC = () => {
     };
     setProjections(prev => [...prev, newProj]);
     immediateSyncProjection(newProj);
+  };
+
+  const handleUpdateCategories = (newCats: Category[]) => {
+    setCategories(newCats);
+    syncCategories(newCats);
   };
 
   // --- Debt Handlers ---
@@ -849,6 +867,7 @@ const App: React.FC = () => {
             onUpdateProjection={handleUpdateProjection}
             onDeleteProjection={handleDeleteProjection}
             onAddProjection={handleAddProjection}
+            onUpdateCategories={handleUpdateCategories}
           />
         ) : currentView === AppView.DEBT_STRATEGIST ? (
             <DebtDashboard

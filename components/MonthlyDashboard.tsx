@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { MonthlySummary, Transaction, Projection, Category } from '../types';
 import { formatCurrency } from '../utils/financialUtils';
-import { ArrowUpCircle, ArrowDownCircle, Info, Settings, LayoutDashboard } from 'lucide-react';
+import { ArrowUpCircle, ArrowDownCircle, Info, Settings, LayoutDashboard, Target } from 'lucide-react';
 import TransactionTable from './TransactionTable';
 import ProjectionTable from './ProjectionTable';
 import MonthNavigator from './MonthNavigator';
+import CategoryBudgetList from './CategoryBudgetList';
+import CategoryBudgetModal from './CategoryBudgetModal';
 
 interface MonthlyDashboardProps {
   summary: MonthlySummary;
@@ -22,6 +24,7 @@ interface MonthlyDashboardProps {
   onUpdateProjection: (p: Projection) => void;
   onDeleteProjection: (id: string) => void;
   onAddProjection: () => void;
+  onUpdateCategories: (categories: Category[]) => void;
 }
 
 const MonthlyDashboard: React.FC<MonthlyDashboardProps> = ({ 
@@ -38,8 +41,11 @@ const MonthlyDashboard: React.FC<MonthlyDashboardProps> = ({
   onAddTransaction,
   onUpdateProjection,
   onDeleteProjection,
-  onAddProjection
+  onAddProjection,
+  onUpdateCategories
 }) => {
+  const [showBudgetModal, setShowBudgetModal] = useState(false);
+
   return (
     <div data-testid="monthly-dashboard" className="flex flex-col space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Header & Navigator */}
@@ -54,6 +60,13 @@ const MonthlyDashboard: React.FC<MonthlyDashboardProps> = ({
            >
              <LayoutDashboard size={20} />
              <span className="text-sm font-medium">Main Dashboard</span>
+           </button>
+           <button
+             onClick={() => setShowBudgetModal(true)}
+             className="p-2 bg-white border border-slate-200 rounded-xl shadow-sm text-slate-600 hover:bg-slate-50 transition-colors"
+             title="Budget Limits"
+           >
+             <Target size={20} />
            </button>
            <button 
              onClick={onOpenSettings}
@@ -118,6 +131,20 @@ const MonthlyDashboard: React.FC<MonthlyDashboardProps> = ({
                 : `You have cleared ${Math.round(summary.spentPercentage)}% of your expected monthly expenses.`}
         </p>
       </div>
+
+      {/* Budget List */}
+      <CategoryBudgetList
+        categories={categories}
+        transactions={transactions}
+        onOpenSettings={() => setShowBudgetModal(true)}
+      />
+
+      <CategoryBudgetModal
+        isOpen={showBudgetModal}
+        onClose={() => setShowBudgetModal(false)}
+        categories={categories}
+        onUpdateCategories={onUpdateCategories}
+      />
 
       {/* Monthly Tables */}
       <div className="flex flex-col space-y-8 pt-4 border-t border-slate-100">
