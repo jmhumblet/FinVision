@@ -17,7 +17,7 @@ Extend the `MonthlyDashboard` to support strict budgeting per category.
 - Alerts or notifications for budget overruns.
 
 ## Scenario Merging
-**Status:** Enhancement needed in `What-If Scenario Builder`
+**Status:** Implemented
 **Description:**
 Allow users to "commit" a scenario to their base financial plan.
 - A "Merge to Base" action on a scenario card.
