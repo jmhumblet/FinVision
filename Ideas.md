@@ -50,3 +50,13 @@ A dedicated view to track and manage recurring subscriptions.
 - Cancellation workflow assistant with guides on how to cancel popular services.
 - Alerts for price increases or upcoming renewals.
 **Stitch Screen:** `PENDING_DESIGN_SUBSCRIPTION_MGR`
+
+## Smart Savings Goals
+**Status:** Unimplemented
+**Description:**
+A feature to help users set and achieve financial milestones.
+- Set target amount and deadline (e.g., "Vacation: $2,000 by Dec 2024").
+- Track progress visually with a progress bar.
+- Suggest monthly contribution amounts based on cash flow projections.
+- Allocate unspent income directly to savings goals.
+**Stitch Screen:** `PENDING_DESIGN_SMART_SAVINGS`
