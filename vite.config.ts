@@ -7,6 +7,7 @@ export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     console.log('VITE_USE_MOCK_API:', process.env.VITE_USE_MOCK_API);
     return {
+      base: mode === 'production' ? '/FinVision/' : '/',
       server: {
         port: 3000,
         host: '0.0.0.0',
