@@ -42,7 +42,7 @@ A dedicated tool to visualize and plan debt reduction.
 **Stitch Screen:** `e0be571bcf2a4426aa446c221a0dfd9c`
 
 ## Subscription Manager
-**Status:** Unimplemented
+**Status:** Implemented
 **Description:**
 A dedicated view to track and manage recurring subscriptions.
 - List all recurring transactions with next due date and amount.

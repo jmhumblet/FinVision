@@ -40,6 +40,7 @@ import ScenarioBuilder from './components/ScenarioBuilder';
 import ReconciliationModal from './components/ReconciliationModal';
 import MonthlyDashboard from './components/MonthlyDashboard';
 import DebtDashboard from './components/DebtDashboard';
+import SubscriptionManager from './components/SubscriptionManager';
 import { generateTimeline, formatCurrency, getMonthKey, calculateMonthlySummary } from './utils/financialUtils';
 import { 
   Wallet, 
@@ -51,7 +52,8 @@ import {
   Check,
   Scale,
   LayoutDashboard,
-  CreditCard
+  CreditCard,
+  Repeat
 } from 'lucide-react';
 
 // --- Constants & Seed Data ---
@@ -827,6 +829,13 @@ const App: React.FC = () => {
                 >
                   <CreditCard size={20} />
                 </button>
+                <button
+                  onClick={() => setCurrentView(AppView.SUBSCRIPTIONS)}
+                  className={`p-2 rounded-lg transition-all ${currentView === AppView.SUBSCRIPTIONS ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+                  title="Subscriptions"
+                >
+                  <Repeat size={20} />
+                </button>
             </div>
 
             <div className="h-8 w-[1px] bg-slate-200 mx-1 hidden sm:block"></div>
@@ -879,6 +888,12 @@ const App: React.FC = () => {
                 onStrategyChange={handleStrategyChange}
                 monthlyExtra={monthlyExtra}
                 onMonthlyExtraChange={handleMonthlyExtraChange}
+            />
+        ) : currentView === AppView.SUBSCRIPTIONS ? (
+            <SubscriptionManager
+                projections={projections}
+                categories={categories}
+                onUpdateProjection={handleUpdateProjection}
             />
         ) : (
           <>
