@@ -8,14 +8,6 @@ A dedicated module to provide users with external financial context. This featur
 - Provide AI-driven analysis of how global trends (e.g., inflation rates, interest rate hikes) might impact the user's personal finances based on their projected cash flow.
 - Include a news feed or curated articles related to personal finance and market movements.
 
-## Category-based Budgeting
-**Status:** Implemented
-**Description:**
-Extend the `MonthlyDashboard` to support strict budgeting per category.
-- Allow users to set a "Budget Limit" for each category (e.g., "Dining Out: $200/month").
-- Visual indicators (progress bars, color coding) when spending approaches or exceeds the limit.
-- Alerts or notifications for budget overruns.
-
 ## Scenario Merging
 **Status:** Enhancement needed in `What-If Scenario Builder`
 **Description:**
@@ -32,15 +24,6 @@ Empower users to personalize their main dashboard.
 - Toggle visibility of specific sections (e.g., hide "Recent Transactions" if preferred).
 - Save layout preferences to the user profile.
 
-## Debt Payoff Strategist
-**Status:** Implemented
-**Description:**
-A dedicated tool to visualize and plan debt reduction.
-- List various debts (Credit Cards, Loans) with balances and interest rates.
-- Toggle between "Snowball" (lowest balance first) and "Avalanche" (highest interest first) strategies.
-- Visual chart comparing payoff timelines and interest saved vs. minimum payments.
-**Stitch Screen:** `e0be571bcf2a4426aa446c221a0dfd9c`
-
 ## Subscription Manager
 **Status:** Unimplemented
 **Description:**
@@ -50,3 +33,14 @@ A dedicated view to track and manage recurring subscriptions.
 - Cancellation workflow assistant with guides on how to cancel popular services.
 - Alerts for price increases or upcoming renewals.
 **Stitch Screen:** `PENDING_DESIGN_SUBSCRIPTION_MGR`
+
+## Smart Savings Goals
+**Status:** Completely Missing
+**Description:**
+A dedicated module to define and track financial goals. This feature should:
+- Allow users to set specific financial goals (e.g., "Buy a House", "Vacation Fund").
+- Set target amounts and target dates for each goal.
+- Display visual progress bars and completion percentages.
+- Automatically calculate the monthly savings required to meet the goal by the target date.
+- Track contribution history towards each goal.
+**Stitch Screen:** `PENDING_DESIGN_SMART_SAVINGS`
