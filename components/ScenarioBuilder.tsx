@@ -8,7 +8,7 @@ import {
   TransactionType,
   Frequency
 } from '../types';
-import { Plus, Trash2, Play, GitBranch, X, ChevronRight, ChevronDown } from 'lucide-react';
+import { Plus, Trash2, Play, GitBranch, X, ChevronRight, ChevronDown, GitMerge } from 'lucide-react';
 
 interface ScenarioBuilderProps {
   projections: Projection[];
@@ -16,6 +16,7 @@ interface ScenarioBuilderProps {
   onAddScenario: (s: Scenario) => void;
   onUpdateScenario: (s: Scenario) => void;
   onDeleteScenario: (id: string) => void;
+  onMergeScenario: (id: string) => void;
 }
 
 const COLORS = ['#ef4444', '#f59e0b', '#10b981', '#06b6d4', '#ec4899'];
@@ -25,7 +26,8 @@ const ScenarioBuilder: React.FC<ScenarioBuilderProps> = ({
   scenarios,
   onAddScenario,
   onUpdateScenario,
-  onDeleteScenario
+  onDeleteScenario,
+  onMergeScenario
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [newScenarioName, setNewScenarioName] = useState('');
@@ -146,6 +148,19 @@ const ScenarioBuilder: React.FC<ScenarioBuilderProps> = ({
                                 <span className="w-2 h-2 rounded-full" style={{ background: scenario.color }}></span>
                             </div>
                             <div className="flex items-center space-x-2">
+                                <button
+                                    onClick={() => {
+                                        if (window.confirm(`Are you sure you want to merge "${scenario.name}" into your main plan? This action cannot be undone.`)) {
+                                            onMergeScenario(scenario.id);
+                                        }
+                                    }}
+                                    className="text-xs text-emerald-600 hover:text-emerald-800 font-medium flex items-center space-x-1 mr-2"
+                                    title="Merge to Base Plan"
+                                    data-testid={`merge-scenario-${scenario.name.toLowerCase().replace(/\s+/g, '-')}`}
+                                >
+                                    <GitMerge size={14} />
+                                    <span>Merge</span>
+                                </button>
                                 <button 
                                     onClick={() => setEditingScenarioId(editingScenarioId === scenario.id ? null : scenario.id)}
                                     className="text-xs text-blue-600 hover:text-blue-800 font-medium"

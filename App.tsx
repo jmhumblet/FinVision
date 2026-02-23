@@ -42,6 +42,7 @@ import MonthlyDashboard from './components/MonthlyDashboard';
 import DebtDashboard from './components/DebtDashboard';
 import SubscriptionManager from './components/SubscriptionManager';
 import { generateTimeline, formatCurrency, getMonthKey, calculateMonthlySummary } from './utils/financialUtils';
+import { calculateMergeChanges } from './utils/scenarioUtils';
 import { 
   Wallet, 
   Wand2, 
@@ -630,6 +631,57 @@ const App: React.FC = () => {
   const handleUpdateScenario = (updated: Scenario) => {
     setScenarios(prev => prev.map(s => s.id === updated.id ? updated : s));
   };
+
+  const handleMergeScenario = async (scenarioId: string) => {
+    const scenario = scenarios.find(s => s.id === scenarioId);
+    if (!scenario) return;
+
+    const changes = calculateMergeChanges(projections, scenario);
+
+    // 1. Update Local State
+    setProjections(prev => {
+        let newProjections = [...prev];
+
+        // Add new items
+        newProjections.push(...changes.toAdd);
+
+        // Update items
+        changes.toUpdate.forEach(updated => {
+            const index = newProjections.findIndex(p => p.id === updated.id);
+            if (index !== -1) newProjections[index] = updated;
+        });
+
+        // Remove items
+        newProjections = newProjections.filter(p => !changes.toDelete.includes(p.id));
+
+        return newProjections;
+    });
+
+    // 2. Sync to Remote
+    if (user) {
+        // We execute these sequentially to avoid overwhelming the client/connection
+        // Ideally these would be a batch write in firebaseService, but we reuse existing methods here.
+        for (const p of changes.toAdd) {
+            await immediateSyncProjection(p);
+        }
+        for (const p of changes.toUpdate) {
+            await immediateSyncProjection(p);
+        }
+        for (const id of changes.toDelete) {
+            // Manually call delete remote, wrapping in sync counter
+            incrementSync();
+            try {
+                await deleteRemoteProjection(user.uid, id);
+            } finally {
+                decrementSync();
+            }
+        }
+    }
+
+    // 3. Delete Scenario
+    setScenarios(prev => prev.filter(s => s.id !== scenarioId));
+    addToast(`Merged scenario "${scenario.name}" into main plan.`, 'success');
+  };
   
   const handleDeleteScenario = (id: string) => {
     setScenarios(prev => prev.filter(s => s.id !== id));
@@ -950,6 +1002,7 @@ const App: React.FC = () => {
                 onAddScenario={handleAddScenario}
                 onUpdateScenario={handleUpdateScenario}
                 onDeleteScenario={handleDeleteScenario}
+                onMergeScenario={handleMergeScenario}
             />
 
             {/* Chart Section */}
