@@ -8,7 +8,6 @@
 - **Icons**: Lucide React (0.469.0)
 
 ## AI & Intelligence
-- **Model**: Google Gemini API (`gemini-3-flash-preview` via `@google/genai`)
 - **Integration**: Natural language parsing for transactions and "what-if" scenarios.
 
 ## Backend & Services
