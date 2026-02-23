@@ -25,7 +25,7 @@ Empower users to personalize their main dashboard.
 - Save layout preferences to the user profile.
 
 ## Subscription Manager
-**Status:** Unimplemented
+**Status:** Implemented
 **Description:**
 A dedicated view to track and manage recurring subscriptions.
 - List all recurring transactions with next due date and amount.

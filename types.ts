@@ -105,7 +105,8 @@ export interface MonthlyCheckpoint {
 export enum AppView {
   MAIN = 'MAIN',
   MONTHLY = 'MONTHLY',
-  DEBT_STRATEGIST = 'DEBT_STRATEGIST'
+  DEBT_STRATEGIST = 'DEBT_STRATEGIST',
+  SUBSCRIPTIONS = 'SUBSCRIPTIONS'
 }
 
 export interface UserPreferences {
