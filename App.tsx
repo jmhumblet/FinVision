@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { 
   Transaction, 
@@ -13,9 +13,7 @@ import {
   Debt,
   DebtStrategy
 } from './types';
-import { geminiService } from './services/geminiService';
 import { 
-  auth, 
   logout, 
   fetchUserData, 
   updateRemoteTransaction, 
@@ -34,7 +32,6 @@ import FinancialChart from './components/FinancialChart';
 import TransactionTable from './components/TransactionTable';
 import ProjectionTable from './components/ProjectionTable';
 import AuthScreen from './components/AuthScreen';
-import QuickActionManager from './components/QuickActionManager';
 import Toast, { ToastMessage } from './components/Toast';
 import ScenarioBuilder from './components/ScenarioBuilder';
 import ReconciliationModal from './components/ReconciliationModal';
@@ -45,7 +42,6 @@ import { generateTimeline, formatCurrency, getMonthKey, calculateMonthlySummary 
 import { calculateMergeChanges } from './utils/scenarioUtils';
 import { 
   Wallet, 
-  Wand2, 
   AlertCircle,
   TrendingUp,
   LogOut,
@@ -103,7 +99,6 @@ const App: React.FC = () => {
   const [selectedMonthDate, setSelectedMonthDate] = useState<Date>(new Date());
   const [monthlySetup, setMonthlySetup] = useState<MonthlySetup | null>(null);
   const [showReconciliationModal, setShowReconciliationModal] = useState(false);
-  const [isCategorizing, setIsCategorizing] = useState(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [authError, setAuthError] = useState<string | null>(null);
 
@@ -431,53 +426,6 @@ const App: React.FC = () => {
     immediateSyncTransaction(newTx);
   };
 
-  // Logic for Quick Action Creation (Data from AI)
-  const handleCreateTransactionFromAI = (data: Partial<Transaction>) => {
-    const newTx: Transaction = {
-      id: `ai-${uuidv4()}`,
-      date: data.date || new Date().toISOString().split('T')[0],
-      description: data.description || 'New AI Transaction',
-      amount: data.amount || 0,
-      categoryId: data.categoryId || '8',
-      type: data.type || TransactionType.EXPENSE,
-      skipAutoCategorization: false
-    };
-    setTransactions(prev => [newTx, ...prev]);
-    immediateSyncTransaction(newTx);
-    if (newTx.date) checkMonthVisibility(newTx.date);
-  };
-
-  const handleCreateProjectionFromAI = (data: Partial<Projection>) => {
-    // Force frequency to uppercase to match Enum key if AI returns mixed case
-    const freq = data.frequency ? data.frequency.toUpperCase() as Frequency : Frequency.MONTHLY;
-
-    const newProj: Projection = {
-      id: uuidv4(),
-      name: data.name || 'New AI Projection',
-      amount: data.amount || 0,
-      frequency: freq,
-      startDate: data.startDate || new Date().toISOString().split('T')[0],
-      endDate: data.endDate, // Correctly map endDate
-      categoryId: data.categoryId || '8',
-      type: data.type || TransactionType.EXPENSE,
-      isActive: true
-    };
-    setProjections(prev => [...prev, newProj]);
-    immediateSyncProjection(newProj);
-    if (newProj.startDate) checkMonthVisibility(newProj.startDate);
-  };
-
-  const handleUpdateProjectionFromAI = (id: string, data: Partial<Projection>) => {
-    setProjections(prev => prev.map(p => {
-        if (p.id === id) {
-            const updated = { ...p, ...data };
-            debouncedSyncProjection(updated);
-            return updated;
-        }
-        return p;
-    }));
-  };
-
   // --- Align Balance Logic ---
   const handleAlignBalance = () => {
     const input = prompt("Enter your actual current bank balance (e.g., 2500.50):", currentBalance.toString());
@@ -688,61 +636,6 @@ const App: React.FC = () => {
   };
 
 
-  const handleAutoCategorize = async () => {
-    setIsCategorizing(true);
-    try {
-      const toCategorize = transactions.filter(t => t.categoryId === '8' && !t.skipAutoCategorization);
-      
-      if (toCategorize.length === 0) {
-        alert("No eligible transactions found in 'Other' to analyze.");
-        setIsCategorizing(false);
-        return;
-      }
-
-      const mapping = await geminiService.categorizeTransactions(toCategorize, categories);
-      
-      let updateCount = 0;
-      let skippedCount = 0;
-      const updatesToSync: Transaction[] = [];
-
-      const newTransactions = transactions.map(t => {
-        if (t.categoryId === '8' && !t.skipAutoCategorization) {
-            if (mapping.has(t.id)) {
-                updateCount++;
-                const updated = { ...t, categoryId: mapping.get(t.id)! };
-                updatesToSync.push(updated);
-                return updated;
-            } else {
-                skippedCount++;
-                const updated = { ...t, skipAutoCategorization: true };
-                updatesToSync.push(updated);
-                return updated;
-            }
-        }
-        return t;
-      });
-
-      setTransactions(newTransactions);
-      
-      // Batch sync changes (using individual immediate syncs for simplicity in this structure)
-      updatesToSync.forEach(tx => immediateSyncTransaction(tx));
-
-      if (updateCount > 0) {
-          addToast(`Successfully categorized ${updateCount} transactions!`, 'success');
-      } else if (skippedCount > 0) {
-          addToast(`AI could not categorize ${skippedCount} items and will ignore them next time.`, 'error');
-      } else {
-          addToast("No changes made.", 'error');
-      }
-
-    } catch (e) {
-      console.error(e);
-      addToast("AI Categorization error.", 'error');
-    } finally {
-      setIsCategorizing(false);
-    }
-  };
-
   if (isInitializing) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
@@ -782,16 +675,6 @@ const App: React.FC = () => {
           ))}
         </div>
       </div>
-
-      {/* Quick Action Manager (Chat Bubbles) */}
-      <QuickActionManager 
-        categories={categories}
-        projections={projections}
-        onTransactionCreate={handleCreateTransactionFromAI}
-        onProjectionCreate={handleCreateProjectionFromAI}
-        onProjectionUpdate={handleUpdateProjectionFromAI}
-        onToast={addToast}
-      />
 
       {showReconciliationModal && (
         <ReconciliationModal 
@@ -846,17 +729,6 @@ const App: React.FC = () => {
                     </select>
                 </div>
              )}
-          
-            <button 
-              onClick={handleAutoCategorize}
-              disabled={isCategorizing}
-              className={`flex items-center space-x-2 px-3 py-2 rounded-xl text-sm font-semibold text-white shadow-md transition-all
-                ${isCategorizing ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 active:scale-95'}`}
-              title="Automatically categorize transactions labeled as 'Other'"
-            >
-              <Wand2 size={16} className={isCategorizing ? 'animate-spin' : ''} />
-              <span className="hidden sm:inline">AI Categorize</span>
-            </button>
 
             {/* View Switchers */}
             <div className="flex space-x-1 bg-slate-100 p-1 rounded-xl">
@@ -1043,10 +915,7 @@ const App: React.FC = () => {
       <footer className="bg-white border-t border-slate-200 py-6 mt-auto">
         <div className="max-w-7xl mx-auto px-4 text-center">
            <p className="text-xs text-slate-400 font-medium tracking-wide">
-             FinVision Planner &bull; Secured with Firebase &bull; AI Powered by Gemini
-           </p>
-           <p className="text-[10px] text-slate-300 mt-1">
-             Pro tip: Press Ctrl + Enter to quick add via AI
+             FinVision Planner &bull; Secured with Firebase
            </p>
         </div>
       </footer>
