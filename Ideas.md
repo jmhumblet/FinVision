@@ -9,7 +9,7 @@ A dedicated module to provide users with external financial context. This featur
 - Include a news feed or curated articles related to personal finance and market movements.
 
 ## Scenario Merging
-**Status:** Enhancement needed in `What-If Scenario Builder`
+**Status:** Implemented
 **Description:**
 Allow users to "commit" a scenario to their base financial plan.
 - A "Merge to Base" action on a scenario card.
