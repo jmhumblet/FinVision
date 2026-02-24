@@ -1,10 +1,10 @@
 
 > finvision-planner@0.0.0 dev
-> vite
+> vite --host --port 3000
 
-VITE_USE_MOCK_API: undefined
+VITE_USE_MOCK_API: true
 
-  VITE v6.4.1  ready in 221 ms
+  VITE v6.4.1  ready in 208 ms
 
   ➜  Local:   http://localhost:3000/
   ➜  Network: http://192.168.0.2:3000/

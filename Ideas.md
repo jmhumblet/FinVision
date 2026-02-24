@@ -35,7 +35,7 @@ A dedicated view to track and manage recurring subscriptions.
 **Stitch Screen:** `PENDING_DESIGN_SUBSCRIPTION_MGR`
 
 ## Smart Savings Goals
-**Status:** Unimplemented
+**Status:** Implemented
 **Description:**
 A dedicated module to create and track savings goals (e.g., "Emergency Fund", "New Car").
 - Set a target amount and target date.
