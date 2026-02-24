@@ -43,3 +43,14 @@ A dedicated module to create and track savings goals (e.g., "Emergency Fund", "N
 - Visual progress bar showing current savings vs target.
 - Link to specific accounts or virtual "buckets".
 **Stitch Screen:** `PENDING_DESIGN_SMART_SAVINGS`
+
+## Net Worth Dashboard
+**Status:** Unimplemented
+**Description:**
+A comprehensive view to track and visualize total net worth over time.
+- Aggregates all Assets (Cash, Investments, Property) and Liabilities (Debts, Loans).
+- Displays current Net Worth with trend indicators.
+- Historical Net Worth chart.
+- Breakdown by category (e.g., Liquid vs Illiquid assets).
+- Goal setting for Net Worth milestones.
+**Stitch Screen:** `PENDING_DESIGN_NET_WORTH`
