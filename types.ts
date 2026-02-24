@@ -106,7 +106,18 @@ export enum AppView {
   MAIN = 'MAIN',
   MONTHLY = 'MONTHLY',
   DEBT_STRATEGIST = 'DEBT_STRATEGIST',
-  SUBSCRIPTIONS = 'SUBSCRIPTIONS'
+  SUBSCRIPTIONS = 'SUBSCRIPTIONS',
+  SMART_SAVINGS = 'SMART_SAVINGS'
+}
+
+export interface SavingsGoal {
+  id: string;
+  name: string;
+  targetAmount: number;
+  currentAmount: number;
+  targetDate: string; // ISO Date YYYY-MM-DD
+  icon?: string;
+  color?: string;
 }
 
 export interface UserPreferences {

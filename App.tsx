@@ -11,7 +11,8 @@ import {
   AppView,
   MonthlySetup,
   Debt,
-  DebtStrategy
+  DebtStrategy,
+  SavingsGoal
 } from './types';
 import { 
   logout, 
@@ -25,7 +26,9 @@ import {
   getMonthlySetup,
   saveMonthlySetup,
   updateRemoteDebt,
-  deleteRemoteDebt
+  deleteRemoteDebt,
+  updateRemoteSavingsGoal,
+  deleteRemoteSavingsGoal
 } from '@/services/firebaseService';
 import { User } from 'firebase/auth';
 import FinancialChart from './components/FinancialChart';
@@ -38,6 +41,7 @@ import ReconciliationModal from './components/ReconciliationModal';
 import MonthlyDashboard from './components/MonthlyDashboard';
 import DebtDashboard from './components/DebtDashboard';
 import SubscriptionManager from './components/SubscriptionManager';
+import SmartSavingsDashboard from './components/SmartSavingsDashboard';
 import { generateTimeline, formatCurrency, getMonthKey, calculateMonthlySummary } from './utils/financialUtils';
 import { calculateMergeChanges } from './utils/scenarioUtils';
 import { 
@@ -50,7 +54,8 @@ import {
   Scale,
   LayoutDashboard,
   CreditCard,
-  Repeat
+  Repeat,
+  PiggyBank
 } from 'lucide-react';
 
 // --- Constants & Seed Data ---
@@ -88,6 +93,7 @@ const App: React.FC = () => {
   const [projections, setProjections] = useState<Projection[]>([]);
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [debts, setDebts] = useState<Debt[]>([]);
+  const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([]);
   
   const [loadedInitialBalance, setLoadedInitialBalance] = useState<number>(0);
   const [projectionDays, setProjectionDays] = useState(180);
@@ -144,6 +150,10 @@ const App: React.FC = () => {
 
             if (data.debts && data.debts.length > 0) {
               setDebts(data.debts);
+            }
+
+            if (data.savingsGoals && data.savingsGoals.length > 0) {
+              setSavingsGoals(data.savingsGoals);
             }
 
             // Check if reconciliation is needed for current month
@@ -364,6 +374,16 @@ const App: React.FC = () => {
     }
   };
 
+  const immediateSyncSavingsGoal = async (g: SavingsGoal) => {
+    if (!user) return;
+    incrementSync();
+    try {
+      await updateRemoteSavingsGoal(user.uid, g);
+    } finally {
+      decrementSync();
+    }
+  };
+
   const syncSettings = async (bal: number, days: number, dStrat?: DebtStrategy, dExtra?: number) => {
     if (!user) return;
     incrementSync();
@@ -520,6 +540,26 @@ const App: React.FC = () => {
   const handleMonthlyExtraChange = (val: number) => {
     setMonthlyExtra(val);
     syncSettings(loadedInitialBalance, projectionDays, debtStrategy, val);
+  };
+
+  // --- Smart Savings Handlers ---
+  const handleAddSavingsGoal = (goal: SavingsGoal) => {
+    setSavingsGoals(prev => [...prev, goal]);
+    immediateSyncSavingsGoal(goal);
+  };
+
+  const handleUpdateSavingsGoal = (goal: SavingsGoal) => {
+    setSavingsGoals(prev => prev.map(g => g.id === goal.id ? goal : g));
+    immediateSyncSavingsGoal(goal);
+  };
+
+  const handleDeleteSavingsGoal = async (id: string) => {
+    setSavingsGoals(prev => prev.filter(g => g.id !== id));
+    if (user) {
+      incrementSync();
+      await deleteRemoteSavingsGoal(user.uid, id);
+      decrementSync();
+    }
   };
 
   // --- Scenario Handlers ---
@@ -760,6 +800,13 @@ const App: React.FC = () => {
                 >
                   <Repeat size={20} />
                 </button>
+                <button
+                  onClick={() => setCurrentView(AppView.SMART_SAVINGS)}
+                  className={`p-2 rounded-lg transition-all ${currentView === AppView.SMART_SAVINGS ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+                  title="Smart Savings"
+                >
+                  <PiggyBank size={20} />
+                </button>
             </div>
 
             <div className="h-8 w-[1px] bg-slate-200 mx-1 hidden sm:block"></div>
@@ -818,6 +865,13 @@ const App: React.FC = () => {
                 projections={projections}
                 categories={categories}
                 onUpdateProjection={handleUpdateProjection}
+            />
+        ) : currentView === AppView.SMART_SAVINGS ? (
+            <SmartSavingsDashboard
+                goals={savingsGoals}
+                onAddGoal={handleAddSavingsGoal}
+                onUpdateGoal={handleUpdateSavingsGoal}
+                onDeleteGoal={handleDeleteSavingsGoal}
             />
         ) : (
           <>

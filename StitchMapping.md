@@ -9,5 +9,4 @@
 | Market Trends & AI Insights | `51a782eda2de4e77b53d91f8297e46aa` | N/A | **Unimplemented** (Design generated: `projects/1367343895201871121/screens/51a782eda2de4e77b53d91f8297e46aa`) |
 | Debt Payoff Strategist | `e0be571bcf2a4426aa446c221a0dfd9c` | `components/DebtDashboard.tsx`, `App.tsx` (Debt View) | **Implemented** (Design generated: `projects/1367343895201871121/screens/e0be571bcf2a4426aa446c221a0dfd9c`) |
 | Subscription Manager | `PENDING_DESIGN_SUBSCRIPTION_MGR` | `components/SubscriptionManager.tsx`, `App.tsx` (Subscriptions View) | **Implemented** |
-| Smart Savings Goals | `PENDING_DESIGN_SMART_SAVINGS` | `components/SmartSavingsGoals.tsx` | **Unimplemented** |
-| Net Worth Dashboard | `PENDING_DESIGN_NET_WORTH` | `components/NetWorthDashboard.tsx` | **Unimplemented** |
+| Smart Savings Goals | `PENDING_DESIGN_SMART_SAVINGS` | `components/SmartSavingsDashboard.tsx` | **Implemented** |
