@@ -10,3 +10,4 @@
 | Debt Payoff Strategist | `e0be571bcf2a4426aa446c221a0dfd9c` | `components/DebtDashboard.tsx`, `App.tsx` (Debt View) | **Implemented** (Design generated: `projects/1367343895201871121/screens/e0be571bcf2a4426aa446c221a0dfd9c`) |
 | Subscription Manager | `PENDING_DESIGN_SUBSCRIPTION_MGR` | `components/SubscriptionManager.tsx`, `App.tsx` (Subscriptions View) | **Implemented** |
 | Smart Savings Goals | `PENDING_DESIGN_SMART_SAVINGS` | `components/SmartSavingsDashboard.tsx` | **Implemented** |
+| Net Worth Dashboard | `PENDING_DESIGN_NET_WORTH` | `components/NetWorthDashboard.tsx`, `App.tsx` (Net Worth View) | **Implemented** |

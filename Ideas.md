@@ -44,16 +44,6 @@ A dedicated module to create and track savings goals (e.g., "Emergency Fund", "N
 - Link to specific accounts or virtual "buckets".
 **Stitch Screen:** `PENDING_DESIGN_SMART_SAVINGS`
 
-## Net Worth Dashboard
-**Status:** Unimplemented
-**Description:**
-A holistic view of the user's financial health, tracking assets vs. liabilities over time.
-- **Total Net Worth KPI:** A prominent display of Total Assets minus Total Liabilities, with a trend indicator (e.g., +5% this month).
-- **Asset Tracking:** A list of asset categories (Cash, Investments, Property, Vehicles) with manual entry or potential account linking.
-- **Liability Tracking:** A list of liabilities (Mortgage, Loans, Credit Cards), potentially integrated with the Debt Payoff Strategist.
-- **Historical Chart:** A line chart visualizing Net Worth progression over time (1Y, 5Y, Max).
-**Stitch Screen:** `PENDING_DESIGN_NET_WORTH`
-
 ## Smart Bill Calendar
 **Status:** Unimplemented
 **Description:**

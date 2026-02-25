@@ -107,7 +107,24 @@ export enum AppView {
   MONTHLY = 'MONTHLY',
   DEBT_STRATEGIST = 'DEBT_STRATEGIST',
   SUBSCRIPTIONS = 'SUBSCRIPTIONS',
-  SMART_SAVINGS = 'SMART_SAVINGS'
+  SMART_SAVINGS = 'SMART_SAVINGS',
+  NET_WORTH = 'NET_WORTH'
+}
+
+export enum AssetType {
+  CASH = 'CASH',
+  INVESTMENT = 'INVESTMENT',
+  PROPERTY = 'PROPERTY',
+  VEHICLE = 'VEHICLE',
+  OTHER = 'OTHER'
+}
+
+export interface Asset {
+  id: string;
+  name: string;
+  value: number;
+  type: AssetType;
+  liquidity?: 'HIGH' | 'MEDIUM' | 'LOW';
 }
 
 export interface SavingsGoal {

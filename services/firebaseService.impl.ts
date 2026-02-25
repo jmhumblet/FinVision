@@ -21,7 +21,7 @@ import {
   orderBy,
   limit
 } from 'firebase/firestore/lite';
-import { Transaction, Projection, MonthlyCheckpoint, TransactionType, MonthlySetup, Debt, SavingsGoal } from '../types';
+import { Transaction, Projection, MonthlyCheckpoint, TransactionType, MonthlySetup, Debt, SavingsGoal, Asset } from '../types';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCOnTNxkj1f7VHlp6ppXdYbzsCi_9tCtWk",
@@ -199,6 +199,11 @@ export const fetchUserData = async (uid: string) => {
   const savingsDocs = await getDocs(savingsQuery);
   const savingsGoals = savingsDocs.docs.map(d => d.data() as SavingsGoal);
 
+  // Fetch Assets
+  const assetsQuery = query(collection(db, 'users', uid, 'assets'));
+  const assetsDocs = await getDocs(assetsQuery);
+  const assets = assetsDocs.docs.map(d => d.data() as Asset);
+
   // 2. Fetch Checkpoint for prevMonthKey
   // This checkpoint contains the startBalance and endBalance for that month.
   // We actually need the checkpoint of the month BEFORE the window to get the starting balance.
@@ -240,6 +245,7 @@ export const fetchUserData = async (uid: string) => {
               projections,
               debts,
               savingsGoals,
+              assets,
               optimized: false
           };
       }
@@ -256,6 +262,7 @@ export const fetchUserData = async (uid: string) => {
     projections,
     debts,
     savingsGoals,
+    assets,
     optimized: true
   };
 };
@@ -333,4 +340,12 @@ export const updateRemoteSavingsGoal = async (uid: string, goal: SavingsGoal) =>
 
 export const deleteRemoteSavingsGoal = async (uid: string, goalId: string) => {
   await deleteDoc(doc(db, 'users', uid, 'savingsGoals', goalId));
+};
+
+export const updateRemoteAsset = async (uid: string, asset: Asset) => {
+  await setDoc(doc(db, 'users', uid, 'assets', asset.id), asset);
+};
+
+export const deleteRemoteAsset = async (uid: string, assetId: string) => {
+  await deleteDoc(doc(db, 'users', uid, 'assets', assetId));
 };

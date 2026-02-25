@@ -1,4 +1,4 @@
-import { Transaction, Projection, MonthlySetup, Debt, SavingsGoal } from '../types';
+import { Transaction, Projection, MonthlySetup, Debt, SavingsGoal, Asset } from '../types';
 import { mockUser, mockTransactions, mockProjections, mockSettings } from '../e2e/fixtures/mockData';
 
 // Mock Firestore
@@ -41,6 +41,8 @@ let currentMonthlySetups = getStored('monthlySetups', {});
 let currentDebts = getStored('debts', []);
 
 let currentSavingsGoals = getStored('savingsGoals', []);
+
+let currentAssets = getStored('assets', []);
 
 let currentUser = getStored('user', null);
 
@@ -147,6 +149,8 @@ export const fetchUserData = async (uid: string) => {
     debts: currentDebts,
 
     savingsGoals: currentSavingsGoals,
+
+    assets: currentAssets,
 
     optimized: true
 
@@ -280,6 +284,21 @@ export const deleteRemoteSavingsGoal = async (uid: string, goalId: string) => {
   setStored('savingsGoals', currentSavingsGoals);
 };
 
+export const updateRemoteAsset = async (uid: string, asset: Asset) => {
+  const index = currentAssets.findIndex((a: any) => a.id === asset.id);
+  if (index > -1) {
+    currentAssets[index] = asset;
+  } else {
+    currentAssets.push(asset);
+  }
+  setStored('assets', currentAssets);
+};
+
+export const deleteRemoteAsset = async (uid: string, assetId: string) => {
+  currentAssets = currentAssets.filter((a: any) => a.id !== assetId);
+  setStored('assets', currentAssets);
+};
+
 // Helper to reset state for tests (exposed to window for Playwright)
 
 if (typeof window !== 'undefined') {
@@ -299,6 +318,8 @@ if (typeof window !== 'undefined') {
     currentDebts = [];
 
     currentSavingsGoals = [];
+
+    currentAssets = [];
 
     currentUser = null;
 
