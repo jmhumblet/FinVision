@@ -1,0 +1,65 @@
+name: Conductor Ideation (Weekly)
+on:
+  schedule:
+    - cron: '0 9 * * 1' # Mondays at 9am
+  workflow_dispatch:
+
+jobs:
+  ideate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write # Needed if we decide to have this job create the issue directly
+    steps:
+      - uses: actions/checkout@v4
+      
+      # 1. Gather Context (Existing issues) to prevent duplicates
+      - name: Gather Context
+        id: context
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          EXISTING=$(gh issue list --state open --json title --jq '.[].title' | tr '\n' '; ')
+          echo "EXISTING_ISSUES=$EXISTING" >> $GITHUB_ENV
+
+      # 2. Run Jules
+      - name: Run Jules (The Product Squad)
+        uses: google-labs-code/jules-action@v1
+        with:
+          api-key: ${{ secrets.JULES_API_KEY }}
+          prompt: |
+            **Goal:** Act as a Product Squad (PM, Designer, Tech Lead) to propose ONE new feature.
+            
+            **Context:**
+            1. Read `/conductor/product.md`.
+            2. Avoid duplicates of: "${{ env.EXISTING_ISSUES }}"
+            
+            **Instructions:**
+            1. Brainstorm 5 ideas; select the best one.
+            2. **DO NOT try to create a GitHub Issue.**
+            3. Instead, **create a new file** in the repository at this path:
+               `proposals/draft-idea-${{ github.run_id }}.md`
+            
+            **File Content Format (Strict Markdown):**
+            You must write the file exactly like this:
+            
+            ---
+            title: [Insert Title Here]
+            labels: status:idea, automated-proposal
+            ---
+            
+            # User Story
+            **As a**... **I want**... **So that**...
+            
+            # Business Value (PM)
+            [Explanation]
+            
+            # Design Specs (Designer)
+            [Visual description]
+            
+            # Technical Plan (Tech Lead)
+            [Implementation details]
+            
+            # Acceptance Criteria
+            - [ ] Criteria 1
+            - [ ] Criteria 2
