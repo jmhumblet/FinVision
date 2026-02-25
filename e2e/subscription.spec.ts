@@ -54,7 +54,7 @@ test.describe('Subscription Manager', () => {
     await expect(page.getByText('Find Cancellation Guide')).toBeVisible();
 
     // Close modal
-    await page.getByRole('button', { name: 'Close' }).click();
+    await page.getByRole('button', { name: 'Close' }).filter({ hasText: 'Close' }).click();
     await expect(page.getByText('Cancel Rent')).not.toBeVisible();
   });
 });
