@@ -1,0 +1,40 @@
+name: Process Proposal
+on:
+  pull_request:
+    paths:
+      - 'proposals/*.md' # Only runs when Jules adds a file here
+
+jobs:
+  convert_to_issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Parse Proposal & Create Issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 1. Find the new file
+          FILE=$(find proposals -name "draft-idea-*.md" | head -n 1)
+          
+          # 2. Extract Title (using grep/sed to read the frontmatter)
+          TITLE=$(grep "^title:" "$FILE" | sed 's/title: //')
+          
+          # 3. Extract Body (everything after the second ---)
+          # We use sed to strip the frontmatter
+          sed '1,/^---$/d' "$FILE" > body.txt
+          
+          # 4. Create the Issue
+          NEW_ISSUE_URL=$(gh issue create --title "$TITLE" --body-file body.txt --label "status: idea")
+          
+          echo "Created Issue: $NEW_ISSUE_URL"
+          
+          # 5. Cleanup (Optional: Close the PR since we have the issue now)
+          # Alternatively, you can merge this PR to keep a record of the proposal file.
+          gh pr close ${{ github.event.pull_request.number }} --delete-branch --comment "Converted to Issue: $NEW_ISSUE_URL"
