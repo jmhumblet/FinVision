@@ -12,7 +12,8 @@ import {
   MonthlySetup,
   Debt,
   DebtStrategy,
-  SavingsGoal
+  SavingsGoal,
+  Asset
 } from './types';
 import { 
   logout, 
@@ -28,10 +29,13 @@ import {
   updateRemoteDebt,
   deleteRemoteDebt,
   updateRemoteSavingsGoal,
-  deleteRemoteSavingsGoal
+  deleteRemoteSavingsGoal,
+  updateRemoteAsset,
+  deleteRemoteAsset
 } from '@/services/firebaseService';
 import { User } from 'firebase/auth';
 import FinancialChart from './components/FinancialChart';
+import NetWorthDashboard from './components/NetWorthDashboard';
 import TransactionTable from './components/TransactionTable';
 import ProjectionTable from './components/ProjectionTable';
 import AuthScreen from './components/AuthScreen';
@@ -55,7 +59,8 @@ import {
   LayoutDashboard,
   CreditCard,
   Repeat,
-  PiggyBank
+  PiggyBank,
+  Landmark
 } from 'lucide-react';
 
 // --- Constants & Seed Data ---
@@ -94,6 +99,7 @@ const App: React.FC = () => {
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [debts, setDebts] = useState<Debt[]>([]);
   const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([]);
+  const [assets, setAssets] = useState<Asset[]>([]);
   
   const [loadedInitialBalance, setLoadedInitialBalance] = useState<number>(0);
   const [projectionDays, setProjectionDays] = useState(180);
@@ -154,6 +160,10 @@ const App: React.FC = () => {
 
             if (data.savingsGoals && data.savingsGoals.length > 0) {
               setSavingsGoals(data.savingsGoals);
+            }
+
+            if (data.assets && data.assets.length > 0) {
+              setAssets(data.assets);
             }
 
             // Check if reconciliation is needed for current month
@@ -384,6 +394,16 @@ const App: React.FC = () => {
     }
   };
 
+  const immediateSyncAsset = async (a: Asset) => {
+    if (!user) return;
+    incrementSync();
+    try {
+      await updateRemoteAsset(user.uid, a);
+    } finally {
+      decrementSync();
+    }
+  };
+
   const syncSettings = async (bal: number, days: number, dStrat?: DebtStrategy, dExtra?: number) => {
     if (!user) return;
     incrementSync();
@@ -558,6 +578,26 @@ const App: React.FC = () => {
     if (user) {
       incrementSync();
       await deleteRemoteSavingsGoal(user.uid, id);
+      decrementSync();
+    }
+  };
+
+  // --- Asset Handlers ---
+  const handleAddAsset = (asset: Asset) => {
+    setAssets(prev => [...prev, asset]);
+    immediateSyncAsset(asset);
+  };
+
+  const handleUpdateAsset = (asset: Asset) => {
+    setAssets(prev => prev.map(a => a.id === asset.id ? asset : a));
+    immediateSyncAsset(asset);
+  };
+
+  const handleDeleteAsset = async (id: string) => {
+    setAssets(prev => prev.filter(a => a.id !== id));
+    if (user) {
+      incrementSync();
+      await deleteRemoteAsset(user.uid, id);
       decrementSync();
     }
   };
@@ -807,6 +847,13 @@ const App: React.FC = () => {
                 >
                   <PiggyBank size={20} />
                 </button>
+                <button
+                  onClick={() => setCurrentView(AppView.NET_WORTH)}
+                  className={`p-2 rounded-lg transition-all ${currentView === AppView.NET_WORTH ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+                  title="Net Worth"
+                >
+                  <Landmark size={20} />
+                </button>
             </div>
 
             <div className="h-8 w-[1px] bg-slate-200 mx-1 hidden sm:block"></div>
@@ -872,6 +919,16 @@ const App: React.FC = () => {
                 onAddGoal={handleAddSavingsGoal}
                 onUpdateGoal={handleUpdateSavingsGoal}
                 onDeleteGoal={handleDeleteSavingsGoal}
+            />
+        ) : currentView === AppView.NET_WORTH ? (
+            <NetWorthDashboard
+                assets={assets}
+                debts={debts}
+                currentBalance={currentBalance}
+                timelineData={timelineData}
+                onAddAsset={handleAddAsset}
+                onUpdateAsset={handleUpdateAsset}
+                onDeleteAsset={handleDeleteAsset}
             />
         ) : (
           <>

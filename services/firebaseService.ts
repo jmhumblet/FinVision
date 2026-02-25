@@ -1,6 +1,6 @@
 import * as RealService from './firebaseService.impl';
 import * as MockService from './mockFirebaseService.impl';
-import { Transaction, Projection, MonthlySetup, Debt, SavingsGoal } from '../types';
+import { Transaction, Projection, MonthlySetup, Debt, SavingsGoal, Asset } from '../types';
 import { User } from 'firebase/auth';
 
 const useMock = import.meta.env.VITE_USE_MOCK_API === 'true';
@@ -68,4 +68,14 @@ export const updateRemoteSavingsGoal = async (uid: string, goal: SavingsGoal) =>
 
 export const deleteRemoteSavingsGoal = async (uid: string, goalId: string) => {
   return useMock ? MockService.deleteRemoteSavingsGoal(uid, goalId) : RealService.deleteRemoteSavingsGoal(uid, goalId);
+};
+
+// --- Asset Functions ---
+
+export const updateRemoteAsset = async (uid: string, asset: Asset) => {
+  return useMock ? MockService.updateRemoteAsset(uid, asset) : RealService.updateRemoteAsset(uid, asset);
+};
+
+export const deleteRemoteAsset = async (uid: string, assetId: string) => {
+  return useMock ? MockService.deleteRemoteAsset(uid, assetId) : RealService.deleteRemoteAsset(uid, assetId);
 };
