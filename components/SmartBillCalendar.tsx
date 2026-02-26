@@ -6,7 +6,9 @@ import {
   Plus,
   AlertTriangle,
   CheckCircle2,
-  Clock
+  Clock,
+  X,
+  Trash2
 } from 'lucide-react';
 import {
   Transaction,
@@ -17,6 +19,7 @@ import {
   Frequency
 } from '../types';
 import { formatCurrency, calculateProjectionValueForDate } from '../utils/financialUtils';
+import { v4 as uuidv4 } from 'uuid';
 
 interface SmartBillCalendarProps {
   transactions: Transaction[];
@@ -38,10 +41,14 @@ export const SmartBillCalendar: React.FC<SmartBillCalendarProps> = ({
   projections,
   categories,
   timelineData,
-  onAddTransaction
+  onAddTransaction,
+  onUpdateTransaction,
+  onDeleteTransaction
 }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newTxData, setNewTxData] = useState<Partial<Transaction>>({});
 
   // --- Calendar Logic ---
   const getDaysInMonth = (date: Date) => {
@@ -89,18 +96,16 @@ export const SmartBillCalendar: React.FC<SmartBillCalendarProps> = ({
 
   // --- Data Logic ---
   const getEventsForDate = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    // Construct local YYYY-MM-DD string
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    const dateStr = `${y}-${m}-${d}`;
 
     // 1. Transactions (Actual)
     const txs = transactions.filter(t => t.date === dateStr);
 
-    // 2. Projections (Planned) - Only if date is in future or today?
-    // Actually, show projections for all days to see what was PLANNED vs actual
-    // But usually projections "turn into" transactions.
-    // Let's filter projections:
-    // If it's in the past, maybe show them as "Missed" if no matching transaction?
-    // For simplicity, we just show what `timelineData` uses essentially.
-
+    // 2. Projections (Planned)
     const projs = projections.filter(p => {
         if (!p.isActive) return false;
         const val = calculateProjectionValueForDate(p, date, dateStr);
@@ -111,7 +116,12 @@ export const SmartBillCalendar: React.FC<SmartBillCalendarProps> = ({
   };
 
   const getBalanceForDate = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    // Construct local YYYY-MM-DD string
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    const dateStr = `${y}-${m}-${d}`;
+
     const point = timelineData.find(d => d.date === dateStr);
     if (!point) return null;
     return point.projectedBalance !== null ? point.projectedBalance : point.historicalBalance;
@@ -130,6 +140,44 @@ export const SmartBillCalendar: React.FC<SmartBillCalendarProps> = ({
     return date.getDate() === today.getDate() &&
            date.getMonth() === today.getMonth() &&
            date.getFullYear() === today.getFullYear();
+  };
+
+  const handleOpenAddModal = () => {
+      if (!selectedDate) return;
+      const y = selectedDate.getFullYear();
+      const m = String(selectedDate.getMonth() + 1).padStart(2, '0');
+      const d = String(selectedDate.getDate()).padStart(2, '0');
+      const dateStr = `${y}-${m}-${d}`;
+
+      setNewTxData({
+          date: dateStr,
+          description: '',
+          amount: 0,
+          categoryId: categories[0]?.id || '8',
+          type: TransactionType.EXPENSE
+      });
+      setShowAddModal(true);
+  };
+
+  const handleSubmitAdd = () => {
+      if (!newTxData.description || !newTxData.amount) {
+          alert("Please enter description and amount");
+          return;
+      }
+
+      const newTx: Transaction = {
+          id: `manual-${uuidv4()}`,
+          date: newTxData.date || new Date().toISOString().split('T')[0],
+          description: newTxData.description,
+          amount: Number(newTxData.amount),
+          categoryId: newTxData.categoryId || '8',
+          type: newTxData.type || TransactionType.EXPENSE,
+          ...newTxData
+      } as Transaction;
+
+      onAddTransaction(newTx);
+      setShowAddModal(false);
+      setSelectedDate(null);
   };
 
   // --- Render ---
@@ -245,8 +293,8 @@ export const SmartBillCalendar: React.FC<SmartBillCalendarProps> = ({
         </div>
       </div>
 
-      {/* Detail Modal (Placeholder for now) */}
-      {selectedDate && (
+      {/* Day Details Modal */}
+      {selectedDate && !showAddModal && (
         <div className="fixed inset-0 bg-black/50 z-[70] flex items-center justify-center p-4 backdrop-blur-sm" onClick={() => setSelectedDate(null)}>
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden" onClick={e => e.stopPropagation()}>
                 <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
@@ -254,7 +302,7 @@ export const SmartBillCalendar: React.FC<SmartBillCalendarProps> = ({
                         {selectedDate.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
                     </h3>
                     <button onClick={() => setSelectedDate(null)} className="text-slate-400 hover:text-slate-600">
-                        <Plus size={24} className="rotate-45" />
+                        <X size={20} />
                     </button>
                 </div>
                 <div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
@@ -270,23 +318,31 @@ export const SmartBillCalendar: React.FC<SmartBillCalendarProps> = ({
                         return (
                             <div className="space-y-3">
                                 {txs.map(t => (
-                                    <div key={t.id} className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl shadow-sm">
-                                        <div className="flex items-center space-x-3">
-                                            <div className="w-2 h-8 rounded-full" style={{ backgroundColor: categories.find(c => c.id === t.categoryId)?.color || '#94a3b8' }}></div>
-                                            <div>
-                                                <p className="font-bold text-slate-800 text-sm">{t.description}</p>
-                                                <p className="text-xs text-slate-500">Transaction • {t.type}</p>
+                                    <div key={t.id} className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl shadow-sm group">
+                                        <div className="flex items-center space-x-3 overflow-hidden">
+                                            <div className="w-1 h-8 rounded-full flex-shrink-0" style={{ backgroundColor: categories.find(c => c.id === t.categoryId)?.color || '#94a3b8' }}></div>
+                                            <div className="truncate">
+                                                <p className="font-bold text-slate-800 text-sm truncate">{t.description}</p>
+                                                <p className="text-xs text-slate-500">Transaction • {categories.find(c => c.id === t.categoryId)?.name}</p>
                                             </div>
                                         </div>
-                                        <span className={`font-bold ${t.type === TransactionType.INCOME ? 'text-emerald-600' : 'text-slate-800'}`}>
-                                            {t.type === TransactionType.INCOME ? '+' : '-'}{formatCurrency(t.amount)}
-                                        </span>
+                                        <div className="flex items-center space-x-3 flex-shrink-0">
+                                            <span className={`font-bold ${t.type === TransactionType.INCOME ? 'text-emerald-600' : 'text-slate-800'}`}>
+                                                {t.type === TransactionType.INCOME ? '+' : '-'}{formatCurrency(t.amount)}
+                                            </span>
+                                            <button
+                                                onClick={() => onDeleteTransaction(t.id)}
+                                                className="text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
                                     </div>
                                 ))}
                                 {projs.map(p => (
                                     <div key={p.id} className="flex items-center justify-between p-3 bg-slate-50 border border-dashed border-slate-300 rounded-xl">
                                         <div className="flex items-center space-x-3">
-                                            <div className="w-2 h-8 rounded-full opacity-50" style={{ backgroundColor: categories.find(c => c.id === p.categoryId)?.color || '#94a3b8' }}></div>
+                                            <div className="w-1 h-8 rounded-full opacity-50" style={{ backgroundColor: categories.find(c => c.id === p.categoryId)?.color || '#94a3b8' }}></div>
                                             <div>
                                                 <p className="font-bold text-slate-600 text-sm">{p.name}</p>
                                                 <p className="text-xs text-slate-400">Scheduled Bill</p>
@@ -303,19 +359,7 @@ export const SmartBillCalendar: React.FC<SmartBillCalendarProps> = ({
                 </div>
                 <div className="p-4 border-t border-slate-100 bg-slate-50 grid grid-cols-2 gap-3">
                     <button
-                        onClick={() => {
-                            // Quick Add Transaction logic
-                            const newTx: Transaction = {
-                                id: `manual-${Date.now()}`,
-                                date: selectedDate.toISOString().split('T')[0],
-                                description: 'New Expense',
-                                amount: 0,
-                                categoryId: '8', // Other
-                                type: TransactionType.EXPENSE
-                            };
-                            onAddTransaction(newTx);
-                            setSelectedDate(null);
-                        }}
+                        onClick={handleOpenAddModal}
                         className="flex items-center justify-center space-x-2 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors"
                     >
                         <Plus size={18} />
@@ -331,6 +375,83 @@ export const SmartBillCalendar: React.FC<SmartBillCalendarProps> = ({
                 </div>
             </div>
         </div>
+      )}
+
+      {/* Add Transaction Modal */}
+      {showAddModal && (
+          <div className="fixed inset-0 bg-black/50 z-[80] flex items-center justify-center p-4 backdrop-blur-sm" onClick={() => setShowAddModal(false)}>
+              <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden" onClick={e => e.stopPropagation()}>
+                  <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                      <h3 className="font-bold text-lg text-slate-800">Add Transaction</h3>
+                      <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-slate-600">
+                          <X size={20} />
+                      </button>
+                  </div>
+                  <div className="p-4 space-y-4">
+                      <div>
+                          <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Description</label>
+                          <input
+                              type="text"
+                              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              placeholder="e.g. Groceries"
+                              value={newTxData.description}
+                              onChange={e => setNewTxData({...newTxData, description: e.target.value})}
+                              autoFocus
+                          />
+                      </div>
+                      <div>
+                          <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Amount</label>
+                          <input
+                              type="number"
+                              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              placeholder="0.00"
+                              value={newTxData.amount || ''}
+                              onChange={e => setNewTxData({...newTxData, amount: parseFloat(e.target.value)})}
+                          />
+                      </div>
+                      <div>
+                          <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Category</label>
+                          <select
+                              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              value={newTxData.categoryId}
+                              onChange={e => setNewTxData({...newTxData, categoryId: e.target.value})}
+                          >
+                              {categories.map(c => (
+                                  <option key={c.id} value={c.id}>{c.name}</option>
+                              ))}
+                          </select>
+                      </div>
+                      <div className="flex gap-2">
+                          <button
+                              className={`flex-1 py-2 rounded-lg text-xs font-bold border ${newTxData.type === TransactionType.EXPENSE ? 'bg-red-50 border-red-200 text-red-600' : 'bg-white border-slate-200 text-slate-400'}`}
+                              onClick={() => setNewTxData({...newTxData, type: TransactionType.EXPENSE})}
+                          >
+                              Expense
+                          </button>
+                          <button
+                              className={`flex-1 py-2 rounded-lg text-xs font-bold border ${newTxData.type === TransactionType.INCOME ? 'bg-emerald-50 border-emerald-200 text-emerald-600' : 'bg-white border-slate-200 text-slate-400'}`}
+                              onClick={() => setNewTxData({...newTxData, type: TransactionType.INCOME})}
+                          >
+                              Income
+                          </button>
+                      </div>
+                  </div>
+                  <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-2">
+                      <button
+                          onClick={() => setShowAddModal(false)}
+                          className="px-4 py-2 text-slate-500 font-bold text-sm hover:text-slate-700"
+                      >
+                          Cancel
+                      </button>
+                      <button
+                          onClick={handleSubmitAdd}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm hover:bg-blue-700 transition-colors shadow-sm"
+                      >
+                          Save Transaction
+                      </button>
+                  </div>
+              </div>
+          </div>
       )}
     </div>
   );

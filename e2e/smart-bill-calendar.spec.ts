@@ -39,11 +39,18 @@ test.describe('Smart Bill Calendar', () => {
     // Verify Modal
     await expect(page.getByText('Add Transaction')).toBeVisible();
 
-    // Add a Transaction
+    // Add a Transaction - Opens the form modal
     await page.getByRole('button', { name: 'Add Transaction' }).click();
 
-    // Verify "New Expense" appears on the calendar (grid view)
+    // Fill form
+    await page.getByPlaceholder('e.g. Groceries').fill('Coffee Shop');
+    await page.getByPlaceholder('0.00').fill('5.50');
+
+    // Save
+    await page.getByRole('button', { name: 'Save Transaction' }).click();
+
+    // Verify "Coffee Shop" appears on the calendar (grid view)
     // It might take a moment for state to update
-    await expect(page.getByText('New Expense')).toBeVisible();
+    await expect(page.getByText('Coffee Shop')).toBeVisible();
   });
 });

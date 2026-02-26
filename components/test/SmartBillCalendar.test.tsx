@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import React from 'react';
 import SmartBillCalendar from '../SmartBillCalendar';
 import { Transaction, Projection, Category, DailyBalance, TransactionType, Frequency } from '../../types';
-import { vi } from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 const mockTransactions: Transaction[] = [
   {
@@ -110,5 +110,32 @@ describe('SmartBillCalendar', () => {
     // Expect modal to open
     // We check for "Add Transaction" button which is only in the modal
     expect(screen.getByText('Add Transaction')).toBeInTheDocument();
+  });
+
+  it('opens add transaction modal', () => {
+    render(
+      <SmartBillCalendar
+        transactions={mockTransactions}
+        projections={mockProjections}
+        categories={mockCategories}
+        timelineData={mockTimelineData}
+        onAddTransaction={() => {}}
+        onUpdateTransaction={() => {}}
+        onDeleteTransaction={() => {}}
+        onAddProjection={() => {}}
+        onUpdateProjection={() => {}}
+        onDeleteProjection={() => {}}
+      />
+    );
+
+    // Click on day 15
+    fireEvent.click(screen.getByText('15'));
+
+    // Click "Add Transaction"
+    fireEvent.click(screen.getByText('Add Transaction'));
+
+    // Expect input fields to be visible
+    expect(screen.getByPlaceholderText('e.g. Groceries')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('0.00')).toBeInTheDocument();
   });
 });
