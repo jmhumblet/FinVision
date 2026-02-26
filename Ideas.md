@@ -54,3 +54,13 @@ A visual calendar view to track upcoming bills and income, providing a clear "wh
 - **Drag-to-Reschedule:** Allow users to drag flexible bills to different days to simulate payment timing.
 - **Quick Add:** Click on a date to quickly add a one-time transaction or bill.
 **Stitch Screen:** `PENDING_DESIGN_SMART_BILL_CALENDAR`
+
+## Financial Health Score & Recommendations
+**Status:** Unimplemented
+**Description:**
+A gamified dashboard component that calculates a "Financial Health Score" (0-100) based on savings rate, debt-to-income ratio, and spending habits.
+- **Score Calculation:** Real-time score based on predefined financial metrics.
+- **Visual Gauge:** A circular gauge or meter showing the current score (Red/Yellow/Green).
+- **Metric Breakdown:** Detailed view of factors influencing the score (e.g., "High Debt Usage" lowers score).
+- **Actionable AI Insights:** Personalized recommendations to improve the score (e.g., "Pay off $200 of Credit Card debt to increase score by 5 points").
+**Stitch Screen:** `PENDING_DESIGN_FINANCIAL_HEALTH`
