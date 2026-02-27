@@ -54,3 +54,12 @@ A visual calendar view to track upcoming bills and income, providing a clear "wh
 - **Drag-to-Reschedule:** Allow users to drag flexible bills to different days to simulate payment timing.
 - **Quick Add:** Click on a date to quickly add a one-time transaction or bill.
 **Stitch Screen:** `PENDING_DESIGN_SMART_BILL_CALENDAR`
+
+## AI Financial Assistant
+**Status:** Unimplemented
+**Description:**
+A conversational interface embedded in the application to streamline tasks and answer questions.
+- **Natural Language Entry:** "Spent $45 at Shell" automatically creates a transaction.
+- **Financial Q&A:** "How much did I spend on food last month?" queries the database.
+- **Proactive Insights:** "You're projected to run out of cash in 10 days" (Chat notification).
+**Stitch Screen:** `PENDING_DESIGN_AI_ASSISTANT`
