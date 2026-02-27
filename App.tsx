@@ -46,6 +46,7 @@ import MonthlyDashboard from './components/MonthlyDashboard';
 import DebtDashboard from './components/DebtDashboard';
 import SubscriptionManager from './components/SubscriptionManager';
 import SmartSavingsDashboard from './components/SmartSavingsDashboard';
+import SmartBillCalendar from './components/SmartBillCalendar';
 import { generateTimeline, formatCurrency, getMonthKey, calculateMonthlySummary } from './utils/financialUtils';
 import { calculateMergeChanges } from './utils/scenarioUtils';
 import { 
@@ -60,7 +61,8 @@ import {
   CreditCard,
   Repeat,
   PiggyBank,
-  Landmark
+  Landmark,
+  Calendar
 } from 'lucide-react';
 
 // --- Constants & Seed Data ---
@@ -448,10 +450,10 @@ const App: React.FC = () => {
     }
   };
 
-  const handleAddTransaction = () => {
-    const date = currentView === AppView.MONTHLY 
+  const handleAddTransaction = (overrideDate?: string | React.MouseEvent) => {
+    let date = typeof overrideDate === 'string' ? overrideDate : (currentView === AppView.MONTHLY
         ? new Date(selectedMonthDate.getFullYear(), selectedMonthDate.getMonth(), new Date().getDate()).toISOString().split('T')[0]
-        : new Date().toISOString().split('T')[0];
+        : new Date().toISOString().split('T')[0]);
 
     const newTx: Transaction = {
       id: `manual-${uuidv4()}`,
@@ -827,6 +829,13 @@ const App: React.FC = () => {
                   <LayoutDashboard size={20} />
                 </button>
                 <button
+                  onClick={() => setCurrentView(AppView.SMART_BILL_CALENDAR)}
+                  className={`p-2 rounded-lg transition-all ${currentView === AppView.SMART_BILL_CALENDAR ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+                  title="Smart Bill Calendar"
+                >
+                  <Calendar size={20} />
+                </button>
+                <button
                   onClick={() => setCurrentView(AppView.DEBT_STRATEGIST)}
                   className={`p-2 rounded-lg transition-all ${currentView === AppView.DEBT_STRATEGIST ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
                   title="Debt Strategist"
@@ -929,6 +938,14 @@ const App: React.FC = () => {
                 onAddAsset={handleAddAsset}
                 onUpdateAsset={handleUpdateAsset}
                 onDeleteAsset={handleDeleteAsset}
+            />
+        ) : currentView === AppView.SMART_BILL_CALENDAR ? (
+            <SmartBillCalendar
+                transactions={transactions}
+                projections={projections}
+                timelineData={timelineData}
+                categories={categories}
+                onAddTransaction={handleAddTransaction}
             />
         ) : (
           <>
