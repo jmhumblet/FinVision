@@ -54,3 +54,13 @@ A visual calendar view to track upcoming bills and income, providing a clear "wh
 - **Drag-to-Reschedule:** Allow users to drag flexible bills to different days to simulate payment timing.
 - **Quick Add:** Click on a date to quickly add a one-time transaction or bill.
 **Stitch Screen:** `PENDING_DESIGN_SMART_BILL_CALENDAR`
+
+## Emergency Fund Stress Test
+**Status:** Unimplemented
+**Description:**
+A specialized module to evaluate the resilience of the user's financial plan against unexpected events.
+- Simulate sudden loss of income, large unexpected expenses (e.g., medical, car repair), or macroeconomic shocks.
+- Calculate how many months the current emergency fund and liquid assets can sustain the user's base expenses.
+- Provide actionable recommendations to reach a target "runway" (e.g., 6 months of living expenses).
+- Visual timeline showing the depletion rate of funds under different stress scenarios.
+**Stitch Screen:** `PENDING_DESIGN_EMERGENCY_FUND_STRESS_TEST`
