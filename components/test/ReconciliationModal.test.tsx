@@ -8,6 +8,9 @@ describe('ReconciliationModal', () => {
   const mockOnSubmit = vi.fn();
 
   it('renders the unreconciled transactions step', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-02-15T12:00:00Z'));
+
     render(
       <ReconciliationModal 
         projections={mockProjections} 
@@ -19,11 +22,18 @@ describe('ReconciliationModal', () => {
     );
 
     expect(screen.getByText(/Monthly Reconciliation/i)).toBeInTheDocument();
-    expect(screen.getByText(/Rent/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Rent/i).length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: /Next: Verify Balance/i })).toBeInTheDocument();
+
+    vi.useRealTimers();
   });
 
   it('progresses to balance verification and submits', () => {
+    // The test mock data and logic depend on today's date dynamically.
+    // Let's use fake timers to ensure the behavior is deterministic.
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-02-15T12:00:00Z'));
+
     render(
       <ReconciliationModal 
         projections={mockProjections} 
@@ -50,5 +60,7 @@ describe('ReconciliationModal', () => {
     // Theoretical: 1000 (initial) + 3000 (salary) - 1200 (rent) = 2800.
     // Gap: 3000 - 2800 = 200.
     expect(call.adjustmentTransaction.amount).toBe(200);
+
+    vi.useRealTimers();
   });
 });

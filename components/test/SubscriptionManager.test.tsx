@@ -128,9 +128,15 @@ describe('SubscriptionManager', () => {
     );
 
     const cancelBtns = screen.getAllByText('Cancel');
-    fireEvent.click(cancelBtns[0]); // Click first cancel button
+    // Important: Netflix (id=1) has categoryId=2. Gym (id=2) has categoryId=1.
+    // The component might sort them alphabetically by name. Gym then Netflix then Yearly Sub.
+    // Let's click the button specifically for Gym by finding the closest container.
+    const gymElement = screen.getByText('Gym');
+    const gymContainer = gymElement.closest('div.bg-white.p-4.rounded-xl') as HTMLElement;
+    const cancelGymBtn = gymContainer.querySelector('button');
+    fireEvent.click(cancelGymBtn!);
 
-    expect(screen.getByText('Cancel Netflix')).toBeInTheDocument();
+    expect(screen.getByText('Cancel Gym')).toBeInTheDocument();
     expect(screen.getByText(/Find Cancellation Guide/i)).toBeInTheDocument();
   });
 
@@ -143,14 +149,16 @@ describe('SubscriptionManager', () => {
       />
     );
 
-    const cancelBtns = screen.getAllByText('Cancel');
-    fireEvent.click(cancelBtns[0]); // Netflix
+    const gymElement = screen.getByText('Gym');
+    const gymContainer = gymElement.closest('div.bg-white.p-4.rounded-xl') as HTMLElement;
+    const cancelGymBtn = gymContainer.querySelector('button');
+    fireEvent.click(cancelGymBtn!);
 
     const stopTrackingBtn = screen.getByText('Stop Tracking (Deactivate)');
     fireEvent.click(stopTrackingBtn);
 
     expect(mockOnUpdateProjection).toHaveBeenCalledWith(expect.objectContaining({
-        name: 'Netflix',
+        name: 'Gym',
         isActive: false
     }));
   });
