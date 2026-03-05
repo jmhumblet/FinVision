@@ -127,8 +127,12 @@ describe('SubscriptionManager', () => {
       />
     );
 
-    const cancelBtns = screen.getAllByText('Cancel');
-    fireEvent.click(cancelBtns[0]); // Click first cancel button
+    // Find the Netflix row to click its specific Cancel button
+    const netflixHeader = screen.getByText('Netflix');
+    const row = netflixHeader.closest('.bg-white.p-4.rounded-xl')!;
+    const cancelBtn = row.querySelector('button')!;
+
+    fireEvent.click(cancelBtn);
 
     expect(screen.getByText('Cancel Netflix')).toBeInTheDocument();
     expect(screen.getByText(/Find Cancellation Guide/i)).toBeInTheDocument();
@@ -143,8 +147,12 @@ describe('SubscriptionManager', () => {
       />
     );
 
-    const cancelBtns = screen.getAllByText('Cancel');
-    fireEvent.click(cancelBtns[0]); // Netflix
+    // Find the Netflix row to click its specific Cancel button
+    const netflixHeader = screen.getByText('Netflix');
+    const row = netflixHeader.closest('.bg-white.p-4.rounded-xl')!;
+    const cancelBtn = row.querySelector('button')!;
+
+    fireEvent.click(cancelBtn);
 
     const stopTrackingBtn = screen.getByText('Stop Tracking (Deactivate)');
     fireEvent.click(stopTrackingBtn);
