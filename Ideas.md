@@ -54,3 +54,13 @@ A visual calendar view to track upcoming bills and income, providing a clear "wh
 - **Drag-to-Reschedule:** Allow users to drag flexible bills to different days to simulate payment timing.
 - **Quick Add:** Click on a date to quickly add a one-time transaction or bill.
 **Stitch Screen:** `PENDING_DESIGN_SMART_BILL_CALENDAR`
+
+## "Safe-to-Spend" Daily Metric
+**Status:** Unimplemented
+**Description:**
+A dynamic daily number indicating how much discretionary money a user can spend today without jeopardizing upcoming bills or savings goals.
+- Calculates remaining income for the current period minus upcoming fixed expenses and savings targets.
+- Adjusts dynamically based on daily transactions.
+- Provides simple visual cues (e.g., green if safe, red if overspending).
+- Allows users to simulate how a large purchase today impacts the safe-to-spend metric for the rest of the period.
+**Stitch Screen:** `PENDING_DESIGN_SAFE_TO_SPEND_METRIC`
