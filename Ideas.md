@@ -54,3 +54,12 @@ A visual calendar view to track upcoming bills and income, providing a clear "wh
 - **Drag-to-Reschedule:** Allow users to drag flexible bills to different days to simulate payment timing.
 - **Quick Add:** Click on a date to quickly add a one-time transaction or bill.
 **Stitch Screen:** `PENDING_DESIGN_SMART_BILL_CALENDAR`
+
+## Interactive Debt Payoff Strategist
+**Status:** Unimplemented
+**Description:**
+A specialized module for managing debt.
+- Snowball vs. Avalanche strategy comparison.
+- Interactive payoff visualization.
+- Recommend optimal payment schedules.
+**Stitch Screen:** `PENDING_DESIGN_DEBT_PAYOFF_STRATEGIST`

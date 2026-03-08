@@ -1,11 +1,21 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import ReconciliationModal from '../ReconciliationModal';
 import { mockProjections } from '../../e2e/fixtures/mockData';
 
 describe('ReconciliationModal', () => {
   const mockOnSubmit = vi.fn();
+
+  beforeEach(() => {
+    // Set system time to Feb 28, 2026, so `todayStr` is in the correct range for unreconciled.
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-02-28T12:00:00Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   it('renders the unreconciled transactions step', () => {
     render(
@@ -19,7 +29,7 @@ describe('ReconciliationModal', () => {
     );
 
     expect(screen.getByText(/Monthly Reconciliation/i)).toBeInTheDocument();
-    expect(screen.getByText(/Rent/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Rent/i)[0]).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Next: Verify Balance/i })).toBeInTheDocument();
   });
 
@@ -38,7 +48,7 @@ describe('ReconciliationModal', () => {
     fireEvent.click(screen.getByRole('button', { name: /Next: Verify Balance/i }));
 
     // Step 2: Enter balance
-    const balanceInput = screen.getByLabelText(/What is your actual bank balance today?/i);
+    const balanceInput = screen.getByLabelText(/What is your actual bank balance today\?/i);
     fireEvent.change(balanceInput, { target: { value: '3000' } });
 
     // Click Save
