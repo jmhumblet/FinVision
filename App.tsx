@@ -46,6 +46,7 @@ import MonthlyDashboard from './components/MonthlyDashboard';
 import DebtDashboard from './components/DebtDashboard';
 import SubscriptionManager from './components/SubscriptionManager';
 import SmartSavingsDashboard from './components/SmartSavingsDashboard';
+import SmartBillCalendar from './components/SmartBillCalendar';
 import { generateTimeline, formatCurrency, getMonthKey, calculateMonthlySummary } from './utils/financialUtils';
 import { calculateMergeChanges } from './utils/scenarioUtils';
 import { 
@@ -60,7 +61,8 @@ import {
   CreditCard,
   Repeat,
   PiggyBank,
-  Landmark
+  Landmark,
+  Calendar
 } from 'lucide-react';
 
 // --- Constants & Seed Data ---
@@ -448,10 +450,14 @@ const App: React.FC = () => {
     }
   };
 
-  const handleAddTransaction = () => {
-    const date = currentView === AppView.MONTHLY 
-        ? new Date(selectedMonthDate.getFullYear(), selectedMonthDate.getMonth(), new Date().getDate()).toISOString().split('T')[0]
-        : new Date().toISOString().split('T')[0];
+  const handleAddTransaction = (dateOrEvent?: string | React.MouseEvent) => {
+    let date = new Date().toISOString().split('T')[0];
+
+    if (typeof dateOrEvent === 'string') {
+        date = dateOrEvent;
+    } else if (currentView === AppView.MONTHLY) {
+        date = new Date(selectedMonthDate.getFullYear(), selectedMonthDate.getMonth(), new Date().getDate()).toISOString().split('T')[0];
+    }
 
     const newTx: Transaction = {
       id: `manual-${uuidv4()}`,
@@ -512,13 +518,18 @@ const App: React.FC = () => {
     }
   };
 
-  const handleAddProjection = () => {
+  const handleAddProjection = (dateOrEvent?: string | React.MouseEvent) => {
+    let startDate = new Date().toISOString().split('T')[0];
+    if (typeof dateOrEvent === 'string') {
+        startDate = dateOrEvent;
+    }
+
     const newProj: Projection = {
       id: uuidv4(),
       name: 'New Item',
       amount: 0,
       frequency: Frequency.ONCE,
-      startDate: new Date().toISOString().split('T')[0],
+      startDate,
       categoryId: '8',
       type: TransactionType.EXPENSE,
       isActive: true
@@ -854,6 +865,13 @@ const App: React.FC = () => {
                 >
                   <Landmark size={20} />
                 </button>
+                <button
+                  onClick={() => setCurrentView(AppView.CALENDAR)}
+                  className={`p-2 rounded-lg transition-all ${currentView === AppView.CALENDAR ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+                  title="Smart Bill Calendar"
+                >
+                  <Calendar size={20} />
+                </button>
             </div>
 
             <div className="h-8 w-[1px] bg-slate-200 mx-1 hidden sm:block"></div>
@@ -929,6 +947,17 @@ const App: React.FC = () => {
                 onAddAsset={handleAddAsset}
                 onUpdateAsset={handleUpdateAsset}
                 onDeleteAsset={handleDeleteAsset}
+            />
+        ) : currentView === AppView.CALENDAR ? (
+            <SmartBillCalendar
+                transactions={transactions}
+                projections={projections}
+                categories={categories}
+                timelineData={timelineData}
+                onUpdateTransaction={handleUpdateTransaction}
+                onAddTransaction={handleAddTransaction}
+                onUpdateProjection={handleUpdateProjection}
+                onAddProjection={handleAddProjection}
             />
         ) : (
           <>
