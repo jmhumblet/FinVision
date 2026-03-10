@@ -54,3 +54,12 @@ A visual calendar view to track upcoming bills and income, providing a clear "wh
 - **Drag-to-Reschedule:** Allow users to drag flexible bills to different days to simulate payment timing.
 - **Quick Add:** Click on a date to quickly add a one-time transaction or bill.
 **Stitch Screen:** `PENDING_DESIGN_SMART_BILL_CALENDAR`
+
+## Lifestyle Creep Monitor
+**Status:** Unimplemented
+**Description:**
+A predictive tool that tracks the correlation between income growth and discretionary spending increases over time.
+- Visualize the divergence between income growth and savings rate.
+- Identify specific discretionary categories driving the "creep".
+- AI-generated alerts when spending increases proportionally outpace income increases.
+**Stitch Screen:** `PENDING_DESIGN_LIFESTYLE_CREEP_MONITOR`
