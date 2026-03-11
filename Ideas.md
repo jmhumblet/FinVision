@@ -45,7 +45,7 @@ A dedicated module to create and track savings goals (e.g., "Emergency Fund", "N
 **Stitch Screen:** `PENDING_DESIGN_SMART_SAVINGS`
 
 ## Smart Bill Calendar
-**Status:** Unimplemented
+**Status:** Implemented
 **Description:**
 A visual calendar view to track upcoming bills and income, providing a clear "when" for cash flow.
 - **Monthly Grid View:** Display the current month with days as cells.
@@ -54,3 +54,8 @@ A visual calendar view to track upcoming bills and income, providing a clear "wh
 - **Drag-to-Reschedule:** Allow users to drag flexible bills to different days to simulate payment timing.
 - **Quick Add:** Click on a date to quickly add a one-time transaction or bill.
 **Stitch Screen:** `PENDING_DESIGN_SMART_BILL_CALENDAR`
+
+## Quick Transaction Categorization
+**Status:** Unimplemented
+**Description:**
+When a user adds a quick transaction from the calendar, prompt them with AI to categorize the transaction if they didn't explicitly choose one. This could use the existing Gemini integration.
