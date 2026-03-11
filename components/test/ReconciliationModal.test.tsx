@@ -7,6 +7,15 @@ import { mockProjections } from '../../e2e/fixtures/mockData';
 describe('ReconciliationModal', () => {
   const mockOnSubmit = vi.fn();
 
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-02-15T12:00:00Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('renders the unreconciled transactions step', () => {
     render(
       <ReconciliationModal 
@@ -19,7 +28,7 @@ describe('ReconciliationModal', () => {
     );
 
     expect(screen.getByText(/Monthly Reconciliation/i)).toBeInTheDocument();
-    expect(screen.getByText(/Rent/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Rent/i)[0]).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Next: Verify Balance/i })).toBeInTheDocument();
   });
 

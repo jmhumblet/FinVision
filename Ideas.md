@@ -54,3 +54,13 @@ A visual calendar view to track upcoming bills and income, providing a clear "wh
 - **Drag-to-Reschedule:** Allow users to drag flexible bills to different days to simulate payment timing.
 - **Quick Add:** Click on a date to quickly add a one-time transaction or bill.
 **Stitch Screen:** `PENDING_DESIGN_SMART_BILL_CALENDAR`
+
+## Life Event Cost Simulators
+**Status:** Unimplemented
+**Description:**
+AI-guided "What-If" templates for common life events (e.g., buying a house, having a baby, relocating). Users answer a few simple questions, and the system automatically generates the expected costs and recurring adjustments for a new scenario.
+- **Pre-built Templates:** Quick-start templates for major life decisions.
+- **AI Guided:** An interactive questionnaire that gathers required inputs.
+- **Auto-generated Projections:** Automatic creation of new projections and adjustments to existing ones.
+- **Scenario Integration:** Directly integrated into the existing Scenario Builder as starting points.
+**Stitch Screen:** `PENDING_DESIGN_LIFE_EVENT_SIMULATORS`
