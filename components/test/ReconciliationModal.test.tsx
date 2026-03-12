@@ -60,7 +60,7 @@ describe('ReconciliationModal', () => {
     // Theoretical: 1000 (initial) + 3000 (salary) - 1200 (rent) = 2800.
     // However, it might render multiple months. We check if the amount matches what the component calculated.
     // Let's just assert the difference between the actual and theoretical.
-    // If theoretical is 1400, gap is 1600.
-    expect(call.adjustmentTransaction.amount).toBe(1600);
+    // If theoretical is 2800, gap is 200.
+    expect(call.adjustmentTransaction.amount).toBe(200);
   });
 });
