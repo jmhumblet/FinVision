@@ -46,6 +46,7 @@ import MonthlyDashboard from './components/MonthlyDashboard';
 import DebtDashboard from './components/DebtDashboard';
 import SubscriptionManager from './components/SubscriptionManager';
 import SmartSavingsDashboard from './components/SmartSavingsDashboard';
+import MarketTrendsDashboard from './components/MarketTrendsDashboard';
 import { generateTimeline, formatCurrency, getMonthKey, calculateMonthlySummary } from './utils/financialUtils';
 import { calculateMergeChanges } from './utils/scenarioUtils';
 import { 
@@ -60,7 +61,8 @@ import {
   CreditCard,
   Repeat,
   PiggyBank,
-  Landmark
+  Landmark,
+  LineChart
 } from 'lucide-react';
 
 // --- Constants & Seed Data ---
@@ -854,6 +856,13 @@ const App: React.FC = () => {
                 >
                   <Landmark size={20} />
                 </button>
+                <button
+                  onClick={() => setCurrentView(AppView.MARKET_TRENDS)}
+                  className={`p-2 rounded-lg transition-all ${currentView === AppView.MARKET_TRENDS ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+                  title="Market Trends"
+                >
+                  <LineChart size={20} />
+                </button>
             </div>
 
             <div className="h-8 w-[1px] bg-slate-200 mx-1 hidden sm:block"></div>
@@ -929,6 +938,11 @@ const App: React.FC = () => {
                 onAddAsset={handleAddAsset}
                 onUpdateAsset={handleUpdateAsset}
                 onDeleteAsset={handleDeleteAsset}
+            />
+        ) : currentView === AppView.MARKET_TRENDS ? (
+            <MarketTrendsDashboard
+                currentBalance={currentBalance}
+                projectedFinalBalance={projectedFinalBalance}
             />
         ) : (
           <>

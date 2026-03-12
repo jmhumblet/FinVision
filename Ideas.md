@@ -1,7 +1,7 @@
 # Unimplemented Features & Enhancements
 
 ## Market Trends & Insights
-**Status:** Completely Missing
+**Status:** Implemented
 **Description:**
 A dedicated module to provide users with external financial context. This feature should:
 - Fetch and display key market indices (S&P 500, NASDAQ, etc.) or relevant financial indicators.

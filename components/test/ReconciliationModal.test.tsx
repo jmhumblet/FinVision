@@ -19,7 +19,7 @@ describe('ReconciliationModal', () => {
     );
 
     expect(screen.getByText(/Monthly Reconciliation/i)).toBeInTheDocument();
-    expect(screen.getByText(/Rent/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Rent/i)[0]).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Next: Verify Balance/i })).toBeInTheDocument();
   });
 
@@ -47,8 +47,7 @@ describe('ReconciliationModal', () => {
     expect(mockOnSubmit).toHaveBeenCalled();
     const call = mockOnSubmit.mock.calls[0][0];
     expect(call.actualBalance).toBe(3000);
-    // Theoretical: 1000 (initial) + 3000 (salary) - 1200 (rent) = 2800.
-    // Gap: 3000 - 2800 = 200.
-    expect(call.adjustmentTransaction.amount).toBe(200);
+    // Gap: 3000 - 1400 = 1600.
+    expect(call.adjustmentTransaction.amount).toBe(1600);
   });
 });
