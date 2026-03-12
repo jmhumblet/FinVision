@@ -55,6 +55,15 @@ A visual calendar view to track upcoming bills and income, providing a clear "wh
 - **Quick Add:** Click on a date to quickly add a one-time transaction or bill.
 **Stitch Screen:** `PENDING_DESIGN_SMART_BILL_CALENDAR`
 
+## "Safe-to-Spend" Daily Metric
+**Status:** Unimplemented
+**Description:**
+A daily metric designed to give users immediate clarity on their discretionary spending capacity without jeopardizing upcoming obligations or savings goals.
+- **Dynamic Calculation:** Subtracts upcoming fixed expenses, bills, and savings contributions from the current available balance, then divides by the days remaining until the next payday.
+- **Visual Indicator:** Displayed prominently on the main dashboard (e.g., as a hero number or a gauge).
+- **Rollover Mechanics:** If the user spends less than the daily amount, the surplus rolls over to increase the next day's safe-to-spend limit.
+- **Overspending Alerts:** Gentle nudges when the daily limit is exceeded, showing the impact on the rest of the period.
+**Stitch Screen:** `PENDING_DESIGN_SAFE_TO_SPEND_METRIC`
 ## Emergency Fund Stress Test
 **Status:** Unimplemented
 **Description:**

@@ -1,11 +1,20 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import ReconciliationModal from '../ReconciliationModal';
 import { mockProjections } from '../../e2e/fixtures/mockData';
 
 describe('ReconciliationModal', () => {
   const mockOnSubmit = vi.fn();
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-02-15T12:00:00Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   it('renders the unreconciled transactions step', () => {
     render(
