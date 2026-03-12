@@ -45,7 +45,7 @@ A dedicated module to create and track savings goals (e.g., "Emergency Fund", "N
 **Stitch Screen:** `PENDING_DESIGN_SMART_SAVINGS`
 
 ## Smart Bill Calendar
-**Status:** Unimplemented
+**Status:** Implemented
 **Description:**
 A visual calendar view to track upcoming bills and income, providing a clear "when" for cash flow.
 - **Monthly Grid View:** Display the current month with days as cells.
@@ -64,3 +64,25 @@ A daily metric designed to give users immediate clarity on their discretionary s
 - **Rollover Mechanics:** If the user spends less than the daily amount, the surplus rolls over to increase the next day's safe-to-spend limit.
 - **Overspending Alerts:** Gentle nudges when the daily limit is exceeded, showing the impact on the rest of the period.
 **Stitch Screen:** `PENDING_DESIGN_SAFE_TO_SPEND_METRIC`
+## Emergency Fund Stress Test
+**Status:** Unimplemented
+**Description:**
+A specialized module to evaluate the resilience of the user's financial plan against unexpected events.
+- Simulate sudden loss of income, large unexpected expenses (e.g., medical, car repair), or macroeconomic shocks.
+- Calculate how many months the current emergency fund and liquid assets can sustain the user's base expenses.
+- Provide actionable recommendations to reach a target "runway" (e.g., 6 months of living expenses).
+- Visual timeline showing the depletion rate of funds under different stress scenarios.
+**Stitch Screen:** `PENDING_DESIGN_EMERGENCY_FUND_STRESS_TEST`
+## Financial Health Score & Recommendations
+**Status:** Unimplemented
+**Description:**
+A comprehensive dashboard providing a single "Health Score" (0-100) based on financial metrics.
+- **Health Score Gauge:** Visual representation of the overall financial health.
+- **Score Breakdown:** Detailed analysis of key factors:
+    - Savings Rate (e.g., target 20%)
+    - Debt-to-Income Ratio (e.g., target < 30%)
+    - Emergency Fund Coverage (e.g., target 3-6 months)
+    - Cash Flow Stability (positive months vs negative)
+- **Actionable Insights:** AI-driven recommendations to improve the score (e.g., "Pay off $500 on Credit Card to improve Debt Score").
+- **Historical Trend:** Track the health score over time to visualize improvement.
+**Stitch Screen:** `PENDING_DESIGN_FINANCIAL_HEALTH`
