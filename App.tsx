@@ -46,6 +46,7 @@ import MonthlyDashboard from './components/MonthlyDashboard';
 import DebtDashboard from './components/DebtDashboard';
 import SubscriptionManager from './components/SubscriptionManager';
 import SmartSavingsDashboard from './components/SmartSavingsDashboard';
+import SmartBillCalendar from './components/SmartBillCalendar';
 import { generateTimeline, formatCurrency, getMonthKey, calculateMonthlySummary } from './utils/financialUtils';
 import { calculateMergeChanges } from './utils/scenarioUtils';
 import { 
@@ -60,7 +61,8 @@ import {
   CreditCard,
   Repeat,
   PiggyBank,
-  Landmark
+  Landmark,
+  Calendar
 } from 'lucide-react';
 
 // --- Constants & Seed Data ---
@@ -448,7 +450,15 @@ const App: React.FC = () => {
     }
   };
 
-  const handleAddTransaction = () => {
+  const handleAddTransaction = (tx?: Transaction | any) => {
+    // Check if tx is a Transaction object (has amount and description)
+    // and not a MouseEvent (which might be passed if called from onClick)
+    if (tx && typeof tx === 'object' && 'amount' in tx && 'description' in tx) {
+        setTransactions(prev => [tx, ...prev]);
+        immediateSyncTransaction(tx);
+        return;
+    }
+
     const date = currentView === AppView.MONTHLY 
         ? new Date(selectedMonthDate.getFullYear(), selectedMonthDate.getMonth(), new Date().getDate()).toISOString().split('T')[0]
         : new Date().toISOString().split('T')[0];
@@ -848,6 +858,13 @@ const App: React.FC = () => {
                   <PiggyBank size={20} />
                 </button>
                 <button
+                  onClick={() => setCurrentView(AppView.SMART_BILL_CALENDAR)}
+                  className={`p-2 rounded-lg transition-all ${currentView === AppView.SMART_BILL_CALENDAR ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+                  title="Bill Calendar"
+                >
+                  <Calendar size={20} />
+                </button>
+                <button
                   onClick={() => setCurrentView(AppView.NET_WORTH)}
                   className={`p-2 rounded-lg transition-all ${currentView === AppView.NET_WORTH ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
                   title="Net Worth"
@@ -919,6 +936,19 @@ const App: React.FC = () => {
                 onAddGoal={handleAddSavingsGoal}
                 onUpdateGoal={handleUpdateSavingsGoal}
                 onDeleteGoal={handleDeleteSavingsGoal}
+            />
+        ) : currentView === AppView.SMART_BILL_CALENDAR ? (
+            <SmartBillCalendar
+                transactions={transactions}
+                projections={projections}
+                categories={categories}
+                timelineData={timelineData}
+                onAddTransaction={handleAddTransaction}
+                onUpdateTransaction={handleUpdateTransaction}
+                onDeleteTransaction={handleDeleteTransaction}
+                onAddProjection={handleAddProjection}
+                onUpdateProjection={handleUpdateProjection}
+                onDeleteProjection={handleDeleteProjection}
             />
         ) : currentView === AppView.NET_WORTH ? (
             <NetWorthDashboard
