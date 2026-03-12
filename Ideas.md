@@ -55,6 +55,14 @@ A visual calendar view to track upcoming bills and income, providing a clear "wh
 - **Quick Add:** Click on a date to quickly add a one-time transaction or bill.
 **Stitch Screen:** `PENDING_DESIGN_SMART_BILL_CALENDAR`
 
+## Automated Cash Flow Alerts
+**Status:** Unimplemented
+**Description:**
+A proactive alert system that uses predictive modeling to warn users of impending cash flow issues.
+- Analyzes upcoming bills and projected income to identify potential overdrafts before they happen.
+- Notifies users when their account balance is projected to drop below a safe threshold within the next 30 days.
+- Suggests actionable steps such as delaying non-essential purchases or moving funds from savings.
+**Stitch Screen:** `PENDING_DESIGN_AUTO_CASH_FLOW_ALERTS`
 ## "Safe-to-Spend" Daily Metric
 **Status:** Unimplemented
 **Description:**
