@@ -45,7 +45,7 @@ A dedicated module to create and track savings goals (e.g., "Emergency Fund", "N
 **Stitch Screen:** `PENDING_DESIGN_SMART_SAVINGS`
 
 ## Smart Bill Calendar
-**Status:** Unimplemented
+**Status:** Implemented
 **Description:**
 A visual calendar view to track upcoming bills and income, providing a clear "when" for cash flow.
 - **Monthly Grid View:** Display the current month with days as cells.
