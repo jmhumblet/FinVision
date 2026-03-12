@@ -11,3 +11,4 @@
 | Subscription Manager | `PENDING_DESIGN_SUBSCRIPTION_MGR` | `components/SubscriptionManager.tsx`, `App.tsx` (Subscriptions View) | **Implemented** |
 | Smart Savings Goals | `PENDING_DESIGN_SMART_SAVINGS` | `components/SmartSavingsDashboard.tsx` | **Implemented** |
 | Net Worth Dashboard | `PENDING_DESIGN_NET_WORTH` | `components/NetWorthDashboard.tsx`, `App.tsx` (Net Worth View) | **Implemented** |
+| Financial Health Score & Recommendations | `PENDING_DESIGN_FINANCIAL_HEALTH` | N/A | **Unimplemented** |
