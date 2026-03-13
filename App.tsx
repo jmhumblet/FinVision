@@ -47,6 +47,7 @@ import DebtDashboard from './components/DebtDashboard';
 import SubscriptionManager from './components/SubscriptionManager';
 import SmartSavingsDashboard from './components/SmartSavingsDashboard';
 import SmartBillCalendar from './components/SmartBillCalendar';
+import FinancialHealthDashboard from './components/FinancialHealthDashboard';
 import { generateTimeline, formatCurrency, getMonthKey, calculateMonthlySummary } from './utils/financialUtils';
 import { calculateMergeChanges } from './utils/scenarioUtils';
 import { 
@@ -62,7 +63,8 @@ import {
   Repeat,
   PiggyBank,
   Landmark,
-  Calendar
+  Calendar,
+  Activity
 } from 'lucide-react';
 
 // --- Constants & Seed Data ---
@@ -871,6 +873,13 @@ const App: React.FC = () => {
                 >
                   <Landmark size={20} />
                 </button>
+                <button
+                  onClick={() => setCurrentView(AppView.FINANCIAL_HEALTH)}
+                  className={`p-2 rounded-lg transition-all ${currentView === AppView.FINANCIAL_HEALTH ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+                  title="Financial Health"
+                >
+                  <Activity size={20} />
+                </button>
             </div>
 
             <div className="h-8 w-[1px] bg-slate-200 mx-1 hidden sm:block"></div>
@@ -959,6 +968,16 @@ const App: React.FC = () => {
                 onAddAsset={handleAddAsset}
                 onUpdateAsset={handleUpdateAsset}
                 onDeleteAsset={handleDeleteAsset}
+            />
+        ) : currentView === AppView.FINANCIAL_HEALTH ? (
+            <FinancialHealthDashboard
+                transactions={transactions}
+                projections={projections}
+                debts={debts}
+                assets={assets}
+                currentBalance={currentBalance}
+                savingsGoals={savingsGoals}
+                timelineData={timelineData}
             />
         ) : (
           <>
