@@ -337,3 +337,64 @@ export const calculateProjectionValueForDate = (proj: Projection, d: Date, dateS
     
     return 0;
 };
+
+export const calculateSafeToSpend = (timeline: DailyBalance[], projections: Projection[]): number | null => {
+    // 1. Find today's index in timeline
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayIndex = timeline.findIndex(d => d.date >= todayStr);
+
+    if (todayIndex === -1 || todayIndex >= timeline.length) return null; // No future data
+
+    // 2. Find the next payday
+    // Payday = any day in the future where an active INCOME projection triggers
+    let nextPaydayIndex = -1;
+
+    for (let i = todayIndex + 1; i < timeline.length; i++) {
+        const dStr = timeline[i].date;
+        const d = parseLocalYYYYMMDD(dStr);
+
+        let hasIncome = false;
+        for (const proj of projections) {
+            if (!proj.isActive || proj.type !== TransactionType.INCOME) continue;
+
+            const val = calculateProjectionValueForDate(proj, d, dStr);
+            if (val > 0) {
+                hasIncome = true;
+                break;
+            }
+        }
+
+        if (hasIncome) {
+            nextPaydayIndex = i;
+            break;
+        }
+    }
+
+    // 3. Determine the period to check minimum balance
+    // If no payday is found within the timeline, use the end of the timeline
+    const endIndex = nextPaydayIndex !== -1 ? nextPaydayIndex : timeline.length - 1;
+
+    // 4. Calculate days remaining
+    const daysRemaining = endIndex - todayIndex;
+
+    if (daysRemaining <= 0) {
+      // It's payday today, or timeline ends today
+      const todayBalance = timeline[todayIndex].projectedBalance ?? timeline[todayIndex].historicalBalance ?? 0;
+      return Math.max(0, todayBalance);
+    }
+
+    // 5. Find the minimum balance between today and the day before payday
+    let minBalance = Infinity;
+    for (let i = todayIndex; i <= endIndex; i++) {
+        const balance = timeline[i].projectedBalance ?? timeline[i].historicalBalance ?? 0;
+        if (balance < minBalance) {
+            minBalance = balance;
+        }
+    }
+
+    // 6. Calculate Safe-to-Spend
+    // If the minimum balance is negative, safe to spend is 0
+    if (minBalance < 0) return 0;
+
+    return Math.max(0, minBalance / daysRemaining);
+};

@@ -47,7 +47,7 @@ import DebtDashboard from './components/DebtDashboard';
 import SubscriptionManager from './components/SubscriptionManager';
 import SmartSavingsDashboard from './components/SmartSavingsDashboard';
 import SmartBillCalendar from './components/SmartBillCalendar';
-import { generateTimeline, formatCurrency, getMonthKey, calculateMonthlySummary } from './utils/financialUtils';
+import { generateTimeline, formatCurrency, getMonthKey, calculateMonthlySummary, calculateSafeToSpend } from './utils/financialUtils';
 import { calculateMergeChanges } from './utils/scenarioUtils';
 import { 
   Wallet, 
@@ -213,6 +213,10 @@ const App: React.FC = () => {
      if (!last) return currentBalance;
      return last.projectedBalance !== null ? last.projectedBalance : (last.historicalBalance || 0);
   }, [timelineData, currentBalance]);
+
+  const safeToSpend = useMemo(() => {
+    return calculateSafeToSpend(timelineData, projections);
+  }, [timelineData, projections]);
 
   const monthlySummary = useMemo(() => {
     // We calculate summary for the SELECTED month, not always current
@@ -963,7 +967,7 @@ const App: React.FC = () => {
         ) : (
           <>
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow relative overflow-hidden">
                  <div className="flex items-center justify-between mb-4">
                     <span className="text-slate-500 text-sm font-semibold">Current Available Balance</span>
@@ -1003,6 +1007,26 @@ const App: React.FC = () => {
                         </span>
                     ) : (
                         <span className="text-slate-400">Estimated position at end of period</span>
+                    )}
+                 </div>
+               </div>
+
+               <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                 <div className="flex items-center justify-between mb-4">
+                    <span className="text-slate-500 text-sm font-semibold">"Safe-to-Spend" Daily Metric</span>
+                    <span className="bg-purple-100 text-purple-700 text-[10px] px-2 py-0.5 rounded-lg font-bold uppercase tracking-wider">Dynamic</span>
+                 </div>
+                 <div className={`text-4xl font-extrabold tracking-tight ${(safeToSpend ?? 0) > 0 ? 'text-slate-800' : 'text-slate-400'}`}>
+                    {safeToSpend !== null ? formatCurrency(safeToSpend) : 'N/A'}
+                 </div>
+                 <div className="text-xs text-slate-400 mt-2 font-semibold">
+                    {(safeToSpend ?? 0) <= 0 ? (
+                        <span className="flex items-center text-amber-500 bg-amber-50 px-2 py-1 rounded-lg w-fit">
+                            <AlertCircle size={14} className="mr-1.5" />
+                            Hold off on discretionary spending
+                        </span>
+                    ) : (
+                        <span className="text-slate-400">Available daily limit until next payday</span>
                     )}
                  </div>
                </div>
