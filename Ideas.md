@@ -102,3 +102,13 @@ A comprehensive dashboard providing a single "Health Score" (0-100) based on fin
 - **Actionable Insights:** AI-driven recommendations to improve the score (e.g., "Pay off $500 on Credit Card to improve Debt Score").
 - **Historical Trend:** Track the health score over time to visualize improvement.
 **Stitch Screen:** `PENDING_DESIGN_FINANCIAL_HEALTH`
+
+## Proactive Scenario Discovery
+**Status:** Unimplemented
+**Description:**
+An AI-driven feature that analyzes the user's current financial trajectory and automatically suggests beneficial "What-If" scenarios to explore.
+- **AI Scenario Generation:** Uses predictive modeling to identify potential optimizations (e.g., "What if you increased your 401k contribution by 2%?", "What if you paid off your auto loan 6 months early?").
+- **Impact Preview:** Each suggested scenario displays a high-level summary of its potential impact on long-term net worth or cash flow before the user even opens the Scenario Builder.
+- **One-Click Exploration:** Users can seamlessly accept a suggestion to automatically populate and open it within the "What-If" Scenario Builder for further tweaking.
+- **Personalized Nudges:** Suggestions are contextually relevant to the user's current life stage, income level, and stated goals.
+**Stitch Screen:** `PENDING_DESIGN_PROACTIVE_SCENARIO`
