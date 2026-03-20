@@ -102,3 +102,13 @@ A comprehensive dashboard providing a single "Health Score" (0-100) based on fin
 - **Actionable Insights:** AI-driven recommendations to improve the score (e.g., "Pay off $500 on Credit Card to improve Debt Score").
 - **Historical Trend:** Track the health score over time to visualize improvement.
 **Stitch Screen:** `PENDING_DESIGN_FINANCIAL_HEALTH`
+
+## AI Paycheck Routing Assistant
+**Status:** Unimplemented
+**Description:**
+An intelligent assistant that analyzes incoming paychecks and suggests optimal routing of funds across expenses, debt, and savings goals.
+- **Paycheck Analysis:** Automatically detects when a new paycheck arrives or is projected to arrive.
+- **Optimal Routing:** AI recommends how much of the paycheck should go toward immediate bills, specific debt payments (e.g., following an Avalanche strategy), and various savings goals.
+- **One-Click Allocation:** Allows users to approve the AI's suggested distribution with a single click, automatically generating the necessary transfer projections.
+- **Customizable Rules:** Users can set minimum thresholds (e.g., "always keep $500 in checking") which the AI will respect when suggesting transfers.
+**Stitch Screen:** `PENDING_DESIGN_PAYCHECK_ROUTING`
