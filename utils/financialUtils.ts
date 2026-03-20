@@ -1,4 +1,4 @@
-import { Transaction, Projection, DailyBalance, TransactionType, Frequency, Scenario, AdjustmentType, MonthlySummary, UnreconciledOccurrence } from "../types";
+import { Transaction, Projection, DailyBalance, TransactionType, Frequency, Scenario, AdjustmentType, MonthlySummary, UnreconciledOccurrence, SavingsGoal } from "../types";
 
 export const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-IE', { 
@@ -131,6 +131,110 @@ export const createReconciliationTransaction = (
     categoryId: '8', // 'Other'
     type: amount >= 0 ? TransactionType.INCOME : TransactionType.EXPENSE,
     skipAutoCategorization: true
+  };
+};
+
+export const calculateMonthlySavingsContribution = (goal: SavingsGoal) => {
+  if (goal.currentAmount >= goal.targetAmount) return 0;
+
+  const today = new Date();
+  const target = new Date(goal.targetDate);
+
+  // Simple month difference
+  const months = (target.getFullYear() - today.getFullYear()) * 12 + (target.getMonth() - today.getMonth());
+
+  // If less than a month, treat as 1 month (or immediate)
+  const remainingMonths = Math.max(1, months);
+
+  const remainingAmount = goal.targetAmount - goal.currentAmount;
+  return remainingAmount / remainingMonths;
+};
+
+export const calculateSafeToSpend = (
+  timelineData: DailyBalance[],
+  projections: Projection[],
+  savingsGoals: SavingsGoal[] = []
+): { dailyAmount: number, safeAmount: number, daysRemaining: number, nextPayday: string | null } => {
+  const todayDateStr = new Date().toISOString().split('T')[0];
+
+  // 1. Find all dates from today onwards in timeline
+  const futureTimeline = timelineData.filter(d => d.date >= todayDateStr);
+
+  if (futureTimeline.length === 0) {
+     return { dailyAmount: 0, safeAmount: 0, daysRemaining: 0, nextPayday: null };
+  }
+
+  // 2. Find next payday
+  let nextPaydayStr: string | null = null;
+  let daysRemaining = 30; // default if no payday found
+
+  const incomeProjections = projections.filter(p => p.isActive && p.type === TransactionType.INCOME);
+
+  for (const day of futureTimeline) {
+      if (day.date === todayDateStr) continue; // Payday must be strictly in the future
+
+      const dDate = new Date(day.date);
+      dDate.setHours(0,0,0,0);
+
+      let hasIncome = false;
+      for (const proj of incomeProjections) {
+          const val = calculateProjectionValueForDate(proj, dDate, day.date);
+          if (val > 0) {
+              hasIncome = true;
+              break;
+          }
+      }
+
+      if (hasIncome) {
+          nextPaydayStr = day.date;
+          // Calculate days remaining
+          const todayDate = new Date(todayDateStr);
+          todayDate.setHours(0,0,0,0);
+          const diffTime = Math.abs(dDate.getTime() - todayDate.getTime());
+          daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          break;
+      }
+  }
+
+  let periodTimeline = futureTimeline;
+  if (nextPaydayStr) {
+      periodTimeline = futureTimeline.filter(d => d.date < nextPaydayStr);
+  } else {
+      // If no payday, just look at the next 30 days or whatever is left
+      periodTimeline = futureTimeline.slice(0, 30);
+      daysRemaining = periodTimeline.length;
+  }
+
+  if (periodTimeline.length === 0) {
+      return { dailyAmount: 0, safeAmount: 0, daysRemaining: 0, nextPayday: nextPaydayStr };
+  }
+
+  // 3. Calculate savings contributions for the period
+  const totalMonthlySavingsNeeded = savingsGoals.reduce((sum, goal) => sum + calculateMonthlySavingsContribution(goal), 0);
+  const periodSavingsNeeded = (totalMonthlySavingsNeeded / 30) * daysRemaining;
+
+  // 4. Find minimum projected balance before next payday
+  let minBalance = Infinity;
+  for (const day of periodTimeline) {
+      const balance = day.projectedBalance !== null ? day.projectedBalance : day.historicalBalance;
+      if (balance !== null && balance < minBalance) {
+          minBalance = balance;
+      }
+  }
+
+  if (minBalance === Infinity) minBalance = 0;
+
+  // 5. Safe amount is minBalance minus the prorated savings we need to set aside
+  const safeAmount = Math.max(0, minBalance - periodSavingsNeeded);
+
+  // 6. Daily safe-to-spend
+  const dailyAmount = safeAmount / (daysRemaining || 1);
+
+  return {
+      dailyAmount,
+      safeAmount,
+      daysRemaining,
+      nextPayday: nextPaydayStr
   };
 };
 

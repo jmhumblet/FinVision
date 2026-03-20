@@ -34,4 +34,21 @@ test.describe('FinVision Dashboard UI', () => {
     // Wait for the list to update (React render)
     await expect(page.locator('input[value="Playwright Proj"]')).toBeVisible();
   });
+
+  test('should render Safe-to-Spend card on the main dashboard', async ({ page }) => {
+    // Look for the "Safe-to-Spend" header on the card
+    const safeToSpendHeader = page.getByText('Safe-to-Spend');
+    await expect(safeToSpendHeader).toBeVisible();
+
+    // Verify it shows "Daily Limit" badge
+    const dailyLimitBadge = page.getByText('Daily Limit', { exact: true });
+    await expect(dailyLimitBadge).toBeVisible();
+
+    // The mock data might not have a positive daily amount or an upcoming payday.
+    // So we check for either "Total Available:" or the warning text.
+    const totalAvailableText = page.getByText('Total Available:');
+    const warningText = page.getByText('No discretionary funds until payday');
+
+    await expect(totalAvailableText.or(warningText)).toBeVisible();
+  });
 });
