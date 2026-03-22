@@ -102,3 +102,15 @@ A comprehensive dashboard providing a single "Health Score" (0-100) based on fin
 - **Actionable Insights:** AI-driven recommendations to improve the score (e.g., "Pay off $500 on Credit Card to improve Debt Score").
 - **Historical Trend:** Track the health score over time to visualize improvement.
 **Stitch Screen:** `PENDING_DESIGN_FINANCIAL_HEALTH`
+
+## Interactive Debt Payoff Strategist
+**Status:** Unimplemented
+**Description:**
+A specialized module for managing debt, featuring Snowball vs. Avalanche strategy comparison and interactive payoff visualization.
+- **User Story:** As a user with multiple debts, I want to compare different payoff strategies (like Snowball and Avalanche) so that I can choose the optimal path to become debt-free and understand how long it will take.
+- **Acceptance Criteria:**
+  - Users can input multiple debts with their current balances, interest rates, and minimum payments.
+  - The system calculates and displays the payoff timeline and total interest paid for both Snowball (lowest balance first) and Avalanche (highest interest rate first) strategies.
+  - Users can visualize the payoff trajectory over time using an interactive chart.
+  - The system suggests how much extra money per month could accelerate the payoff and models the new timeline.
+**Stitch Screen:** `PENDING_DESIGN_DEBT_PAYOFF_STRATEGIST`
