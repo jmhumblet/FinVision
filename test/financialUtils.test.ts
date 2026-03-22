@@ -1,8 +1,165 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { formatCurrency, formatDate, generateTimeline, getMonthKey, calculateMonthlySummary } from '../utils/financialUtils';
-import { Transaction, Projection, TransactionType, Frequency, AdjustmentType, Scenario } from '../types';
+import { Transaction, Projection, TransactionType, Frequency, AdjustmentType, Scenario, SavingsGoal } from '../types';
+import { calculateMonthlySavingsContribution, calculateSafeToSpend } from '../utils/financialUtils';
 
 describe('financialUtils', () => {
+  describe('calculateMonthlySavingsContribution', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-02-07T00:00:00Z'));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('should calculate monthly contribution for a single goal', () => {
+      const goals: SavingsGoal[] = [
+        {
+          id: 'g1',
+          name: 'Emergency',
+          targetAmount: 1200,
+          currentAmount: 0,
+          targetDate: '2027-02-07' // 12 months away
+        }
+      ];
+      expect(calculateMonthlySavingsContribution(goals)).toBe(100);
+    });
+
+    it('should calculate 0 if goal is met or in the past', () => {
+      const goals: SavingsGoal[] = [
+        {
+          id: 'g1',
+          name: 'Emergency',
+          targetAmount: 1200,
+          currentAmount: 1200, // Met
+          targetDate: '2027-02-07'
+        },
+        {
+          id: 'g2',
+          name: 'Trip',
+          targetAmount: 1000,
+          currentAmount: 500,
+          targetDate: '2025-02-07' // Past
+        }
+      ];
+      expect(calculateMonthlySavingsContribution(goals)).toBe(0);
+    });
+
+    it('should handle goals with 1 month remaining', () => {
+      const goals: SavingsGoal[] = [
+        {
+          id: 'g1',
+          name: 'Car',
+          targetAmount: 500,
+          currentAmount: 100,
+          targetDate: '2026-02-15' // Less than a month away, so 1 month
+        }
+      ];
+      expect(calculateMonthlySavingsContribution(goals)).toBe(400); // 400 remaining / 1 month
+    });
+  });
+
+  describe('calculateSafeToSpend', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-02-07T00:00:00Z'));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('should calculate safe to spend when next payday is in 7 days', () => {
+      const projections: Projection[] = [
+        {
+          id: 'p1',
+          name: 'Income',
+          amount: 2000,
+          frequency: Frequency.ONCE,
+          startDate: '2026-02-14', // 7 days from today
+          categoryId: 'inc',
+          type: TransactionType.INCOME,
+          isActive: true
+        },
+        {
+          id: 'p2',
+          name: 'Expense',
+          amount: 500,
+          frequency: Frequency.ONCE,
+          startDate: '2026-02-10', // 3 days from today
+          categoryId: 'exp',
+          type: TransactionType.EXPENSE,
+          isActive: true
+        }
+      ];
+
+      const goals: SavingsGoal[] = [
+        {
+          id: 'g1',
+          name: 'Savings',
+          targetAmount: 300, // We need to save 300 total over 1 month, so ~10/day
+          currentAmount: 0,
+          targetDate: '2026-03-07' // 1 month away
+        }
+      ];
+
+      const result = calculateSafeToSpend(projections, 1000, goals);
+
+      // Payday: 2026-02-14 (7 days away)
+      // Obligations: 500 (expense)
+      // Prorated savings: 300 per month / 30 * 7 = 70
+      // Total obligations = 570
+      // Remaining spendable = 1000 - 570 = 430
+      // Daily safe to spend = 430 / 7 = 61.428...
+
+      expect(result.daysUntilPayday).toBe(7);
+      expect(result.totalUpcomingObligations).toBe(570);
+      expect(result.safeToSpendDaily).toBeCloseTo(61.43, 2);
+    });
+
+    it('should default to 30 days if no income found in 90 days', () => {
+      const result = calculateSafeToSpend([], 3000, []);
+      expect(result.daysUntilPayday).toBe(30);
+      expect(result.totalUpcomingObligations).toBe(0);
+      expect(result.safeToSpendDaily).toBe(100); // 3000 / 30
+      expect(result.nextPayday).toBeNull();
+    });
+
+    it('should handle negative safe to spend limit', () => {
+        const projections: Projection[] = [
+            {
+              id: 'p1',
+              name: 'Income',
+              amount: 2000,
+              frequency: Frequency.ONCE,
+              startDate: '2026-02-09', // 2 days
+              categoryId: 'inc',
+              type: TransactionType.INCOME,
+              isActive: true
+            },
+            {
+              id: 'p2',
+              name: 'Large Expense',
+              amount: 5000, // Larger than balance
+              frequency: Frequency.ONCE,
+              startDate: '2026-02-08',
+              categoryId: 'exp',
+              type: TransactionType.EXPENSE,
+              isActive: true
+            }
+          ];
+          const result = calculateSafeToSpend(projections, 1000, []);
+
+          // Obligations = 5000
+          // Remaining = 1000 - 5000 = -4000
+          // Daily = -4000 / 2 = -2000
+          expect(result.daysUntilPayday).toBe(2);
+          expect(result.safeToSpendDaily).toBe(-2000);
+    });
+  });
+
   describe('getMonthKey', () => {
     it('should return YYYY-MM for a given date', () => {
       expect(getMonthKey(new Date('2026-02-07'))).toBe('2026-02');

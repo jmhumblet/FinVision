@@ -47,6 +47,7 @@ import DebtDashboard from './components/DebtDashboard';
 import SubscriptionManager from './components/SubscriptionManager';
 import SmartSavingsDashboard from './components/SmartSavingsDashboard';
 import SmartBillCalendar from './components/SmartBillCalendar';
+import SafeToSpendCard from './components/SafeToSpendCard';
 import { generateTimeline, formatCurrency, getMonthKey, calculateMonthlySummary } from './utils/financialUtils';
 import { calculateMergeChanges } from './utils/scenarioUtils';
 import { 
@@ -963,7 +964,12 @@ const App: React.FC = () => {
         ) : (
           <>
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+               <SafeToSpendCard
+                 projections={projections}
+                 currentBalance={currentBalance}
+                 savingsGoals={savingsGoals}
+               />
                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow relative overflow-hidden">
                  <div className="flex items-center justify-between mb-4">
                     <span className="text-slate-500 text-sm font-semibold">Current Available Balance</span>

@@ -1,4 +1,4 @@
-import { Transaction, Projection, DailyBalance, TransactionType, Frequency, Scenario, AdjustmentType, MonthlySummary, UnreconciledOccurrence } from "../types";
+import { Transaction, Projection, DailyBalance, TransactionType, Frequency, Scenario, AdjustmentType, MonthlySummary, UnreconciledOccurrence, SavingsGoal } from "../types";
 
 export const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-IE', { 
@@ -336,4 +336,108 @@ export const calculateProjectionValueForDate = (proj: Projection, d: Date, dateS
     }
     
     return 0;
+};
+
+export const calculateMonthlySavingsContribution = (goals: SavingsGoal[]): number => {
+  let totalMonthly = 0;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  goals.forEach(goal => {
+    const target = parseLocalYYYYMMDD(goal.targetDate);
+    if (target > today && goal.currentAmount < goal.targetAmount) {
+      const remainingAmount = goal.targetAmount - goal.currentAmount;
+      const monthsDiff = (target.getFullYear() - today.getFullYear()) * 12 + (target.getMonth() - today.getMonth());
+      const monthsRemaining = Math.max(1, monthsDiff);
+      totalMonthly += remainingAmount / monthsRemaining;
+    }
+  });
+
+  return totalMonthly;
+};
+
+export const calculateSafeToSpend = (
+  projections: Projection[],
+  currentBalance: number,
+  savingsGoals: SavingsGoal[]
+): { safeToSpendDaily: number; daysUntilPayday: number; totalUpcomingObligations: number; nextPayday: string | null } => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // 1. Find the next payday (INCOME projection > today)
+  let nextPaydayDate: Date | null = null;
+  let nextPaydayStr: string | null = null;
+
+  // Search up to 90 days ahead
+  const searchLimit = new Date(today);
+  searchLimit.setDate(searchLimit.getDate() + 90);
+
+  // We look day by day from tomorrow
+  for (let d = new Date(today.getTime() + 86400000); d <= searchLimit; d.setDate(d.getDate() + 1)) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const dateStr = `${y}-${m}-${day}`;
+
+    let hasIncome = false;
+    projections.forEach(proj => {
+      if (!proj.isActive || proj.type !== TransactionType.INCOME) return;
+      if (calculateProjectionValueForDate(proj, d, dateStr) > 0) {
+        hasIncome = true;
+      }
+    });
+
+    if (hasIncome) {
+      nextPaydayDate = new Date(d);
+      nextPaydayStr = dateStr;
+      break;
+    }
+  }
+
+  // If no payday is found, default to 30 days
+  let endDate = nextPaydayDate;
+  if (!endDate) {
+    endDate = new Date(today);
+    endDate.setDate(endDate.getDate() + 30);
+  }
+
+  // Calculate days difference (from today to endDate, today is day 0)
+  // If payday is tomorrow, daysUntilPayday = 1.
+  const timeDiff = endDate.getTime() - today.getTime();
+  const daysUntilPayday = Math.max(1, Math.ceil(timeDiff / (1000 * 3600 * 24)));
+
+  // 2. Sum upcoming expenses up to (but not including) payday
+  // If payday is tomorrow, we look at expenses for today.
+  let upcomingExpenses = 0;
+  for (let d = new Date(today); d < endDate; d.setDate(d.getDate() + 1)) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const dateStr = `${y}-${m}-${day}`;
+
+    projections.forEach(proj => {
+      if (!proj.isActive || proj.type !== TransactionType.EXPENSE) return;
+      const val = calculateProjectionValueForDate(proj, d, dateStr);
+      if (val < 0) {
+        upcomingExpenses += Math.abs(val);
+      }
+    });
+  }
+
+  // 3. Add prorated savings goals
+  const totalMonthlySavings = calculateMonthlySavingsContribution(savingsGoals);
+  const proratedSavings = (totalMonthlySavings / 30) * daysUntilPayday;
+
+  const totalUpcomingObligations = upcomingExpenses + proratedSavings;
+
+  // 4. Calculate daily safe to spend
+  const remainingSpendable = currentBalance - totalUpcomingObligations;
+  const safeToSpendDaily = remainingSpendable / daysUntilPayday;
+
+  return {
+    safeToSpendDaily,
+    daysUntilPayday,
+    totalUpcomingObligations,
+    nextPayday: nextPaydayStr
+  };
 };

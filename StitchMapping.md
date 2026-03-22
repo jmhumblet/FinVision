@@ -13,3 +13,4 @@
 | Net Worth Dashboard | `PENDING_DESIGN_NET_WORTH` | `components/NetWorthDashboard.tsx`, `App.tsx` (Net Worth View) | **Implemented** |
 | Smart Bill Calendar | `PENDING_DESIGN_SMART_BILL_CALENDAR` | `components/SmartBillCalendar.tsx`, `App.tsx` (Bill Calendar View) | **Implemented** |
 | Financial Health Score & Recommendations | `PENDING_DESIGN_FINANCIAL_HEALTH` | N/A | **Unimplemented** |
+| "Safe-to-Spend" Daily Metric | `PENDING_DESIGN_SAFE_TO_SPEND_METRIC` | `components/SafeToSpendCard.tsx` | **Implemented** |
