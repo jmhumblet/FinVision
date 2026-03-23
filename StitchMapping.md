@@ -13,3 +13,4 @@
 | Net Worth Dashboard | `PENDING_DESIGN_NET_WORTH` | `components/NetWorthDashboard.tsx`, `App.tsx` (Net Worth View) | **Implemented** |
 | Smart Bill Calendar | `PENDING_DESIGN_SMART_BILL_CALENDAR` | `components/SmartBillCalendar.tsx`, `App.tsx` (Bill Calendar View) | **Implemented** |
 | Financial Health Score & Recommendations | `PENDING_DESIGN_FINANCIAL_HEALTH` | N/A | **Unimplemented** |
+| Automated Cash Flow Alerts | `PENDING_DESIGN_AUTO_CASH_FLOW_ALERTS` | `components/CashFlowAlerts.tsx`, `App.tsx` (Main View) | **Implemented** |

@@ -47,6 +47,7 @@ import DebtDashboard from './components/DebtDashboard';
 import SubscriptionManager from './components/SubscriptionManager';
 import SmartSavingsDashboard from './components/SmartSavingsDashboard';
 import SmartBillCalendar from './components/SmartBillCalendar';
+import CashFlowAlerts from './components/CashFlowAlerts';
 import { generateTimeline, formatCurrency, getMonthKey, calculateMonthlySummary } from './utils/financialUtils';
 import { calculateMergeChanges } from './utils/scenarioUtils';
 import { 
@@ -1008,6 +1009,9 @@ const App: React.FC = () => {
                </div>
             </div>
             
+            {/* Cash Flow Alerts */}
+            <CashFlowAlerts timelineData={timelineData} />
+
             {/* Scenario Builder */}
             <ScenarioBuilder 
                 projections={projections} 
