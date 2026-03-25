@@ -102,3 +102,13 @@ A comprehensive dashboard providing a single "Health Score" (0-100) based on fin
 - **Actionable Insights:** AI-driven recommendations to improve the score (e.g., "Pay off $500 on Credit Card to improve Debt Score").
 - **Historical Trend:** Track the health score over time to visualize improvement.
 **Stitch Screen:** `PENDING_DESIGN_FINANCIAL_HEALTH`
+
+## Tax Liability Forecaster
+**Status:** Unimplemented
+**Description:**
+A proactive feature to estimate year-end tax obligations based on income, savings, and investments to prevent surprise tax bills.
+- Estimate annual tax liability dynamically as income, investments, and deductions are updated throughout the year.
+- Identify tax-saving opportunities such as maximizing IRA or 401(k) contributions before deadlines.
+- Model the tax implications of major financial decisions in "What-If" scenarios (e.g., selling a home, liquidating stocks).
+- Provide visual "Tax Burden" insights to help users set aside a safe percentage of side-income or bonuses.
+**Stitch Screen:** `PENDING_DESIGN_TAX_FORECASTER`
