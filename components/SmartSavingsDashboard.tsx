@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { SavingsGoal } from '../types';
-import { formatCurrency } from '../utils/financialUtils';
+import { formatCurrency, calculateMonthlySavingsContribution } from '../utils/financialUtils';
 import {
   PiggyBank,
   Plus,
@@ -77,22 +77,6 @@ const SmartSavingsDashboard: React.FC<SmartSavingsDashboardProps> = ({
       onAddGoal(goal);
     }
     resetForm();
-  };
-
-  const calculateMonthlyContribution = (goal: SavingsGoal) => {
-    if (goal.currentAmount >= goal.targetAmount) return 0;
-
-    const today = new Date();
-    const target = new Date(goal.targetDate);
-
-    // Simple month difference
-    const months = (target.getFullYear() - today.getFullYear()) * 12 + (target.getMonth() - today.getMonth());
-
-    // If less than a month, treat as 1 month (or immediate)
-    const remainingMonths = Math.max(1, months);
-
-    const remainingAmount = goal.targetAmount - goal.currentAmount;
-    return remainingAmount / remainingMonths;
   };
 
   const getProgressPercentage = (goal: SavingsGoal) => {
@@ -236,7 +220,7 @@ const SmartSavingsDashboard: React.FC<SmartSavingsDashboardProps> = ({
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {goals.map(goal => {
-            const monthlyNeeded = calculateMonthlyContribution(goal);
+            const monthlyNeeded = calculateMonthlySavingsContribution(goal);
             const progress = getProgressPercentage(goal);
             const isCompleted = goal.currentAmount >= goal.targetAmount;
 

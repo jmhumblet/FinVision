@@ -1,4 +1,4 @@
-import { Transaction, Projection, DailyBalance, TransactionType, Frequency, Scenario, AdjustmentType, MonthlySummary, UnreconciledOccurrence } from "../types";
+import { Transaction, Projection, DailyBalance, TransactionType, Frequency, Scenario, AdjustmentType, MonthlySummary, UnreconciledOccurrence, SavingsGoal } from "../types";
 
 export const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-IE', { 
@@ -336,4 +336,111 @@ export const calculateProjectionValueForDate = (proj: Projection, d: Date, dateS
     }
     
     return 0;
+};
+
+export const calculateMonthlySavingsContribution = (goal: SavingsGoal) => {
+    if (goal.currentAmount >= goal.targetAmount) return 0;
+
+    const today = new Date();
+    const target = new Date(goal.targetDate);
+
+    // Simple month difference
+    const months = (target.getFullYear() - today.getFullYear()) * 12 + (target.getMonth() - today.getMonth());
+
+    // If less than a month, treat as 1 month (or immediate)
+    const remainingMonths = Math.max(1, months);
+
+    const remainingAmount = goal.targetAmount - goal.currentAmount;
+    return remainingAmount / remainingMonths;
+};
+
+export const calculateSafeToSpend = (
+    currentBalance: number,
+    projections: Projection[],
+    savingsGoals: SavingsGoal[]
+): { dailyAmount: number; nextPayday: string | null; daysRemaining: number } => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let nextPaydayDate: Date | null = null;
+    let nextPaydayStr: string | null = null;
+
+    // 1. Find next active INCOME projection within next 365 days
+    for (let i = 1; i <= 365; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() + i);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const dateStr = `${y}-${m}-${day}`;
+
+        let hasIncome = false;
+        for (const proj of projections) {
+            if (proj.isActive && proj.type === TransactionType.INCOME) {
+                const val = calculateProjectionValueForDate(proj, d, dateStr);
+                if (val > 0) {
+                    hasIncome = true;
+                    break;
+                }
+            }
+        }
+
+        if (hasIncome) {
+            nextPaydayDate = d;
+            nextPaydayStr = dateStr;
+            break;
+        }
+    }
+
+    // Fallback: If no payday, use end of current month
+    if (!nextPaydayDate) {
+        nextPaydayDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        const y = nextPaydayDate.getFullYear();
+        const m = String(nextPaydayDate.getMonth() + 1).padStart(2, '0');
+        const day = String(nextPaydayDate.getDate()).padStart(2, '0');
+        nextPaydayStr = `${y}-${m}-${day}`;
+    }
+
+    const diffTime = nextPaydayDate.getTime() - today.getTime();
+    let daysRemaining = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+    // Safety check, ensure daysRemaining is at least 1 to avoid division by zero
+    daysRemaining = Math.max(1, daysRemaining);
+
+    // 2. Sum upcoming expenses until next payday
+    let upcomingExpenses = 0;
+    for (let d = new Date(today); d < nextPaydayDate; d.setDate(d.getDate() + 1)) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const dateStr = `${y}-${m}-${day}`;
+
+        projections.forEach(proj => {
+            if (proj.isActive && proj.type === TransactionType.EXPENSE) {
+                const val = calculateProjectionValueForDate(proj, d, dateStr);
+                upcomingExpenses += Math.abs(val);
+            }
+        });
+    }
+
+    // 3. Calculate savings goals pro-rated for the period
+    let savingsContributions = 0;
+    savingsGoals.forEach(goal => {
+        const monthlyAmount = calculateMonthlySavingsContribution(goal);
+        // Pro-rate the monthly amount for the number of days until next payday
+        savingsContributions += (monthlyAmount / 30) * daysRemaining;
+    });
+
+    // 4. Calculate discretionary capacity
+    const discretionaryCapacity = currentBalance - upcomingExpenses - savingsContributions;
+
+    let dailyAmount = discretionaryCapacity / daysRemaining;
+
+    // Prevent negative daily amount from causing issues if they want to display 0, but usually we just want the number. Let's return the raw calculated number.
+
+    return {
+        dailyAmount,
+        nextPayday: nextPaydayStr,
+        daysRemaining
+    };
 };

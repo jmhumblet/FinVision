@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { formatCurrency, formatDate, generateTimeline, getMonthKey, calculateMonthlySummary } from '../utils/financialUtils';
-import { Transaction, Projection, TransactionType, Frequency, AdjustmentType, Scenario } from '../types';
+import { formatCurrency, formatDate, generateTimeline, getMonthKey, calculateMonthlySummary, calculateSafeToSpend } from '../utils/financialUtils';
+import { Transaction, Projection, TransactionType, Frequency, AdjustmentType, Scenario, SavingsGoal } from '../types';
 
 describe('financialUtils', () => {
   describe('getMonthKey', () => {
@@ -559,6 +559,126 @@ describe('financialUtils', () => {
         // Scenario: 1000 + 3000 (feb) + 4000 (march) + 3000 (april) = 11000
         expect(april25?.projectedBalance).toBe(10000);
         expect(april25?.scenario_s1).toBe(11000);
+    });
+  });
+
+  describe('calculateSafeToSpend', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-02-07T00:00:00Z'));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('should correctly subtract upcoming expenses and savings contributions before payday', () => {
+      const currentBalance = 2000;
+      const projections: Projection[] = [
+        {
+          id: 'p1',
+          name: 'Next Salary',
+          amount: 3000,
+          frequency: Frequency.ONCE,
+          startDate: '2026-02-17', // 10 days from today (07 to 17)
+          categoryId: '1',
+          type: TransactionType.INCOME,
+          isActive: true
+        },
+        {
+          id: 'p2',
+          name: 'Upcoming Bill',
+          amount: 500,
+          frequency: Frequency.ONCE,
+          startDate: '2026-02-12', // Before payday
+          categoryId: '2',
+          type: TransactionType.EXPENSE,
+          isActive: true
+        },
+        {
+          id: 'p3',
+          name: 'Bill After Payday',
+          amount: 300,
+          frequency: Frequency.ONCE,
+          startDate: '2026-02-18', // After payday
+          categoryId: '3',
+          type: TransactionType.EXPENSE,
+          isActive: true
+        }
+      ];
+
+      const savingsGoals: SavingsGoal[] = [
+        {
+          id: 'g1',
+          name: 'Vacation',
+          targetAmount: 1000,
+          currentAmount: 700,
+          targetDate: '2026-03-07' // 1 month remaining -> 300 needed per month
+        }
+      ];
+
+      const result = calculateSafeToSpend(currentBalance, projections, savingsGoals);
+
+      // Days remaining: 10
+      // Upcoming expenses: 500
+      // Savings contribution: (300 / 30) * 10 = 100
+      // Discretionary capacity: 2000 - 500 - 100 = 1400
+      // Daily amount: 1400 / 10 = 140
+
+      expect(result.daysRemaining).toBe(10);
+      expect(result.nextPayday).toBe('2026-02-17');
+      expect(result.dailyAmount).toBe(140);
+    });
+
+    it('should fall back to the end of the current month if no upcoming income is found', () => {
+      const currentBalance = 1000;
+      const projections: Projection[] = [];
+      const savingsGoals: SavingsGoal[] = [];
+
+      const result = calculateSafeToSpend(currentBalance, projections, savingsGoals);
+
+      // End of Feb 2026 is 2026-02-28
+      // Today is 2026-02-07
+      // Days remaining: 21
+      expect(result.daysRemaining).toBe(21);
+      expect(result.nextPayday).toBe('2026-02-28');
+      expect(result.dailyAmount).toBeCloseTo(1000 / 21);
+    });
+
+    it('should result in negative daily amount when expenses exceed balance', () => {
+      const currentBalance = 500;
+      const projections: Projection[] = [
+        {
+          id: 'p1',
+          name: 'Next Salary',
+          amount: 3000,
+          frequency: Frequency.ONCE,
+          startDate: '2026-02-12', // 5 days from today
+          categoryId: '1',
+          type: TransactionType.INCOME,
+          isActive: true
+        },
+        {
+          id: 'p2',
+          name: 'Huge Bill',
+          amount: 1000,
+          frequency: Frequency.ONCE,
+          startDate: '2026-02-10', // Before payday
+          categoryId: '2',
+          type: TransactionType.EXPENSE,
+          isActive: true
+        }
+      ];
+
+      const result = calculateSafeToSpend(currentBalance, projections, []);
+
+      // Days remaining: 5
+      // Upcoming expenses: 1000
+      // Discretionary capacity: 500 - 1000 = -500
+      // Daily amount: -500 / 5 = -100
+
+      expect(result.dailyAmount).toBe(-100);
+      expect(result.nextPayday).toBe('2026-02-12');
     });
   });
 });

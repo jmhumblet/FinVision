@@ -23,6 +23,12 @@ test.describe('FinVision Dashboard UI', () => {
     await expect(page.getByText('Add Projection')).toBeVisible();
   });
 
+  test('should render Safe-to-Spend card on dashboard', async ({ page }) => {
+    // Wait for the Dashboard to load and verify the new Safe-to-Spend metric is visible
+    await expect(page.getByText('"Safe-to-Spend" Daily')).toBeVisible();
+    await expect(page.getByText('Next payday:')).toBeVisible();
+  });
+
   test('should render scenario line on chart when scenario is active', async ({ page }) => {
     // 1. Add a Projection (Base)
     await page.getByRole('button', { name: 'Add Projection' }).click();
