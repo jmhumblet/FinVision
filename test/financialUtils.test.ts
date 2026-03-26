@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { formatCurrency, formatDate, generateTimeline, getMonthKey, calculateMonthlySummary } from '../utils/financialUtils';
+import { formatCurrency, formatDate, generateTimeline, getMonthKey, calculateMonthlySummary, calculateSafeToSpend } from '../utils/financialUtils';
 import { Transaction, Projection, TransactionType, Frequency, AdjustmentType, Scenario } from '../types';
 
 describe('financialUtils', () => {
@@ -563,3 +563,112 @@ describe('financialUtils', () => {
   });
 });
 
+
+describe('calculateSafeToSpend', () => {
+    it('calculates safe to spend correctly when there is a future payday', () => {
+        const currentBalance = 1000;
+        const currentDate = new Date('2026-01-01T00:00:00.000Z'); // Mock today
+
+        const projections: Projection[] = [
+            {
+                id: '1',
+                name: 'Paycheck',
+                amount: 2000,
+                type: TransactionType.INCOME,
+                frequency: Frequency.ONCE,
+                startDate: '2026-01-11', // 10 days from now
+                categoryId: '1',
+                isActive: true
+            },
+            {
+                id: '2',
+                name: 'Rent',
+                amount: 500,
+                type: TransactionType.EXPENSE,
+                frequency: Frequency.ONCE,
+                startDate: '2026-01-05', // 4 days from now
+                categoryId: '2',
+                isActive: true
+            }
+        ];
+
+        const result = calculateSafeToSpend(currentBalance, projections, currentDate);
+
+        expect(result.nextPayday?.toISOString().split('T')[0]).toBe('2026-01-11');
+        expect(result.daysRemaining).toBe(10);
+        // remainingBalance = 1000 - 500 = 500
+        expect(result.remainingBalance).toBe(500);
+        // dailySafeToSpend = 500 / 10 = 50
+        expect(result.dailySafeToSpend).toBe(50);
+    });
+
+    it('handles no future payday by defaulting to a 30-day window', () => {
+        const currentBalance = 1000;
+        const currentDate = new Date('2026-01-01T00:00:00.000Z'); // Mock today
+
+        const projections: Projection[] = [
+            {
+                id: '2',
+                name: 'Rent',
+                amount: 400,
+                type: TransactionType.EXPENSE,
+                frequency: Frequency.ONCE,
+                startDate: '2026-01-15', // Within 30 days
+                categoryId: '2',
+                isActive: true
+            },
+            {
+                id: '3',
+                name: 'Car',
+                amount: 300,
+                type: TransactionType.EXPENSE,
+                frequency: Frequency.ONCE,
+                startDate: '2026-02-15', // Outside 30 days
+                categoryId: '2',
+                isActive: true
+            }
+        ];
+
+        const result = calculateSafeToSpend(currentBalance, projections, currentDate);
+
+        expect(result.nextPayday).toBeNull();
+        expect(result.daysRemaining).toBe(30);
+        // remainingBalance = 1000 - 400 (only Rent is within 30 days) = 600
+        expect(result.remainingBalance).toBe(600);
+        // dailySafeToSpend = 600 / 30 = 20
+        expect(result.dailySafeToSpend).toBe(20);
+    });
+
+    it('returns 0 for dailySafeToSpend if remaining balance is negative', () => {
+        const currentBalance = 100;
+        const currentDate = new Date('2026-01-01T00:00:00.000Z');
+
+        const projections: Projection[] = [
+            {
+                id: '1',
+                name: 'Paycheck',
+                amount: 2000,
+                type: TransactionType.INCOME,
+                frequency: Frequency.ONCE,
+                startDate: '2026-01-11',
+                categoryId: '1',
+                isActive: true
+            },
+            {
+                id: '2',
+                name: 'Rent',
+                amount: 500, // Expense > Current Balance
+                type: TransactionType.EXPENSE,
+                frequency: Frequency.ONCE,
+                startDate: '2026-01-05',
+                categoryId: '2',
+                isActive: true
+            }
+        ];
+
+        const result = calculateSafeToSpend(currentBalance, projections, currentDate);
+
+        expect(result.remainingBalance).toBe(-400); // 100 - 500
+        expect(result.dailySafeToSpend).toBe(0); // Cannot be negative
+    });
+});

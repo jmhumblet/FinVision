@@ -47,6 +47,7 @@ import DebtDashboard from './components/DebtDashboard';
 import SubscriptionManager from './components/SubscriptionManager';
 import SmartSavingsDashboard from './components/SmartSavingsDashboard';
 import SmartBillCalendar from './components/SmartBillCalendar';
+import SafeToSpendCard from './components/SafeToSpendCard';
 import { generateTimeline, formatCurrency, getMonthKey, calculateMonthlySummary } from './utils/financialUtils';
 import { calculateMergeChanges } from './utils/scenarioUtils';
 import { 
@@ -963,8 +964,8 @@ const App: React.FC = () => {
         ) : (
           <>
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-               <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow relative overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+               <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between">
                  <div className="flex items-center justify-between mb-4">
                     <span className="text-slate-500 text-sm font-semibold">Current Available Balance</span>
                     <span className="bg-emerald-100 text-emerald-700 text-[10px] px-2 py-0.5 rounded-lg font-bold uppercase tracking-wider">Live</span>
@@ -987,7 +988,7 @@ const App: React.FC = () => {
                  </div>
                </div>
 
-               <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+               <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow flex flex-col justify-between">
                  <div className="flex items-center justify-between mb-4">
                     <span className="text-slate-500 text-sm font-semibold">Projected Balance ({projectionDays} days)</span>
                     <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-lg font-bold uppercase tracking-wider">Future</span>
@@ -1002,10 +1003,18 @@ const App: React.FC = () => {
                             Risk: Deficit predicted
                         </span>
                     ) : (
-                        <span className="text-slate-400">Estimated position at end of period</span>
+                        <span className="flex items-center text-slate-500 bg-slate-50 px-2 py-1 rounded-lg w-fit">
+                            <TrendingUp size={14} className="mr-1.5 text-blue-500" />
+                            Estimated position at end of period
+                        </span>
                     )}
                  </div>
                </div>
+
+               <SafeToSpendCard
+                  currentBalance={currentBalance}
+                  projections={projections}
+               />
             </div>
             
             {/* Scenario Builder */}

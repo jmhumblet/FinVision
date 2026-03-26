@@ -337,3 +337,89 @@ export const calculateProjectionValueForDate = (proj: Projection, d: Date, dateS
     
     return 0;
 };
+export const calculateSafeToSpend = (
+  currentBalance: number,
+  projections: Projection[],
+  currentDate: Date = new Date()
+): { dailySafeToSpend: number; remainingBalance: number; nextPayday: Date | null; daysRemaining: number } => {
+  // 1. Find the next payday
+  // A payday is an INCOME projection occurrence that happens after currentDate
+  let nextPayday: Date | null = null;
+
+  // We need to look ahead. Let's look up to 365 days ahead.
+  const maxLookaheadDays = 365;
+  const endDate = new Date(currentDate);
+  endDate.setDate(endDate.getDate() + maxLookaheadDays);
+
+  // Array to hold all projection occurrences
+  const occurrences: { date: Date, amount: number, type: TransactionType }[] = [];
+
+  projections.forEach(proj => {
+      if (!proj.isActive) return;
+
+      // Iterate day by day
+      for (let d = new Date(currentDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          const dateStr = `${y}-${m}-${day}`;
+
+          const val = calculateProjectionValueForDate(proj, d, dateStr);
+          if (val !== 0) {
+              occurrences.push({ date: new Date(d), amount: Math.abs(val), type: proj.type });
+          }
+      }
+  });
+
+  // Sort occurrences by date
+  occurrences.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+  // Find next payday (first INCOME occurrence after today)
+  // To avoid counting today's income as "next payday" if it hasn't cleared, let's look for strictly after today
+  // But wait, what if today IS the payday? We usually want the *next* one.
+  // If today is payday, the money is part of currentBalance (or will be soon).
+  // Let's say next payday is the first income > currentDate.
+  const nextIncome = occurrences.find(o => o.type === TransactionType.INCOME && o.date > currentDate);
+  if (nextIncome) {
+      nextPayday = nextIncome.date;
+  }
+
+  let endCalculationDate = nextPayday;
+
+  // If no payday found in the next year, let's just default to a 30-day window
+  let daysRemaining = 30;
+  if (!nextPayday) {
+      endCalculationDate = new Date(currentDate);
+      endCalculationDate.setDate(endCalculationDate.getDate() + 30);
+  } else {
+      const diffTime = Math.abs(nextPayday.getTime() - currentDate.getTime());
+      daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      // If it's tomorrow, days remaining = 1.
+  }
+
+  // 2. Sum all negative occurrences before the endCalculationDate
+  let totalUpcomingExpenses = 0;
+  occurrences.forEach(o => {
+      if (o.type === TransactionType.EXPENSE && o.date >= currentDate && endCalculationDate && o.date < endCalculationDate) {
+          totalUpcomingExpenses += o.amount;
+      }
+  });
+
+  const remainingBalance = currentBalance - totalUpcomingExpenses;
+
+  // 3. Calculate daily safe to spend
+  // If daysRemaining is 0 (shouldn't happen if we look for dates > currentDate, but just in case), avoid Infinity
+  let dailySafeToSpend = 0;
+  if (daysRemaining > 0) {
+      dailySafeToSpend = remainingBalance / daysRemaining;
+  } else {
+      dailySafeToSpend = remainingBalance;
+  }
+
+  return {
+      dailySafeToSpend: Math.max(0, dailySafeToSpend), // Don't return negative safe-to-spend
+      remainingBalance,
+      nextPayday,
+      daysRemaining
+  };
+};
