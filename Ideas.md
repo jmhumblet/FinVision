@@ -102,3 +102,12 @@ A comprehensive dashboard providing a single "Health Score" (0-100) based on fin
 - **Actionable Insights:** AI-driven recommendations to improve the score (e.g., "Pay off $500 on Credit Card to improve Debt Score").
 - **Historical Trend:** Track the health score over time to visualize improvement.
 **Stitch Screen:** `PENDING_DESIGN_FINANCIAL_HEALTH`
+## Variable Income Smoother
+**Status:** Unimplemented
+**Description:**
+A predictive tool designed for non-traditional earners (freelancers, gig workers, commission-based) to stabilize their highly variable cash flow.
+- Analyzes historical income data to calculate a conservative "smoothed" monthly income baseline.
+- Suggests an optimal "buffer fund" amount to safely cover lean months based on the user's base expenses.
+- Simulates future cash flow using the smoothed baseline, providing clarity on exactly how much is truly safe to spend right now.
+- Offers interactive scenario toggles (e.g., "What if a major client drops?", "What if I hit my stretch goal?") to stress-test the smoothed budget.
+**Stitch Screen:** `PENDING_DESIGN_VARIABLE_INCOME_SMOOTHER`
