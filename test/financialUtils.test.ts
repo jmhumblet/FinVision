@@ -1,8 +1,105 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { formatCurrency, formatDate, generateTimeline, getMonthKey, calculateMonthlySummary } from '../utils/financialUtils';
-import { Transaction, Projection, TransactionType, Frequency, AdjustmentType, Scenario } from '../types';
+import { formatCurrency, formatDate, generateTimeline, getMonthKey, calculateMonthlySummary, calculateMonthlySavingsContribution, calculateSafeToSpend } from '../utils/financialUtils';
+import { Transaction, Projection, TransactionType, Frequency, AdjustmentType, Scenario, SavingsGoal } from '../types';
 
 describe('financialUtils', () => {
+  describe('calculateMonthlySavingsContribution', () => {
+    it('should return 0 if goal is already met', () => {
+      const goal: SavingsGoal = {
+        id: '1', name: 'Car', targetAmount: 5000, currentAmount: 5000, targetDate: '2026-12-01'
+      };
+      expect(calculateMonthlySavingsContribution(goal)).toBe(0);
+    });
+
+    it('should calculate correct monthly contribution', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-02-07T00:00:00Z'));
+
+      const goal: SavingsGoal = {
+        id: '1', name: 'Car', targetAmount: 1200, currentAmount: 0, targetDate: '2027-02-01'
+      };
+      // 12 months remaining, 1200 needed = 100/month
+      expect(calculateMonthlySavingsContribution(goal)).toBe(100);
+
+      vi.useRealTimers();
+    });
+
+    it('should default to 1 month if target date is in the past or this month', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-02-07T00:00:00Z'));
+
+      const goal: SavingsGoal = {
+        id: '1', name: 'Emergency', targetAmount: 500, currentAmount: 0, targetDate: '2026-01-01'
+      };
+      // Past date, defaults to 1 month
+      expect(calculateMonthlySavingsContribution(goal)).toBe(500);
+
+      vi.useRealTimers();
+    });
+  });
+
+  describe('calculateSafeToSpend', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-02-01T00:00:00Z'));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('should calculate safe to spend with next payday, upcoming expenses, and savings', () => {
+      const projections: Projection[] = [
+        {
+          id: 'p1', name: 'Salary', amount: 3000, frequency: Frequency.MONTHLY,
+          startDate: '2026-02-15', categoryId: '1', type: TransactionType.INCOME, isActive: true
+        },
+        {
+          id: 'p2', name: 'Phone Bill', amount: 50, frequency: Frequency.MONTHLY,
+          startDate: '2026-02-10', categoryId: '2', type: TransactionType.EXPENSE, isActive: true
+        },
+        {
+          id: 'p3', name: 'Rent', amount: 1000, frequency: Frequency.MONTHLY,
+          // After payday, should not be included
+          startDate: '2026-02-28', categoryId: '3', type: TransactionType.EXPENSE, isActive: true
+        }
+      ];
+
+      const goals: SavingsGoal[] = [
+        {
+          id: 'g1', name: 'Vacation', targetAmount: 1200, currentAmount: 0, targetDate: '2027-02-01'
+        }
+      ]; // 100 / month
+
+      // currentBalance: 2000
+      // Next Payday: 2026-02-15 (14 days away)
+      // Upcoming expenses (before 02-15): 50
+      // Savings allocation: (100 / 30) * 14 = 46.666...
+      // Safe to spend: 2000 - 50 - 46.666 = 1903.333
+      // Daily safe to spend: 1903.333 / 14 = 135.95
+
+      const result = calculateSafeToSpend(2000, projections, goals, '2026-02-01');
+
+      expect(result.daysToNextPayday).toBe(14);
+      expect(result.nextPaydayStr).toBe('2026-02-15');
+      expect(result.upcomingExpenses).toBe(50);
+      expect(result.savingsAllocation).toBeCloseTo(46.67, 2);
+      expect(result.safeAmountTotal).toBeCloseTo(1903.33, 2);
+      expect(result.dailySafeAmount).toBeCloseTo(135.95, 2);
+    });
+
+    it('should use fallback of 30 days if no next payday is found', () => {
+      const result = calculateSafeToSpend(3000, [], [], '2026-02-01');
+
+      expect(result.daysToNextPayday).toBe(30);
+      expect(result.nextPaydayStr).toBeNull();
+      expect(result.upcomingExpenses).toBe(0);
+      expect(result.savingsAllocation).toBe(0);
+      expect(result.safeAmountTotal).toBe(3000);
+      expect(result.dailySafeAmount).toBe(100); // 3000 / 30
+    });
+  });
+
   describe('getMonthKey', () => {
     it('should return YYYY-MM for a given date', () => {
       expect(getMonthKey(new Date('2026-02-07'))).toBe('2026-02');
