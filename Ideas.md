@@ -102,3 +102,15 @@ A comprehensive dashboard providing a single "Health Score" (0-100) based on fin
 - **Actionable Insights:** AI-driven recommendations to improve the score (e.g., "Pay off $500 on Credit Card to improve Debt Score").
 - **Historical Trend:** Track the health score over time to visualize improvement.
 **Stitch Screen:** `PENDING_DESIGN_FINANCIAL_HEALTH`
+
+## Micro-Habit Opportunity Cost Visualizer
+**Status:** Unimplemented
+**Description:**
+A predictive modeling feature that isolates small, recurring discretionary expenses (e.g., daily coffee, takeout) and visualizes the long-term impact of redirecting those funds to debt or investments.
+- **User Story:** As a user, I want to see the 1, 5, and 10-year financial impact of reducing small, frequent discretionary expenses, so that I can make more informed daily spending decisions.
+- **Acceptance Criteria:**
+  - The system automatically identifies small, high-frequency discretionary transactions (e.g., < $20, > 3 times/week).
+  - Users can select a specific micro-habit category (e.g., "Coffee Shops") and view the projected total annual cost.
+  - Users can toggle a "What-If" visualization showing the outcome of redirecting this amount into a savings goal, an investment account with a default APY, or towards accelerating debt payoff.
+  - The visualization displays the projected long-term compounding benefits over 1, 5, and 10-year timelines.
+**Stitch Screen:** `PENDING_DESIGN_MICRO_HABIT_VISUALIZER`
