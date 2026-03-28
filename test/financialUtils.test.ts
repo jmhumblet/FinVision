@@ -1,21 +1,150 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { formatCurrency, formatDate, generateTimeline, getMonthKey, calculateMonthlySummary } from '../utils/financialUtils';
+import { formatCurrency, formatDate, generateTimeline, getMonthKey, calculateMonthlySummary, calculateMonthlySavingsContribution, calculateSafeToSpend } from '../utils/financialUtils';
 import { Transaction, Projection, TransactionType, Frequency, AdjustmentType, Scenario } from '../types';
 
 describe('financialUtils', () => {
+  describe('calculateMonthlySavingsContribution', () => {
+    it('should calculate the total monthly contribution needed for active goals', () => {
+      // Mock "today" to 2026-02-07
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-02-07T00:00:00Z'));
+
+      const goals: any[] = [
+        {
+          id: '1',
+          name: 'Car',
+          targetAmount: 5000,
+          currentAmount: 1000,
+          targetDate: '2026-06-07' // 4 months away
+        },
+        {
+          id: '2',
+          name: 'Emergency Fund',
+          targetAmount: 10000,
+          currentAmount: 10000,
+          targetDate: '2027-01-01' // Already reached
+        },
+        {
+          id: '3',
+          name: 'Vacation',
+          targetAmount: 2000,
+          currentAmount: 0,
+          targetDate: '2026-02-01' // Overdue
+        }
+      ];
+
+      // Goal 1: 4000 / 4 months = 1000
+      // Goal 2: reached = 0
+      // Goal 3: overdue = 0
+      const total = calculateMonthlySavingsContribution(goals);
+      expect(total).toBe(1000);
+
+      vi.useRealTimers();
+      });
+    });
+
+  describe('calculateSafeToSpend', () => {
+    it('should calculate daily safe-to-spend amount', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-02-01T00:00:00Z'));
+
+      const currentBalance = 3000;
+      const daysUntilPayday = 14;
+
+      const projections: any[] = [
+        {
+          id: 'p1',
+          name: 'Rent',
+          amount: 1000,
+          frequency: Frequency.ONCE,
+          startDate: '2026-02-05',
+          categoryId: 'rent',
+          type: TransactionType.EXPENSE,
+          isActive: true
+        },
+        {
+          id: 'p2',
+          name: 'Internet',
+          amount: 50,
+          frequency: Frequency.MONTHLY,
+          startDate: '2026-02-10',
+          categoryId: 'util',
+          type: TransactionType.EXPENSE,
+          isActive: true
+        },
+        {
+          id: 'p3',
+          name: 'Income',
+          amount: 5000,
+          frequency: Frequency.ONCE,
+          startDate: '2026-02-15',
+          categoryId: 'inc',
+          type: TransactionType.INCOME,
+          isActive: true
+        }
+      ];
+
+      const goals: any[] = [
+        {
+          id: 'g1',
+          name: 'Vacation',
+          targetAmount: 2400,
+          currentAmount: 0,
+          targetDate: '2027-02-01' // 12 months away = 200/month
+        }
+      ];
+
+      // Upcoming Expenses (next 14 days, until Feb 15, excluding 15th): Rent(1000) + Internet(50) = 1050
+      // Monthly Savings = 200
+      // Pro-rated savings for 14 days: (200 / 30) * 14 = 93.333
+      // Total Obligations = 1050 + 93.333 = 1143.333
+      // Remaining = 3000 - 1143.333 = 1856.666
+      // Daily Safe to Spend = 1856.666 / 14 = 132.619
+
+      const result = calculateSafeToSpend(currentBalance, projections, goals, daysUntilPayday);
+      expect(result).toBeCloseTo(132.619, 3);
+
+      vi.useRealTimers();
+      });
+
+    it('should handle zero or negative balance remaining', () => {
+       vi.useFakeTimers();
+       vi.setSystemTime(new Date('2026-02-01T00:00:00Z'));
+
+       const currentBalance = 1000;
+       const daysUntilPayday = 14;
+
+       const projections: any[] = [
+         {
+           id: 'p1',
+           name: 'Rent',
+           amount: 1500, // exceeds balance
+           frequency: Frequency.ONCE,
+           startDate: '2026-02-05',
+           type: TransactionType.EXPENSE,
+           isActive: true
+         }
+       ];
+
+       const result = calculateSafeToSpend(currentBalance, projections, [], daysUntilPayday);
+       expect(result).toBe(0); // Should not be negative
+
+       vi.useRealTimers();
+      });
+    });
   describe('getMonthKey', () => {
     it('should return YYYY-MM for a given date', () => {
       expect(getMonthKey(new Date('2026-02-07'))).toBe('2026-02');
       expect(getMonthKey(new Date('2026-12-25'))).toBe('2026-12');
-    });
+        });
 
     it('should default to today', () => {
       vi.useFakeTimers();
       vi.setSystemTime(new Date('2026-05-10T00:00:00Z'));
       expect(getMonthKey()).toBe('2026-05');
       vi.useRealTimers();
-    });
-  });
+        });
+      });
 
   describe('calculateMonthlySummary', () => {
     const projections: Projection[] = [
@@ -61,7 +190,7 @@ describe('financialUtils', () => {
       expect(summary.totalProjectedExpenses).toBe(1050);
       expect(summary.remainingSpendable).toBe(2950);
       expect(summary.spentPercentage).toBe(0);
-    });
+        });
 
     it('should handle cleared transactions', () => {
       // Clear Rent (occurred on 2026-02-01)
@@ -76,8 +205,8 @@ describe('financialUtils', () => {
       expect(summary.remainingSpendable).toBe(2950);
       // Spent %: (1050 - 50) / 1050 * 100 = 1000 / 1050 * 100 approx 95.2%
       expect(summary.spentPercentage).toBeCloseTo(95.23, 1);
-    });
-  });
+        });
+      });
 
   describe('formatCurrency', () => {
     it('should format numbers as EUR currency', () => {
@@ -85,30 +214,30 @@ describe('financialUtils', () => {
       expect(formatCurrency(1000)).toMatch(/€1,000/);
       expect(formatCurrency(0)).toMatch(/€0/);
       expect(formatCurrency(-500)).toMatch(/-€500/);
-    });
+        });
 
     it('should handle large numbers', () => {
       expect(formatCurrency(1000000)).toMatch(/€1,000,000/);
-    });
-  });
+        });
+      });
 
   describe('formatDate', () => {
     it('should format ISO date strings correctly', () => {
       expect(formatDate('2026-02-07')).toBe('7 Feb 2026');
       expect(formatDate('2026-12-25')).toBe('25 Dec 2026');
-    });
-  });
+        });
+      });
 
   describe('generateTimeline', () => {
     beforeEach(() => {
       // Mock "today" to 2026-02-07
       vi.useFakeTimers();
       vi.setSystemTime(new Date('2026-02-07T00:00:00Z'));
-    });
+        });
 
     afterEach(() => {
       vi.useRealTimers();
-    });
+        });
 
     it('should handle empty transactions and projections', () => {
       const startingBalance = 1000;
@@ -126,8 +255,8 @@ describe('financialUtils', () => {
         if (point.projectedBalance !== null) {
           expect(point.projectedBalance).toBe(startingBalance);
         }
-      });
-    });
+          });
+        });
 
     it('should apply historical transactions correctly', () => {
       const startingBalance = 1000;
@@ -164,7 +293,7 @@ describe('financialUtils', () => {
       const afterRent = timeline.find(p => p.date === '2026-02-02');
       expect(afterRent?.projectedBalance).toBe(2200);
       expect(afterRent?.historicalBalance).toBe(null);
-    });
+        });
 
     it('should apply base projections correctly', () => {
       const startingBalance = 1000;
@@ -209,7 +338,7 @@ describe('financialUtils', () => {
       
       const on15th = timeline.find(p => p.date === '2026-02-15');
       expect(on15th?.projectedBalance).toBe(1050);
-    });
+        });
 
     it('should apply scenario adjustments correctly', () => {
       const startingBalance = 1000;
@@ -255,7 +384,7 @@ describe('financialUtils', () => {
       const march25 = timeline.find(p => p.date === '2026-03-25');
       expect(march25?.projectedBalance).toBe(7000);
       expect(march25?.scenario_s1).toBe(8000);
-    });
+        });
 
     it('should handle PERCENT_INC and PERCENT_DEC adjustments', () => {
       const startingBalance = 1000;
@@ -301,7 +430,7 @@ describe('financialUtils', () => {
       const march10 = timeline.find(p => p.date === '2026-03-10');
       expect(march10?.projectedBalance).toBe(-1000);
       expect(march10?.scenario_s1).toBe(-1100);
-    });
+        });
 
     it('should handle ADD_AMOUNT adjustments', () => {
         const startingBalance = 1000;
@@ -339,7 +468,7 @@ describe('financialUtils', () => {
         const march15 = timeline.find(p => p.date === '2026-03-15');
         expect(march15?.projectedBalance).toBe(1500);
         expect(march15?.scenario_s1).toBe(1700);
-      });
+          });
 
     it('should handle leap years (Feb 29)', () => {
       const startingBalance = 1000;
@@ -372,7 +501,7 @@ describe('financialUtils', () => {
       // Whereas projStart.getDate() is 29 and projStart.getMonth() is 1.
       expect(feb28?.projectedBalance).toBe(1000);
       expect(march1?.projectedBalance).toBe(1000);
-    });
+        });
 
     it('should expand startDate if first transaction is older than 30 days', () => {
       const startingBalance = 1000;
@@ -388,7 +517,7 @@ describe('financialUtils', () => {
       ];
       const timeline = generateTimeline(startingBalance, transactions, [], 30);
       expect(timeline[0].date).toBe('2025-12-01');
-    });
+        });
 
     it('should handle PERCENT_DEC adjustments', () => {
       const startingBalance = 1000;
@@ -429,7 +558,7 @@ describe('financialUtils', () => {
       const march10 = timeline.find(p => p.date === '2026-03-10');
       expect(march10?.projectedBalance).toBe(-1000);
       expect(march10?.scenario_s1).toBe(-800);
-    });
+        });
 
     it('should ignore inactive projections and scenarios', () => {
       const startingBalance = 1000;
@@ -458,7 +587,7 @@ describe('financialUtils', () => {
       const feb10 = timeline.find(p => p.date === '2026-02-10');
       expect(feb10?.projectedBalance).toBe(1000);
       expect(feb10?.scenario_s1).toBeUndefined();
-    });
+        });
 
     it('should handle daily projections', () => {
         const startingBalance = 1000;
@@ -482,7 +611,7 @@ describe('financialUtils', () => {
         // Feb 12: 980 - 10 = 970
         const feb12 = timeline.find(p => p.date === '2026-02-12');
         expect(feb12?.projectedBalance).toBe(970);
-    });
+        });
 
     it('should handle projections starting in the future or ending in the past', () => {
         const startingBalance = 1000;
@@ -513,7 +642,7 @@ describe('financialUtils', () => {
         const timeline = generateTimeline(startingBalance, [], projections, 30);
         const anyDay = timeline[timeline.length - 1];
         expect(anyDay.projectedBalance).toBe(1000); // Neither should have triggered
-    });
+        });
 
     it('should handle adjustments with dates', () => {
         const startingBalance = 1000;
@@ -559,7 +688,268 @@ describe('financialUtils', () => {
         // Scenario: 1000 + 3000 (feb) + 4000 (march) + 3000 (april) = 11000
         expect(april25?.projectedBalance).toBe(10000);
         expect(april25?.scenario_s1).toBe(11000);
+        });
+      });
+    });
+
+
+  describe('calculateMonthlySavingsContribution', () => {
+    it('should calculate the total monthly contribution needed for active goals', () => {
+      // Mock "today" to 2026-02-07
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-02-07T00:00:00Z'));
+
+      const goals: any[] = [
+        {
+          id: '1',
+          name: 'Car',
+          targetAmount: 5000,
+          currentAmount: 1000,
+          targetDate: '2026-06-07' // 4 months away
+        },
+        {
+          id: '2',
+          name: 'Emergency Fund',
+          targetAmount: 10000,
+          currentAmount: 10000,
+          targetDate: '2027-01-01' // Already reached
+        },
+        {
+          id: '3',
+          name: 'Vacation',
+          targetAmount: 2000,
+          currentAmount: 0,
+          targetDate: '2026-02-01' // Overdue
+        }
+      ];
+
+      // Goal 1: 4000 / 4 months = 1000
+      // Goal 2: reached = 0
+      // Goal 3: overdue = 0
+      const total = calculateMonthlySavingsContribution(goals);
+      expect(total).toBe(1000);
+
+      vi.useRealTimers();
+        });
+      });
+
+  describe('calculateSafeToSpend', () => {
+    it('should calculate daily safe-to-spend amount', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-02-01T00:00:00Z'));
+
+      const currentBalance = 3000;
+      const daysUntilPayday = 14;
+
+      const projections: any[] = [
+        {
+          id: 'p1',
+          name: 'Rent',
+          amount: 1000,
+          frequency: Frequency.ONCE,
+          startDate: '2026-02-05',
+          categoryId: 'rent',
+          type: TransactionType.EXPENSE,
+          isActive: true
+        },
+        {
+          id: 'p2',
+          name: 'Internet',
+          amount: 50,
+          frequency: Frequency.MONTHLY,
+          startDate: '2026-02-10',
+          categoryId: 'util',
+          type: TransactionType.EXPENSE,
+          isActive: true
+        },
+        {
+          id: 'p3',
+          name: 'Income',
+          amount: 5000,
+          frequency: Frequency.ONCE,
+          startDate: '2026-02-15',
+          categoryId: 'inc',
+          type: TransactionType.INCOME,
+          isActive: true
+        }
+      ];
+
+      const goals: any[] = [
+        {
+          id: 'g1',
+          name: 'Vacation',
+          targetAmount: 2400,
+          currentAmount: 0,
+          targetDate: '2027-02-01' // 12 months away = 200/month
+        }
+      ];
+
+      // Upcoming Expenses (next 14 days, until Feb 15, excluding 15th): Rent(1000) + Internet(50) = 1050
+      // Monthly Savings = 200
+      // Pro-rated savings for 14 days: (200 / 30) * 14 = 93.333
+      // Total Obligations = 1050 + 93.333 = 1143.333
+      // Remaining = 3000 - 1143.333 = 1856.666
+      // Daily Safe to Spend = 1856.666 / 14 = 132.619
+
+      const result = calculateSafeToSpend(currentBalance, projections, goals, daysUntilPayday);
+      expect(result).toBeCloseTo(132.619, 3);
+
+      vi.useRealTimers();
+        });
+
+    it('should handle zero or negative balance remaining', () => {
+       vi.useFakeTimers();
+       vi.setSystemTime(new Date('2026-02-01T00:00:00Z'));
+
+       const currentBalance = 1000;
+       const daysUntilPayday = 14;
+
+       const projections: any[] = [
+         {
+           id: 'p1',
+           name: 'Rent',
+           amount: 1500, // exceeds balance
+           frequency: Frequency.ONCE,
+           startDate: '2026-02-05',
+           type: TransactionType.EXPENSE,
+           isActive: true
+         }
+       ];
+
+       const result = calculateSafeToSpend(currentBalance, projections, [], daysUntilPayday);
+       expect(result).toBe(0); // Should not be negative
+
+       vi.useRealTimers();
+        });
+      });
+
+  describe('calculateMonthlySavingsContribution', () => {
+    it('should calculate the total monthly contribution needed for active goals', () => {
+      // Mock "today" to 2026-02-07
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-02-07T00:00:00Z'));
+
+      const goals: any[] = [
+        {
+          id: '1',
+          name: 'Car',
+          targetAmount: 5000,
+          currentAmount: 1000,
+          targetDate: '2026-06-07' // 4 months away
+        },
+        {
+          id: '2',
+          name: 'Emergency Fund',
+          targetAmount: 10000,
+          currentAmount: 10000,
+          targetDate: '2027-01-01' // Already reached
+        },
+        {
+          id: '3',
+          name: 'Vacation',
+          targetAmount: 2000,
+          currentAmount: 0,
+          targetDate: '2026-02-01' // Overdue
+        }
+      ];
+
+      // Goal 1: 4000 / 4 months = 1000
+      // Goal 2: reached = 0
+      // Goal 3: overdue = 0
+      const total = calculateMonthlySavingsContribution(goals);
+      expect(total).toBe(1000);
+
+      vi.useRealTimers();
+      });
+    });
+
+  describe('calculateSafeToSpend', () => {
+    it('should calculate daily safe-to-spend amount', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-02-01T00:00:00Z'));
+
+      const currentBalance = 3000;
+      const daysUntilPayday = 14;
+
+      const projections: any[] = [
+        {
+          id: 'p1',
+          name: 'Rent',
+          amount: 1000,
+          frequency: Frequency.ONCE,
+          startDate: '2026-02-05',
+          categoryId: 'rent',
+          type: TransactionType.EXPENSE,
+          isActive: true
+        },
+        {
+          id: 'p2',
+          name: 'Internet',
+          amount: 50,
+          frequency: Frequency.MONTHLY,
+          startDate: '2026-02-10',
+          categoryId: 'util',
+          type: TransactionType.EXPENSE,
+          isActive: true
+        },
+        {
+          id: 'p3',
+          name: 'Income',
+          amount: 5000,
+          frequency: Frequency.ONCE,
+          startDate: '2026-02-15',
+          categoryId: 'inc',
+          type: TransactionType.INCOME,
+          isActive: true
+        }
+      ];
+
+      const goals: any[] = [
+        {
+          id: 'g1',
+          name: 'Vacation',
+          targetAmount: 2400,
+          currentAmount: 0,
+          targetDate: '2027-02-01' // 12 months away = 200/month
+        }
+      ];
+
+      // Upcoming Expenses (next 14 days, until Feb 15, excluding 15th): Rent(1000) + Internet(50) = 1050
+      // Monthly Savings = 200
+      // Pro-rated savings for 14 days: (200 / 30) * 14 = 93.333
+      // Total Obligations = 1050 + 93.333 = 1143.333
+      // Remaining = 3000 - 1143.333 = 1856.666
+      // Daily Safe to Spend = 1856.666 / 14 = 132.619
+
+      const result = calculateSafeToSpend(currentBalance, projections, goals, daysUntilPayday);
+      expect(result).toBeCloseTo(132.619, 3);
+
+      vi.useRealTimers();
+      });
+
+    it('should handle zero or negative balance remaining', () => {
+       vi.useFakeTimers();
+       vi.setSystemTime(new Date('2026-02-01T00:00:00Z'));
+
+       const currentBalance = 1000;
+       const daysUntilPayday = 14;
+
+       const projections: any[] = [
+         {
+           id: 'p1',
+           name: 'Rent',
+           amount: 1500, // exceeds balance
+           frequency: Frequency.ONCE,
+           startDate: '2026-02-05',
+           type: TransactionType.EXPENSE,
+           isActive: true
+         }
+       ];
+
+       const result = calculateSafeToSpend(currentBalance, projections, [], daysUntilPayday);
+       expect(result).toBe(0); // Should not be negative
+
+       vi.useRealTimers();
+      });
     });
   });
-});
-
