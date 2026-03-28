@@ -102,3 +102,13 @@ A comprehensive dashboard providing a single "Health Score" (0-100) based on fin
 - **Actionable Insights:** AI-driven recommendations to improve the score (e.g., "Pay off $500 on Credit Card to improve Debt Score").
 - **Historical Trend:** Track the health score over time to visualize improvement.
 **Stitch Screen:** `PENDING_DESIGN_FINANCIAL_HEALTH`
+
+## AI-Driven Bill Negotiation Assistant
+**Status:** Unimplemented
+**Description:**
+An intelligent agent that analyzes recurring bills and subscriptions to identify opportunities for cost reduction.
+- **Contract Analysis:** Automatically extracts contract end dates and renewal terms from connected accounts or uploaded bill documents.
+- **Market Rate Comparison:** Compares current rates for services (like internet, cable, or car insurance) against current market offers and promotional rates.
+- **Automated Negotiation Scripts:** Generates personalized, high-success-rate negotiation scripts or emails for the user to send to providers.
+- **ROI Visualization:** Shows the projected long-term savings of a successful negotiation over 1, 5, and 10 years, reinforcing the value of the effort.
+**Stitch Screen:** `PENDING_DESIGN_BILL_NEGOTIATION_ASSISTANT`
