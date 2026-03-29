@@ -102,3 +102,12 @@ A comprehensive dashboard providing a single "Health Score" (0-100) based on fin
 - **Actionable Insights:** AI-driven recommendations to improve the score (e.g., "Pay off $500 on Credit Card to improve Debt Score").
 - **Historical Trend:** Track the health score over time to visualize improvement.
 **Stitch Screen:** `PENDING_DESIGN_FINANCIAL_HEALTH`
+
+## Natural Language Scenario Builder
+**Status:** Unimplemented
+**Description:**
+An AI-powered interface that allows users to create complex "What-If" scenarios using conversational text.
+- **Conversational Input:** Users can type prompts like, "What if I buy a $30,000 car next month with a $5,000 down payment and a 5-year loan at 6%?"
+- **Automated Scenario Generation:** The AI parses the prompt and automatically generates a new scenario, populating it with the corresponding one-time expenses (down payment) and recurring projections (monthly loan payments).
+- **Interactive Refinement:** The AI asks clarifying questions if details are missing (e.g., "When exactly do you plan to make the purchase?") and allows users to seamlessly tweak the generated parameters before saving.
+**Stitch Screen:** `PENDING_DESIGN_NL_SCENARIO_BUILDER`
