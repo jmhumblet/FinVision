@@ -1,8 +1,101 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { formatCurrency, formatDate, generateTimeline, getMonthKey, calculateMonthlySummary } from '../utils/financialUtils';
+import { formatCurrency, formatDate, generateTimeline, getMonthKey, calculateMonthlySummary, calculateSafeToSpend } from '../utils/financialUtils';
 import { Transaction, Projection, TransactionType, Frequency, AdjustmentType, Scenario } from '../types';
 
 describe('financialUtils', () => {
+  describe('calculateSafeToSpend', () => {
+    it('should return 0 when there are no available funds', () => {
+      const currentBalance = 0;
+      const projections: Projection[] = [];
+      const result = calculateSafeToSpend(currentBalance, projections, new Date('2026-05-10T00:00:00Z'));
+
+      expect(result.safeToSpend).toBe(0);
+      expect(result.nextPayday).toBeNull();
+      expect(result.daysUntil).toBe(30);
+    });
+
+    it('should calculate correctly with only expenses', () => {
+      const currentBalance = 1000;
+      const projections: Projection[] = [
+        {
+          id: 'p1',
+          name: 'Rent',
+          amount: 500,
+          frequency: Frequency.ONCE,
+          startDate: '2026-05-20',
+          categoryId: 'rent',
+          type: TransactionType.EXPENSE,
+          isActive: true
+        }
+      ];
+
+      // 30 days default until payday.
+      const result = calculateSafeToSpend(currentBalance, projections, new Date('2026-05-10T00:00:00Z'));
+      expect(result.daysUntil).toBe(30);
+
+      // Expenses = 500
+      // Available = 1000 - 500 = 500
+      // Daily = 500 / 30 = 16.666...
+      expect(result.safeToSpend).toBeCloseTo(16.666, 2);
+    });
+
+    it('should find next payday and calculate properly', () => {
+      const currentBalance = 1500;
+      const projections: Projection[] = [
+        {
+          id: 'p1',
+          name: 'Salary',
+          amount: 2000,
+          frequency: Frequency.MONTHLY,
+          startDate: '2026-05-25', // 15 days from 05-10
+          categoryId: 'salary',
+          type: TransactionType.INCOME,
+          isActive: true
+        },
+        {
+          id: 'p2',
+          name: 'Groceries',
+          amount: 300,
+          frequency: Frequency.ONCE,
+          startDate: '2026-05-15',
+          categoryId: 'groceries',
+          type: TransactionType.EXPENSE,
+          isActive: true
+        }
+      ];
+
+      const result = calculateSafeToSpend(currentBalance, projections, new Date('2026-05-10T00:00:00Z'));
+
+      // Payday is 2026-05-25. So 15 days until payday.
+      expect(result.daysUntil).toBe(15);
+      expect(result.nextPayday).toEqual(new Date('2026-05-25T00:00:00Z'));
+
+      // Expenses = 300
+      // Available = 1500 - 300 = 1200
+      // Daily = 1200 / 15 = 80
+      expect(result.safeToSpend).toBe(80);
+    });
+
+    it('should handle negative available balance', () => {
+      const currentBalance = 100;
+      const projections: Projection[] = [
+        {
+          id: 'p1',
+          name: 'Rent',
+          amount: 500,
+          frequency: Frequency.ONCE,
+          startDate: '2026-05-20',
+          categoryId: 'rent',
+          type: TransactionType.EXPENSE,
+          isActive: true
+        }
+      ];
+
+      const result = calculateSafeToSpend(currentBalance, projections, new Date('2026-05-10T00:00:00Z'));
+      expect(result.safeToSpend).toBe(0); // Cannot safely spend anything
+    });
+  });
+
   describe('getMonthKey', () => {
     it('should return YYYY-MM for a given date', () => {
       expect(getMonthKey(new Date('2026-02-07'))).toBe('2026-02');

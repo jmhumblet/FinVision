@@ -23,6 +23,16 @@ test.describe('FinVision Dashboard UI', () => {
     await expect(page.getByText('Add Projection')).toBeVisible();
   });
 
+  test('should display Safe-to-Spend metric card', async ({ page }) => {
+    // Look for the "Safe-to-Spend" header/text
+    await expect(page.getByText('"Safe-to-Spend"')).toBeVisible();
+    await expect(page.getByText('Daily Limit')).toBeVisible();
+
+    // Look for a numeric value to be visible indicating it's calculating something
+    const cardContent = page.locator('.bg-white.p-6.rounded-2xl', { hasText: 'Safe-to-Spend' });
+    await expect(cardContent.locator('.text-4xl')).toBeVisible();
+  });
+
   test('should render scenario line on chart when scenario is active', async ({ page }) => {
     // 1. Add a Projection (Base)
     await page.getByRole('button', { name: 'Add Projection' }).click();
