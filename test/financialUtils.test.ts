@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { formatCurrency, formatDate, generateTimeline, getMonthKey, calculateMonthlySummary } from '../utils/financialUtils';
-import { Transaction, Projection, TransactionType, Frequency, AdjustmentType, Scenario } from '../types';
+import { formatCurrency, formatDate, generateTimeline, getMonthKey, calculateMonthlySummary, calculateSafeToSpend, calculateMonthlySavingsContribution } from '../utils/financialUtils';
+import { Transaction, Projection, TransactionType, Frequency, AdjustmentType, Scenario, SavingsGoal } from '../types';
 
 describe('financialUtils', () => {
   describe('getMonthKey', () => {
@@ -559,6 +559,107 @@ describe('financialUtils', () => {
         // Scenario: 1000 + 3000 (feb) + 4000 (march) + 3000 (april) = 11000
         expect(april25?.projectedBalance).toBe(10000);
         expect(april25?.scenario_s1).toBe(11000);
+    });
+  });
+
+  describe('calculateSafeToSpend', () => {
+    it('should calculate safe to spend correctly without savings goals', () => {
+      const projections: Projection[] = [
+        {
+          id: 'p1',
+          name: 'Salary',
+          amount: 2000,
+          frequency: Frequency.ONCE,
+          startDate: '2026-02-15',
+          categoryId: 'salary',
+          type: TransactionType.INCOME,
+          isActive: true
+        },
+        {
+          id: 'p2',
+          name: 'Rent',
+          amount: 500,
+          frequency: Frequency.ONCE,
+          startDate: '2026-02-10',
+          categoryId: 'rent',
+          type: TransactionType.EXPENSE,
+          isActive: true
+        }
+      ];
+
+      const result = calculateSafeToSpend(3000, projections, [], new Date('2026-02-01'));
+
+      expect(result.nextPayday).toBe('2026-02-15');
+      expect(result.obligations).toBe(500);
+      expect(result.safeToSpend).toBe(2500);
+      expect(result.dailySafeToSpend).toBeCloseTo(2500 / 14, 2); // 14 days from Feb 1 to Feb 15
+    });
+
+    it('should include prorated savings goals', () => {
+      const projections: Projection[] = [
+        {
+          id: 'p1',
+          name: 'Salary',
+          amount: 2000,
+          frequency: Frequency.ONCE,
+          startDate: '2026-02-16',
+          categoryId: 'salary',
+          type: TransactionType.INCOME,
+          isActive: true
+        }
+      ];
+
+      const savingsGoals: SavingsGoal[] = [
+        {
+          id: 'g1',
+          name: 'Emergency',
+          targetAmount: 1200,
+          currentAmount: 0,
+          targetDate: '2027-02-01' // 12 months away from 2026-02-01 -> $100/mo
+        }
+      ];
+
+      const result = calculateSafeToSpend(1000, projections, savingsGoals, new Date('2026-02-01'));
+
+      expect(result.nextPayday).toBe('2026-02-16');
+
+      // 15 days until payday
+      // $100/month = ~$3.33/day. 15 days * $3.33 = $50
+      expect(result.obligations).toBe(50);
+      expect(result.safeToSpend).toBe(950);
+      expect(result.dailySafeToSpend).toBeCloseTo(950 / 15, 2);
+    });
+
+    it('should handle zero or negative balance gracefully', () => {
+      const projections: Projection[] = [
+        {
+          id: 'p1',
+          name: 'Salary',
+          amount: 2000,
+          frequency: Frequency.ONCE,
+          startDate: '2026-02-11',
+          categoryId: 'salary',
+          type: TransactionType.INCOME,
+          isActive: true
+        },
+        {
+          id: 'p2',
+          name: 'Rent',
+          amount: 1500,
+          frequency: Frequency.ONCE,
+          startDate: '2026-02-05',
+          categoryId: 'rent',
+          type: TransactionType.EXPENSE,
+          isActive: true
+        }
+      ];
+
+      const result = calculateSafeToSpend(1000, projections, [], new Date('2026-02-01'));
+
+      expect(result.nextPayday).toBe('2026-02-11');
+      expect(result.obligations).toBe(1500);
+      expect(result.safeToSpend).toBe(-500);
+      expect(result.dailySafeToSpend).toBe(0); // Cannot be negative daily spend
     });
   });
 });
