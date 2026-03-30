@@ -8,6 +8,7 @@ FinVision is a sophisticated, AI-enhanced financial planning application designe
 
 - **AI-Powered Quick Actions**: Use natural language to log expenses or update projections. Gemini 3 Pro understands context and maps input to structured data.
 - **Smart Categorization**: Automatically classify "Other" transactions into relevant buckets using AI-driven pattern matching.
+- **"Safe-to-Spend" Metric**: See your daily safe spending limit calculated dynamically from projected expenses and upcoming paydays.
 - **Category Budgeting**: Set monthly spending limits per category and track your progress with visual alerts.
 - **Dynamic Cash Flow Projections**: Visualize your bank balance up to a year into the future based on recurring income and expenses.
 - **Financial Health Score**: Comprehensive dashboard evaluating your savings rate, debt-to-income, emergency fund, and cash flow stability.
