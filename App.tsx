@@ -47,6 +47,7 @@ import DebtDashboard from './components/DebtDashboard';
 import SubscriptionManager from './components/SubscriptionManager';
 import SmartSavingsDashboard from './components/SmartSavingsDashboard';
 import SmartBillCalendar from './components/SmartBillCalendar';
+import CashFlowAlerts from './components/CashFlowAlerts';
 import SafeToSpendCard from './components/SafeToSpendCard';
 import FinancialHealthDashboard from './components/FinancialHealthDashboard';
 import { generateTimeline, formatCurrency, getMonthKey, calculateMonthlySummary } from './utils/financialUtils';
@@ -1028,6 +1029,9 @@ const App: React.FC = () => {
                <SafeToSpendCard currentBalance={currentBalance} projections={projections} />
             </div>
             
+            {/* Cash Flow Alerts */}
+            <CashFlowAlerts timelineData={timelineData} />
+
             {/* Scenario Builder */}
             <ScenarioBuilder 
                 projections={projections} 
