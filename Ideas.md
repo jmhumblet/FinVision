@@ -72,7 +72,7 @@ A proactive alert system that uses predictive modeling to warn users of impendin
 - Suggests actionable steps such as delaying non-essential purchases or moving funds from savings.
 **Stitch Screen:** `PENDING_DESIGN_AUTO_CASH_FLOW_ALERTS`
 ## "Safe-to-Spend" Daily Metric
-**Status:** Unimplemented
+**Status:** Implemented
 **Description:**
 A daily metric designed to give users immediate clarity on their discretionary spending capacity without jeopardizing upcoming obligations or savings goals.
 - **Dynamic Calculation:** Subtracts upcoming fixed expenses, bills, and savings contributions from the current available balance, then divides by the days remaining until the next payday.
@@ -90,7 +90,7 @@ A specialized module to evaluate the resilience of the user's financial plan aga
 - Visual timeline showing the depletion rate of funds under different stress scenarios.
 **Stitch Screen:** `PENDING_DESIGN_EMERGENCY_FUND_STRESS_TEST`
 ## Financial Health Score & Recommendations
-**Status:** Unimplemented
+**Status:** Implemented
 **Description:**
 A comprehensive dashboard providing a single "Health Score" (0-100) based on financial metrics.
 - **Health Score Gauge:** Visual representation of the overall financial health.

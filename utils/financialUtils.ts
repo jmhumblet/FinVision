@@ -337,3 +337,78 @@ export const calculateProjectionValueForDate = (proj: Projection, d: Date, dateS
     
     return 0;
 };
+export const calculateSafeToSpend = (
+  currentBalance: number,
+  projections: Projection[],
+  fromDate: Date = new Date()
+): { safeToSpend: number; nextPayday: Date | null; daysUntil: number } => {
+  const start = new Date(fromDate);
+  start.setHours(0, 0, 0, 0);
+
+  // Find next payday within the next 60 days
+  let nextPayday: Date | null = null;
+  const maxSearchDays = 60;
+
+  for (let i = 1; i <= maxSearchDays; i++) {
+    const d = new Date(start);
+    d.setDate(d.getDate() + i);
+    const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+    // Check if any active INCOME projection occurs on this date
+    let hasIncome = false;
+    for (const proj of projections) {
+      if (proj.isActive && proj.type === TransactionType.INCOME) {
+        if (calculateProjectionValueForDate(proj, d, dateStr) > 0) {
+          hasIncome = true;
+          break;
+        }
+      }
+    }
+
+    if (hasIncome) {
+      nextPayday = d;
+      break;
+    }
+  }
+
+  // If no payday found within 60 days, default to 30 days
+  const daysUntil = nextPayday
+    ? Math.round((nextPayday.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
+    : 30;
+
+  const endDate = nextPayday || new Date(start.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+  // Calculate upcoming expenses up to (but not including) the next payday
+  let upcomingExpenses = 0;
+
+  for (let d = new Date(start); d < endDate; d.setDate(d.getDate() + 1)) {
+    const isToday = d.getTime() === start.getTime();
+    if (isToday) continue; // Start calculating expenses from tomorrow
+
+    const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+    for (const proj of projections) {
+      if (proj.isActive && proj.type === TransactionType.EXPENSE) {
+        // calculateProjectionValueForDate returns negative for expenses
+        const val = calculateProjectionValueForDate(proj, d, dateStr);
+        if (val < 0) {
+          upcomingExpenses += Math.abs(val);
+        }
+      }
+    }
+  }
+
+  // Calculate safe to spend per day
+  const availableFunds = currentBalance - upcomingExpenses;
+  let safeToSpend = 0;
+
+  if (availableFunds > 0) {
+    safeToSpend = availableFunds / daysUntil;
+  }
+
+  return {
+    safeToSpend,
+    nextPayday,
+    daysUntil
+  };
+};
