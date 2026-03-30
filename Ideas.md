@@ -90,7 +90,7 @@ A specialized module to evaluate the resilience of the user's financial plan aga
 - Visual timeline showing the depletion rate of funds under different stress scenarios.
 **Stitch Screen:** `PENDING_DESIGN_EMERGENCY_FUND_STRESS_TEST`
 ## Financial Health Score & Recommendations
-**Status:** Unimplemented
+**Status:** Implemented
 **Description:**
 A comprehensive dashboard providing a single "Health Score" (0-100) based on financial metrics.
 - **Health Score Gauge:** Visual representation of the overall financial health.
