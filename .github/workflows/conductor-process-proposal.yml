@@ -20,21 +20,32 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 1. Find the new file
+          # 1. Check if proposals directory exists
+          if [ ! -d "proposals" ]; then
+            echo "No proposals directory found. Exiting."
+            exit 0
+          fi
+
+          # 2. Find the new file
           FILE=$(find proposals -name "draft-idea-*.md" | head -n 1)
           
-          # 2. Extract Title (using grep/sed to read the frontmatter)
+          if [ -z "$FILE" ]; then
+            echo "No draft-idea-*.md file found in proposals. Exiting."
+            exit 0
+          fi
+
+          # 3. Extract Title (using grep/sed to read the frontmatter)
           TITLE=$(grep "^title:" "$FILE" | sed 's/title: //')
           
-          # 3. Extract Body (everything after the second ---)
+          # 4. Extract Body (everything after the second ---)
           # We use sed to strip the frontmatter
           sed '1,/^---$/d' "$FILE" > body.txt
           
-          # 4. Create the Issue
+          # 5. Create the Issue
           NEW_ISSUE_URL=$(gh issue create --title "$TITLE" --body-file body.txt --label "status: idea")
           
           echo "Created Issue: $NEW_ISSUE_URL"
           
-          # 5. Cleanup (Optional: Close the PR since we have the issue now)
+          # 6. Cleanup (Optional: Close the PR since we have the issue now)
           # Alternatively, you can merge this PR to keep a record of the proposal file.
           gh pr close ${{ github.event.pull_request.number }} --delete-branch --comment "Converted to Issue: $NEW_ISSUE_URL"
