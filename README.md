@@ -12,6 +12,7 @@ FinVision is a sophisticated, AI-enhanced financial planning application designe
 - **Category Budgeting**: Set monthly spending limits per category and track your progress with visual alerts.
 - **Dynamic Cash Flow Projections**: Visualize your bank balance up to a year into the future based on recurring income and expenses.
 - **Financial Health Score**: Comprehensive dashboard evaluating your savings rate, debt-to-income, emergency fund, and cash flow stability.
+- **Variable Income Smoother**: Designed for freelancers and gig workers to stabilize their cash flow by establishing a conservative smoothed baseline and buffer fund target based on historical earnings.
 - **"What-If" Scenarios**: Create parallel financial realities. Model the impact of a 10% rent increase, a new job, or a lifestyle change without affecting your base plan.
 - **Cloud Sync & Security**: Fully integrated with Firebase for secure Google Authentication and real-time cross-device synchronization.
 - **Optimized Data Loading**: Implements monthly checkpointing for blazing-fast initial load times, even with years of transaction history.
