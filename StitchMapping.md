@@ -15,3 +15,4 @@
 | Financial Health Score & Recommendations | `PENDING_DESIGN_FINANCIAL_HEALTH` | N/A | **Unimplemented** |
 | Automated Cash Flow Alerts | `PENDING_DESIGN_AUTO_CASH_FLOW_ALERTS` | `components/CashFlowAlerts.tsx`, `App.tsx` (Main View) | **Implemented** |
 | Financial Health Score & Recommendations | `PENDING_DESIGN_FINANCIAL_HEALTH` | `components/FinancialHealthDashboard.tsx`, `App.tsx` (Financial Health View) | **Implemented** |
+| Variable Income Smoother | `PENDING_DESIGN_VARIABLE_INCOME_SMOOTHER` | `components/VariableIncomeSmoother.tsx`, `App.tsx` (Variable Income View) | **Implemented** |
