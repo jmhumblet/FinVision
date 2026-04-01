@@ -111,3 +111,12 @@ A predictive tool designed for non-traditional earners (freelancers, gig workers
 - Simulates future cash flow using the smoothed baseline, providing clarity on exactly how much is truly safe to spend right now.
 - Offers interactive scenario toggles (e.g., "What if a major client drops?", "What if I hit my stretch goal?") to stress-test the smoothed budget.
 **Stitch Screen:** `PENDING_DESIGN_VARIABLE_INCOME_SMOOTHER`
+## Smart Yield Sweeper
+**Status:** Unimplemented
+**Description:**
+An intelligent cash management tool that maximizes the user's interest earnings without risking overdrafts or missed payments.
+- **Predictive Surplus Analysis:** Continuously analyzes the user's projected checking account balance against all upcoming obligations (bills, fixed expenses, debt payments) for the next 30-90 days.
+- **Safe Thresholding:** Allows users to set a minimum "comfort buffer" (e.g., $500) that their checking account should never fall below.
+- **Automated Sweep Recommendations:** When the projected balance exceeds the required cash flow plus the comfort buffer, the AI suggests "sweeping" the excess funds into a high-yield savings account (HYSA) or investment vehicle.
+- **Opportunity Cost Visualization:** Shows the user exactly how much extra interest they could be earning by moving idle cash, motivating them to optimize their idle balances.
+**Stitch Screen:** `PENDING_DESIGN_SMART_YIELD_SWEEPER`
