@@ -111,3 +111,14 @@ A predictive tool designed for non-traditional earners (freelancers, gig workers
 - Simulates future cash flow using the smoothed baseline, providing clarity on exactly how much is truly safe to spend right now.
 - Offers interactive scenario toggles (e.g., "What if a major client drops?", "What if I hit my stretch goal?") to stress-test the smoothed budget.
 **Stitch Screen:** `PENDING_DESIGN_VARIABLE_INCOME_SMOOTHER`
+
+## AI Predictive Maintenance & Asset Lifecycle Budgeting
+**Status:** Unimplemented
+**Description:**
+A predictive tool that models the depreciation and expected failure/maintenance dates of major personal assets (cars, appliances, home systems) to proactively budget for replacements or repairs before they become emergencies.
+- **User Story:** As a homeowner or vehicle owner, I want to input my major assets (e.g., 2015 Honda Civic, 10-year-old HVAC system) so that the AI can forecast likely maintenance timelines and suggest micro-savings goals to fund them, preventing cash-flow shocks.
+- Allows users to enter asset details (age, brand, condition).
+- AI cross-references asset data with standard lifecycle/depreciation tables.
+- Automatically generates predictive "sinking funds" in the projections.
+- Alerts users to impending major expected costs (e.g., "Your roof is 15 years old, expect a $10,000 replacement within 5 years. Start saving $166/month now.").
+**Stitch Screen:** `PENDING_DESIGN_PREDICTIVE_MAINTENANCE`
