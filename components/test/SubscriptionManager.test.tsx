@@ -127,8 +127,21 @@ describe('SubscriptionManager', () => {
       />
     );
 
-    const cancelBtns = screen.getAllByText('Cancel');
-    fireEvent.click(cancelBtns[0]); // Click first cancel button
+    // The items might be ordered by date or name. We want the Netflix one.
+    // Let's find the container for Netflix and click the button inside it,
+    // or simply click the button we know is Netflix (maybe index 1).
+    // The easiest robust way is to find the Netflix element's container.
+    const netflixElement = screen.getByText('Netflix').closest('.bg-white');
+    const netflixCancelBtn = netflixElement?.querySelector('button.text-rose-600') as HTMLButtonElement;
+
+    if (netflixCancelBtn) {
+        fireEvent.click(netflixCancelBtn);
+    } else {
+        // Fallback if the querySelector fails for some reason
+        const cancelBtns = screen.getAllByText('Cancel');
+        // Let's assume Netflix is index 1 based on the error
+        fireEvent.click(cancelBtns[1] || cancelBtns[0]);
+    }
 
     expect(screen.getByText('Cancel Netflix')).toBeInTheDocument();
     expect(screen.getByText(/Find Cancellation Guide/i)).toBeInTheDocument();
@@ -143,8 +156,15 @@ describe('SubscriptionManager', () => {
       />
     );
 
-    const cancelBtns = screen.getAllByText('Cancel');
-    fireEvent.click(cancelBtns[0]); // Netflix
+    const netflixElement = screen.getByText('Netflix').closest('.bg-white');
+    const netflixCancelBtn = netflixElement?.querySelector('button.text-rose-600') as HTMLButtonElement;
+
+    if (netflixCancelBtn) {
+        fireEvent.click(netflixCancelBtn);
+    } else {
+        const cancelBtns = screen.getAllByText('Cancel');
+        fireEvent.click(cancelBtns[1] || cancelBtns[0]);
+    }
 
     const stopTrackingBtn = screen.getByText('Stop Tracking (Deactivate)');
     fireEvent.click(stopTrackingBtn);
