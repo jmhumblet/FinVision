@@ -56,7 +56,7 @@ A visual calendar view to track upcoming bills and income, providing a clear "wh
 **Stitch Screen:** `PENDING_DESIGN_SMART_BILL_CALENDAR`
 
 ## Lifestyle Creep Monitor
-**Status:** Unimplemented
+**Status:** Implemented
 **Description:**
 A predictive tool that tracks the correlation between income growth and discretionary spending increases over time.
 - Visualize the divergence between income growth and savings rate.

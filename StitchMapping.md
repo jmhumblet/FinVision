@@ -15,3 +15,4 @@
 | Financial Health Score & Recommendations | `PENDING_DESIGN_FINANCIAL_HEALTH` | N/A | **Unimplemented** |
 | Automated Cash Flow Alerts | `PENDING_DESIGN_AUTO_CASH_FLOW_ALERTS` | `components/CashFlowAlerts.tsx`, `App.tsx` (Main View) | **Implemented** |
 | Financial Health Score & Recommendations | `PENDING_DESIGN_FINANCIAL_HEALTH` | `components/FinancialHealthDashboard.tsx`, `App.tsx` (Financial Health View) | **Implemented** |
+| Lifestyle Creep Monitor | `PENDING_DESIGN_LIFESTYLE_CREEP_MONITOR` | `components/LifestyleCreepMonitor.tsx`, `App.tsx` (Lifestyle Creep View) | **Implemented** |
