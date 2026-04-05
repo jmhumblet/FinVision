@@ -50,6 +50,7 @@ import SmartBillCalendar from './components/SmartBillCalendar';
 import CashFlowAlerts from './components/CashFlowAlerts';
 import SafeToSpendCard from './components/SafeToSpendCard';
 import FinancialHealthDashboard from './components/FinancialHealthDashboard';
+import LifestyleCreepMonitor from './components/LifestyleCreepMonitor';
 import { generateTimeline, formatCurrency, getMonthKey, calculateMonthlySummary } from './utils/financialUtils';
 import { calculateMergeChanges } from './utils/scenarioUtils';
 import { 
@@ -66,7 +67,8 @@ import {
   PiggyBank,
   Landmark,
   Calendar,
-  HeartPulse
+  HeartPulse,
+  Activity
 } from 'lucide-react';
 
 // --- Constants & Seed Data ---
@@ -882,6 +884,13 @@ const App: React.FC = () => {
                 >
                   <HeartPulse size={20} />
                 </button>
+                <button
+                  onClick={() => setCurrentView(AppView.LIFESTYLE_CREEP)}
+                  className={`p-2 rounded-lg transition-all ${currentView === AppView.LIFESTYLE_CREEP ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+                  title="Lifestyle Creep Monitor"
+                >
+                  <Activity size={20} />
+                </button>
             </div>
 
             <div className="h-8 w-[1px] bg-slate-200 mx-1 hidden sm:block"></div>
@@ -978,6 +987,11 @@ const App: React.FC = () => {
                 projections={projections}
                 currentBalance={currentBalance}
                 timelineData={timelineData}
+            />
+        ) : currentView === AppView.LIFESTYLE_CREEP ? (
+            <LifestyleCreepMonitor
+                transactions={transactions}
+                categories={categories}
             />
         ) : (
           <>

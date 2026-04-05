@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { formatCurrency, formatDate, generateTimeline, getMonthKey, calculateMonthlySummary, calculateSafeToSpend } from '../utils/financialUtils';
+import { formatCurrency, formatDate, generateTimeline, getMonthKey, calculateMonthlySummary, calculateSafeToSpend, calculateMonthlyIncomeAndDiscretionary, detectLifestyleCreep } from '../utils/financialUtils';
 import { Transaction, Projection, TransactionType, Frequency, AdjustmentType, Scenario } from '../types';
 
 describe('financialUtils', () => {
@@ -93,6 +93,82 @@ describe('financialUtils', () => {
 
       const result = calculateSafeToSpend(currentBalance, projections, new Date('2026-05-10T00:00:00Z'));
       expect(result.safeToSpend).toBe(0); // Cannot safely spend anything
+    });
+  });
+
+  describe('calculateMonthlyIncomeAndDiscretionary', () => {
+    const categories = [
+      { id: 'c1', name: 'Salary' },
+      { id: 'c2', name: 'Rent/Mortgage' },
+      { id: 'c3', name: 'Utilities' },
+      { id: 'c4', name: 'Dining Out' },
+      { id: 'c5', name: 'Entertainment' }
+    ];
+
+    it('should correctly group transactions by month and calculate metrics', () => {
+      const transactions: Transaction[] = [
+        { id: 't1', date: '2023-01-15', description: 'Salary', amount: 5000, categoryId: 'c1', type: TransactionType.INCOME },
+        { id: 't2', date: '2023-01-01', description: 'Rent', amount: 1500, categoryId: 'c2', type: TransactionType.EXPENSE },
+        { id: 't3', date: '2023-01-10', description: 'Electric', amount: 100, categoryId: 'c3', type: TransactionType.EXPENSE },
+        { id: 't4', date: '2023-01-20', description: 'Restaurant', amount: 200, categoryId: 'c4', type: TransactionType.EXPENSE },
+        { id: 't5', date: '2023-02-15', description: 'Salary', amount: 5000, categoryId: 'c1', type: TransactionType.INCOME },
+        { id: 't6', date: '2023-02-01', description: 'Rent', amount: 1500, categoryId: 'c2', type: TransactionType.EXPENSE },
+        { id: 't7', date: '2023-02-10', description: 'Movie', amount: 50, categoryId: 'c5', type: TransactionType.EXPENSE },
+        { id: 't8', date: '2023-02-25', description: 'Restaurant', amount: 300, categoryId: 'c4', type: TransactionType.EXPENSE },
+      ];
+
+      const result = calculateMonthlyIncomeAndDiscretionary(transactions, categories);
+
+      expect(result.length).toBe(2);
+
+      // Jan 2023
+      expect(result[0].month).toBe('2023-01');
+      expect(result[0].income).toBe(5000);
+      expect(result[0].totalExpenses).toBe(1800); // 1500 + 100 + 200
+      expect(result[0].discretionary).toBe(200); // Only Dining Out
+      expect(result[0].savingsRate).toBe(((5000 - 1800) / 5000) * 100);
+      expect(result[0].categoryBreakdown).toEqual({ 'Dining Out': 200 });
+
+      // Feb 2023
+      expect(result[1].month).toBe('2023-02');
+      expect(result[1].income).toBe(5000);
+      expect(result[1].totalExpenses).toBe(1850); // 1500 + 50 + 300
+      expect(result[1].discretionary).toBe(350); // Movie + Restaurant
+      expect(result[1].categoryBreakdown).toEqual({ 'Entertainment': 50, 'Dining Out': 300 });
+    });
+  });
+
+  describe('detectLifestyleCreep', () => {
+    it('should detect creep when discretionary growth exceeds income growth', () => {
+      const data = [
+        { month: '2023-01', income: 5000, discretionary: 500, totalExpenses: 3000, savingsRate: 40, categoryBreakdown: {} },
+        { month: '2023-02', income: 5500, discretionary: 800, totalExpenses: 3500, savingsRate: 36, categoryBreakdown: {} } // Income +10%, Discretionary +60%
+      ];
+      const result = detectLifestyleCreep(data, 2);
+      expect(result.hasCreep).toBe(true);
+      expect(result.incomeGrowth).toBe(10);
+      expect(result.discretionaryGrowth).toBe(60);
+      expect(result.insights[1]).toContain('experiencing lifestyle creep');
+    });
+
+    it('should not detect creep when income grows faster than discretionary', () => {
+      const data = [
+        { month: '2023-01', income: 5000, discretionary: 500, totalExpenses: 3000, savingsRate: 40, categoryBreakdown: {} },
+        { month: '2023-02', income: 6000, discretionary: 550, totalExpenses: 3200, savingsRate: 46, categoryBreakdown: {} } // Income +20%, Discretionary +10%
+      ];
+      const result = detectLifestyleCreep(data, 2);
+      expect(result.hasCreep).toBe(false);
+      expect(result.incomeGrowth).toBe(20);
+      expect(result.discretionaryGrowth).toBe(10);
+    });
+
+    it('should handle insufficient data', () => {
+      const data = [
+        { month: '2023-01', income: 5000, discretionary: 500, totalExpenses: 3000, savingsRate: 40, categoryBreakdown: {} }
+      ];
+      const result = detectLifestyleCreep(data, 2);
+      expect(result.hasCreep).toBe(false);
+      expect(result.insights[0]).toContain('Not enough data');
     });
   });
 

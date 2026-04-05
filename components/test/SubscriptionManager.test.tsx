@@ -128,7 +128,7 @@ describe('SubscriptionManager', () => {
     );
 
     const cancelBtns = screen.getAllByText('Cancel');
-    fireEvent.click(cancelBtns[0]); // Click first cancel button
+    fireEvent.click(cancelBtns[1]); // Click second cancel button (Netflix comes after Gym alphabetically)
 
     expect(screen.getByText('Cancel Netflix')).toBeInTheDocument();
     expect(screen.getByText(/Find Cancellation Guide/i)).toBeInTheDocument();
@@ -144,7 +144,7 @@ describe('SubscriptionManager', () => {
     );
 
     const cancelBtns = screen.getAllByText('Cancel');
-    fireEvent.click(cancelBtns[0]); // Netflix
+    fireEvent.click(cancelBtns[1]); // Netflix
 
     const stopTrackingBtn = screen.getByText('Stop Tracking (Deactivate)');
     fireEvent.click(stopTrackingBtn);

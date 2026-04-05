@@ -337,6 +337,98 @@ export const calculateProjectionValueForDate = (proj: Projection, d: Date, dateS
     
     return 0;
 };
+export const calculateMonthlyIncomeAndDiscretionary = (
+  transactions: Transaction[],
+  categories: { id: string; name: string }[]
+): { month: string; income: number; discretionary: number; totalExpenses: number; savingsRate: number; categoryBreakdown: Record<string, number> }[] => {
+  const monthData: Record<string, { income: number; discretionary: number; totalExpenses: number; categoryBreakdown: Record<string, number> }> = {};
+
+  // Identify non-discretionary (fixed) categories. We assume typical fixed ones based on naming, or we assume specific IDs.
+  // In our default categories: 'Salary', 'Rent/Mortgage', 'Groceries', 'Utilities', 'Transport', 'Health', 'Entertainment', 'Other'
+  // Let's assume Rent/Mortgage, Utilities, Health, Transport are fixed. Everything else (except Salary) is discretionary.
+  // Actually, Groceries could be considered variable/discretionary, but let's stick to the prompt's hint:
+  // "using categories other than typical fixed expenses like Rent/Mortgage, Utilities"
+  const fixedCategoryNames = ['Rent/Mortgage', 'Utilities', 'Transport', 'Health', 'Debt', 'Credit Card'];
+  const fixedCategoryIds = categories.filter(c => fixedCategoryNames.some(name => c.name.toLowerCase().includes(name.toLowerCase()))).map(c => c.id);
+
+  transactions.forEach(tx => {
+    const monthKey = tx.date.substring(0, 7); // YYYY-MM
+    if (!monthData[monthKey]) {
+      monthData[monthKey] = { income: 0, discretionary: 0, totalExpenses: 0, categoryBreakdown: {} };
+    }
+
+    if (tx.type === TransactionType.INCOME) {
+      monthData[monthKey].income += tx.amount;
+    } else {
+      monthData[monthKey].totalExpenses += tx.amount;
+
+      const isFixed = fixedCategoryIds.includes(tx.categoryId);
+      if (!isFixed) {
+        monthData[monthKey].discretionary += tx.amount;
+
+        const catName = categories.find(c => c.id === tx.categoryId)?.name || 'Other';
+        if (!monthData[monthKey].categoryBreakdown[catName]) {
+          monthData[monthKey].categoryBreakdown[catName] = 0;
+        }
+        monthData[monthKey].categoryBreakdown[catName] += tx.amount;
+      }
+    }
+  });
+
+  const sortedMonths = Object.keys(monthData).sort();
+
+  return sortedMonths.map(month => {
+    const data = monthData[month];
+    const savingsRate = data.income > 0 ? ((data.income - data.totalExpenses) / data.income) * 100 : 0;
+    return {
+      month,
+      income: data.income,
+      discretionary: data.discretionary,
+      totalExpenses: data.totalExpenses,
+      savingsRate,
+      categoryBreakdown: data.categoryBreakdown
+    };
+  });
+};
+
+export const detectLifestyleCreep = (
+  historicalData: { month: string; income: number; discretionary: number }[],
+  monthsToAnalyze: number = 6
+): { hasCreep: boolean; incomeGrowth: number; discretionaryGrowth: number; insights: string[] } => {
+  if (historicalData.length < 2) {
+    return { hasCreep: false, incomeGrowth: 0, discretionaryGrowth: 0, insights: ['Not enough data to analyze lifestyle creep.'] };
+  }
+
+  const dataToAnalyze = historicalData.slice(-monthsToAnalyze);
+  if (dataToAnalyze.length < 2) {
+     return { hasCreep: false, incomeGrowth: 0, discretionaryGrowth: 0, insights: ['Not enough data points in the selected period.'] };
+  }
+
+  const firstMonth = dataToAnalyze[0];
+  const lastMonth = dataToAnalyze[dataToAnalyze.length - 1];
+
+  const incomeGrowth = firstMonth.income > 0 ? ((lastMonth.income - firstMonth.income) / firstMonth.income) * 100 : 0;
+  const discretionaryGrowth = firstMonth.discretionary > 0 ? ((lastMonth.discretionary - firstMonth.discretionary) / firstMonth.discretionary) * 100 : 0;
+
+  const insights: string[] = [];
+  let hasCreep = false;
+
+  if (incomeGrowth > 0 && discretionaryGrowth > incomeGrowth) {
+    hasCreep = true;
+    insights.push(`Your income grew by ${incomeGrowth.toFixed(1)}%, but discretionary spending grew by ${discretionaryGrowth.toFixed(1)}%.`);
+    insights.push("You are experiencing lifestyle creep. Your spending is increasing faster than your income.");
+  } else if (incomeGrowth <= 0 && discretionaryGrowth > 0) {
+    hasCreep = true;
+    insights.push(`Your discretionary spending increased by ${discretionaryGrowth.toFixed(1)}% while your income did not grow.`);
+  } else if (discretionaryGrowth > 0 && incomeGrowth > 0) {
+      insights.push(`Both income and discretionary spending grew, but your spending growth (${discretionaryGrowth.toFixed(1)}%) is within your income growth (${incomeGrowth.toFixed(1)}%).`);
+  } else {
+      insights.push("No significant lifestyle creep detected in this period. Great job managing your expenses!");
+  }
+
+  return { hasCreep, incomeGrowth, discretionaryGrowth, insights };
+};
+
 export const calculateSafeToSpend = (
   currentBalance: number,
   projections: Projection[],
