@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import SubscriptionManager from '../SubscriptionManager';
 import { Projection, Category, TransactionType, Frequency } from '../../types';
 
@@ -64,6 +64,16 @@ const mockProjections: Projection[] = [
 
 describe('SubscriptionManager', () => {
   const mockOnUpdateProjection = vi.fn();
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2023-01-10T00:00:00.000Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.clearAllMocks();
+  });
 
   it('renders recurring expenses only', () => {
     render(
