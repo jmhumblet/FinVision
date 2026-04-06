@@ -1,4 +1,4 @@
-import { Transaction, Projection, DailyBalance, TransactionType, Frequency, Scenario, AdjustmentType, MonthlySummary, UnreconciledOccurrence } from "../types";
+import { Transaction, Projection, DailyBalance, TransactionType, Frequency, Scenario, AdjustmentType, MonthlySummary, UnreconciledOccurrence, Asset, AssetType } from "../types";
 
 export const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-IE', { 
@@ -337,6 +337,46 @@ export const calculateProjectionValueForDate = (proj: Projection, d: Date, dateS
     
     return 0;
 };
+export const calculateBaseMonthlyExpenses = (projections: Projection[], baseCategoryIds: string[] = ['2', '3', '4', '6', '7']): number => {
+  let baseExpenses = 0;
+
+  // Create a dummy date for calculating a typical month's projection value
+  // We just need a date to see if the projection is active.
+  // Actually, a simpler way is to just look at frequency and amount.
+  projections.forEach(proj => {
+    if (!proj.isActive || proj.type !== TransactionType.EXPENSE) return;
+
+    // Only include if it's in a base category or if no base categories are specified,
+    // although it's safer to have a default list of base categories (Housing, Groceries, Utilities, Transport, Health)
+    if (baseCategoryIds.includes(proj.categoryId)) {
+      // Normalize to monthly amount
+      if (proj.frequency === Frequency.MONTHLY) {
+        baseExpenses += proj.amount;
+      } else if (proj.frequency === Frequency.WEEKLY) {
+        baseExpenses += proj.amount * 4.33; // Average weeks in a month
+      } else if (proj.frequency === Frequency.DAILY) {
+        baseExpenses += proj.amount * 30;
+      } else if (proj.frequency === Frequency.YEARLY) {
+        baseExpenses += proj.amount / 12;
+      }
+    }
+  });
+
+  return baseExpenses;
+};
+
+export const calculateLiquidAssets = (currentBalance: number, assets: Asset[]): number => {
+  let liquidTotal = currentBalance;
+
+  assets.forEach(asset => {
+    if (asset.liquidity === 'HIGH' || asset.type === AssetType.CASH) {
+      liquidTotal += asset.value;
+    }
+  });
+
+  return liquidTotal;
+};
+
 export const calculateSafeToSpend = (
   currentBalance: number,
   projections: Projection[],

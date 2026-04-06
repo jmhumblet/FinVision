@@ -12,6 +12,6 @@
 | Smart Savings Goals | `PENDING_DESIGN_SMART_SAVINGS` | `components/SmartSavingsDashboard.tsx` | **Implemented** |
 | Net Worth Dashboard | `PENDING_DESIGN_NET_WORTH` | `components/NetWorthDashboard.tsx`, `App.tsx` (Net Worth View) | **Implemented** |
 | Smart Bill Calendar | `PENDING_DESIGN_SMART_BILL_CALENDAR` | `components/SmartBillCalendar.tsx`, `App.tsx` (Bill Calendar View) | **Implemented** |
-| Financial Health Score & Recommendations | `PENDING_DESIGN_FINANCIAL_HEALTH` | N/A | **Unimplemented** |
 | Automated Cash Flow Alerts | `PENDING_DESIGN_AUTO_CASH_FLOW_ALERTS` | `components/CashFlowAlerts.tsx`, `App.tsx` (Main View) | **Implemented** |
 | Financial Health Score & Recommendations | `PENDING_DESIGN_FINANCIAL_HEALTH` | `components/FinancialHealthDashboard.tsx`, `App.tsx` (Financial Health View) | **Implemented** |
+| Emergency Fund Stress Test | `PENDING_DESIGN_EMERGENCY_FUND_STRESS_TEST` | `components/EmergencyFundStressTest.tsx`, `App.tsx` (Emergency Fund Stress Test View) | **Implemented** |

@@ -50,6 +50,7 @@ import SmartBillCalendar from './components/SmartBillCalendar';
 import CashFlowAlerts from './components/CashFlowAlerts';
 import SafeToSpendCard from './components/SafeToSpendCard';
 import FinancialHealthDashboard from './components/FinancialHealthDashboard';
+import EmergencyFundStressTest from './components/EmergencyFundStressTest';
 import { generateTimeline, formatCurrency, getMonthKey, calculateMonthlySummary } from './utils/financialUtils';
 import { calculateMergeChanges } from './utils/scenarioUtils';
 import { 
@@ -66,7 +67,8 @@ import {
   PiggyBank,
   Landmark,
   Calendar,
-  HeartPulse
+  HeartPulse,
+  ShieldAlert
 } from 'lucide-react';
 
 // --- Constants & Seed Data ---
@@ -882,6 +884,13 @@ const App: React.FC = () => {
                 >
                   <HeartPulse size={20} />
                 </button>
+                <button
+                  onClick={() => setCurrentView(AppView.EMERGENCY_FUND_STRESS_TEST)}
+                  className={`p-2 rounded-lg transition-all ${currentView === AppView.EMERGENCY_FUND_STRESS_TEST ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+                  title="Emergency Fund Stress Test"
+                >
+                  <ShieldAlert size={20} />
+                </button>
             </div>
 
             <div className="h-8 w-[1px] bg-slate-200 mx-1 hidden sm:block"></div>
@@ -978,6 +987,12 @@ const App: React.FC = () => {
                 projections={projections}
                 currentBalance={currentBalance}
                 timelineData={timelineData}
+            />
+        ) : currentView === AppView.EMERGENCY_FUND_STRESS_TEST ? (
+            <EmergencyFundStressTest
+                currentBalance={currentBalance}
+                assets={assets}
+                projections={projections}
             />
         ) : (
           <>

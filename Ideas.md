@@ -81,7 +81,7 @@ A daily metric designed to give users immediate clarity on their discretionary s
 - **Overspending Alerts:** Gentle nudges when the daily limit is exceeded, showing the impact on the rest of the period.
 **Stitch Screen:** `PENDING_DESIGN_SAFE_TO_SPEND_METRIC`
 ## Emergency Fund Stress Test
-**Status:** Unimplemented
+**Status:** Implemented
 **Description:**
 A specialized module to evaluate the resilience of the user's financial plan against unexpected events.
 - Simulate sudden loss of income, large unexpected expenses (e.g., medical, car repair), or macroeconomic shocks.
