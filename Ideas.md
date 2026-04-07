@@ -111,3 +111,13 @@ A predictive tool designed for non-traditional earners (freelancers, gig workers
 - Simulates future cash flow using the smoothed baseline, providing clarity on exactly how much is truly safe to spend right now.
 - Offers interactive scenario toggles (e.g., "What if a major client drops?", "What if I hit my stretch goal?") to stress-test the smoothed budget.
 **Stitch Screen:** `PENDING_DESIGN_VARIABLE_INCOME_SMOOTHER`
+
+## Shared Household & Split Bill Cash Flow Forecasting
+**Status:** Unimplemented
+**Description:**
+A specialized feature designed for users who share living expenses with partners or roommates. It allows users to define their individual portion of recurring bills within the broader context of total household costs, ensuring personal cash flow projections remain accurate without losing sight of total obligations.
+- **Split Configuration:** Add a "Split" configuration to any recurring projection or transaction (e.g., Rent, Utilities).
+- **Proportional Tracking:** Users can specify their share as a percentage (e.g., 50%) or a fixed amount.
+- **Cash Flow Adjustments:** The forecasting engine calculates only the user's portion when projecting future balances and "Safe-to-Spend" metrics.
+- **Settlement Visualization:** Identifies when the user owes money or is owed money based on who actually paid the full bill in recent transactions.
+**Stitch Screen:** `PENDING_DESIGN_SPLIT_BILLS_FORECASTING`
