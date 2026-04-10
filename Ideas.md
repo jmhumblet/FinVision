@@ -111,3 +111,13 @@ A predictive tool designed for non-traditional earners (freelancers, gig workers
 - Simulates future cash flow using the smoothed baseline, providing clarity on exactly how much is truly safe to spend right now.
 - Offers interactive scenario toggles (e.g., "What if a major client drops?", "What if I hit my stretch goal?") to stress-test the smoothed budget.
 **Stitch Screen:** `PENDING_DESIGN_VARIABLE_INCOME_SMOOTHER`
+
+## Real Estate Rent vs. Buy Predictor
+**Status:** Unimplemented
+**Description:**
+A detailed predictive module that helps users navigate one of the largest financial decisions by dynamically comparing long-term cash flow between renting and buying.
+- Analyzes current rent and projected rent increases against estimated mortgage, property taxes, insurance, and maintenance costs.
+- Integrates directly into the user's base cash flow to visualize how a down payment and new mortgage will affect their long-term financial trajectory and other goals.
+- Provides interactive toggles for variables like interest rates, down payment sizes, and expected property appreciation.
+- **User Story:** As a prospective homebuyer, I want to simulate how purchasing a house will impact my monthly cash flow and long-term savings compared to renting, so I can confidently determine when and if I can afford to buy.
+**Stitch Screen:** `PENDING_DESIGN_RENT_VS_BUY_PREDICTOR`
