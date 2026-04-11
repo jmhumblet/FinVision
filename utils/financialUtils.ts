@@ -1,4 +1,4 @@
-import { Transaction, Projection, DailyBalance, TransactionType, Frequency, Scenario, AdjustmentType, MonthlySummary, UnreconciledOccurrence } from "../types";
+import { Transaction, Projection, DailyBalance, TransactionType, Frequency, Scenario, AdjustmentType, MonthlySummary, UnreconciledOccurrence, Asset, AssetType } from "../types";
 
 export const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-IE', { 
@@ -337,6 +337,26 @@ export const calculateProjectionValueForDate = (proj: Projection, d: Date, dateS
     
     return 0;
 };
+export const calculateLiquidAssets = (assets: Asset[], currentBalance: number): number => {
+  const liquidAssets = assets
+    .filter(a => a.type === AssetType.CASH || (a.type === AssetType.INVESTMENT && a.liquidity === 'HIGH'))
+    .reduce((sum, a) => sum + a.value, 0);
+  return liquidAssets + currentBalance;
+};
+
+export const calculateBaseMonthlyExpenses = (projections: Projection[]): number => {
+  let totalMonthly = 0;
+  projections.forEach(p => {
+    if (p.isActive && p.type === TransactionType.EXPENSE) {
+       if (p.frequency === Frequency.MONTHLY) totalMonthly += p.amount;
+       else if (p.frequency === Frequency.WEEKLY) totalMonthly += p.amount * (52 / 12);
+       else if (p.frequency === Frequency.DAILY) totalMonthly += p.amount * 30;
+       else if (p.frequency === Frequency.YEARLY) totalMonthly += p.amount / 12;
+    }
+  });
+  return totalMonthly;
+};
+
 export const calculateSafeToSpend = (
   currentBalance: number,
   projections: Projection[],
