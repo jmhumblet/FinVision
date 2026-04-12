@@ -111,3 +111,14 @@ A predictive tool designed for non-traditional earners (freelancers, gig workers
 - Simulates future cash flow using the smoothed baseline, providing clarity on exactly how much is truly safe to spend right now.
 - Offers interactive scenario toggles (e.g., "What if a major client drops?", "What if I hit my stretch goal?") to stress-test the smoothed budget.
 **Stitch Screen:** `PENDING_DESIGN_VARIABLE_INCOME_SMOOTHER`
+
+## Interactive Debt Payoff Strategist
+**Status:** Unimplemented
+**Description:**
+As a user with outstanding loans or credit card balances, I want to explore and compare different debt payoff strategies so that I can minimize interest payments and become debt-free faster.
+This feature will provide a specialized module for managing debt, featuring:
+- Interactive comparison between Snowball (smallest balance first) and Avalanche (highest interest rate first) strategies.
+- Visual payoff timelines illustrating exactly when each debt will be cleared under the chosen strategy.
+- Calculation and display of total interest saved by applying extra monthly payments.
+- Seamless integration with the user's projected cash flow to suggest realistic extra payment amounts without jeopardizing upcoming obligations.
+**Stitch Screen:** `PENDING_DESIGN_DEBT_PAYOFF_STRATEGIST`
