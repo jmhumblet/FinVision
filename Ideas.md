@@ -111,3 +111,13 @@ A predictive tool designed for non-traditional earners (freelancers, gig workers
 - Simulates future cash flow using the smoothed baseline, providing clarity on exactly how much is truly safe to spend right now.
 - Offers interactive scenario toggles (e.g., "What if a major client drops?", "What if I hit my stretch goal?") to stress-test the smoothed budget.
 **Stitch Screen:** `PENDING_DESIGN_VARIABLE_INCOME_SMOOTHER`
+
+## Major Purchase Timing Optimizer
+**Status:** Unimplemented
+**Description:**
+A predictive tool that helps users determine the optimal date to make a large discretionary purchase without jeopardizing their financial stability.
+- **User Story:** As a user planning a large purchase, I want the system to analyze my projected cash flow and recommend the safest dates to execute the transaction, so I can avoid overdrafts or depleting my safe-to-spend balance.
+- **Dynamic Date Search:** Users input the cost of the item. The engine scans future cash flow projections to find periods with sufficient surplus.
+- **Safety Thresholds:** Ensures the purchase doesn't drop the balance below user-defined minimums or emergency fund requirements in the weeks following the purchase.
+- **Impact Visualization:** Shows a "Before & After" cash flow graph, highlighting exactly how the purchase will affect future balances.
+**Stitch Screen:** `PENDING_DESIGN_PURCHASE_OPTIMIZER`
