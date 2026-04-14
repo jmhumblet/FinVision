@@ -111,3 +111,13 @@ A predictive tool designed for non-traditional earners (freelancers, gig workers
 - Simulates future cash flow using the smoothed baseline, providing clarity on exactly how much is truly safe to spend right now.
 - Offers interactive scenario toggles (e.g., "What if a major client drops?", "What if I hit my stretch goal?") to stress-test the smoothed budget.
 **Stitch Screen:** `PENDING_DESIGN_VARIABLE_INCOME_SMOOTHER`
+## Automated Debt-vs-Invest Optimizer
+**Status:** Unimplemented
+**Description:**
+A smart scenario tool that helps users decide whether to allocate extra cash flow toward paying down debt early or investing it.
+- **Goal:** To maximize the user's net worth over time by finding the mathematical optimal path for extra funds.
+- **User Story:** As a user with extra monthly cash flow, I want to compare the long-term financial impact of paying off my 5% auto loan faster versus investing that money in a 7% index fund, so I can make an informed decision that maximizes my wealth.
+- Analyzes the interest rates of current debts against expected investment returns.
+- Visualizes the diverging net worth trajectories over a 5, 10, and 20-year horizon.
+- Provides interactive sliders to adjust the amount of "extra" cash flow and see the real-time impact on the optimal strategy.
+**Stitch Screen:** `PENDING_DESIGN_DEBT_VS_INVEST_OPTIMIZER`
