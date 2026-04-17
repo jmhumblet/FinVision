@@ -111,3 +111,12 @@ A predictive tool designed for non-traditional earners (freelancers, gig workers
 - Simulates future cash flow using the smoothed baseline, providing clarity on exactly how much is truly safe to spend right now.
 - Offers interactive scenario toggles (e.g., "What if a major client drops?", "What if I hit my stretch goal?") to stress-test the smoothed budget.
 **Stitch Screen:** `PENDING_DESIGN_VARIABLE_INCOME_SMOOTHER`
+
+## Dynamic Net Worth Projector
+**Status:** Unimplemented
+**Description:**
+As a user planning for long-term financial independence, I want to see how my projected cash flow, savings, and investments impact my overall net worth over the next 5 to 10 years, so that I can gain absolute clarity on my financial trajectory.
+- Integrates current asset balances, expected savings rate, and projected investment returns.
+- Provides a dynamic chart showing future net worth under different "What-If" scenarios (e.g., changing jobs, increasing savings).
+- AI automation estimates long-term trajectories based on the user's historical spending and saving habits.
+**Stitch Screen:** `PENDING_DESIGN_NET_WORTH_PROJECTOR`
