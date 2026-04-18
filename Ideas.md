@@ -111,3 +111,13 @@ A predictive tool designed for non-traditional earners (freelancers, gig workers
 - Simulates future cash flow using the smoothed baseline, providing clarity on exactly how much is truly safe to spend right now.
 - Offers interactive scenario toggles (e.g., "What if a major client drops?", "What if I hit my stretch goal?") to stress-test the smoothed budget.
 **Stitch Screen:** `PENDING_DESIGN_VARIABLE_INCOME_SMOOTHER`
+
+## AI-Powered Windfall Allocator
+**Status:** Unimplemented
+**Description:**
+As a user receiving a sudden influx of cash (such as a tax refund, work bonus, or inheritance), I want an intelligent assistant to suggest the optimal way to distribute this windfall across my debt, savings goals, and discretionary spending, so that I maximize my long-term net worth while still rewarding myself.
+- Analyzes current debt interest rates, savings goals, and regular cash flow.
+- Generates multiple allocation strategies (e.g., "Aggressive Debt Payoff", "Balanced Wealth Builder", "Treat Yourself").
+- Instantly simulates the long-term impact of each strategy on net worth and debt-free dates.
+- Allows users to accept a strategy, automatically creating the corresponding transfers and projection updates in their financial plan.
+**Stitch Screen:** `PENDING_DESIGN_WINDFALL_ALLOCATOR`
