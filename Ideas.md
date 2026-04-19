@@ -111,3 +111,12 @@ A predictive tool designed for non-traditional earners (freelancers, gig workers
 - Simulates future cash flow using the smoothed baseline, providing clarity on exactly how much is truly safe to spend right now.
 - Offers interactive scenario toggles (e.g., "What if a major client drops?", "What if I hit my stretch goal?") to stress-test the smoothed budget.
 **Stitch Screen:** `PENDING_DESIGN_VARIABLE_INCOME_SMOOTHER`
+## Natural Language Financial Query Assistant
+**Status:** Unimplemented
+**Description:**
+A chat-based AI interface that allows users to ask plain-English questions about their current and future financial state to receive instant, precise answers.
+- As a user, I want to type questions like "Can I afford a $500 TV next week without missing rent?" or "When will I hit my $10,000 savings goal?" so that I can make quick, informed decisions without manually interpreting complex charts.
+- The assistant should translate natural language queries into exact projection calculations based on the user's connected accounts, upcoming bills, and income.
+- Returns precise numerical answers accompanied by a focused mini-chart or visual breakdown of the specific timeline in question.
+- Suggests follow-up adjustments (e.g., "If you buy the TV, your balance drops to $150. Would you like to shift $350 from savings to cover it safely?").
+**Stitch Screen:** `PENDING_DESIGN_NL_QUERY_ASSISTANT`
