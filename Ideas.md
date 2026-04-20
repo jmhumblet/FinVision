@@ -111,3 +111,13 @@ A predictive tool designed for non-traditional earners (freelancers, gig workers
 - Simulates future cash flow using the smoothed baseline, providing clarity on exactly how much is truly safe to spend right now.
 - Offers interactive scenario toggles (e.g., "What if a major client drops?", "What if I hit my stretch goal?") to stress-test the smoothed budget.
 **Stitch Screen:** `PENDING_DESIGN_VARIABLE_INCOME_SMOOTHER`
+
+## AI Natural Language Transaction Logger
+**Status:** Unimplemented
+**Description:**
+An intelligent assistant interface that allows users to quickly log and categorize transactions using everyday language, significantly reducing data entry friction and supporting the core goal of AI automation.
+- Users can type or speak simple phrases (e.g., "Spent 45 at Starbucks today" or "Got paid 2000 from work yesterday").
+- The AI automatically extracts the amount, merchant, date, and smartly assigns a category (e.g., "Food & Drink" or "Salary").
+- It instantly updates the user's current bank balance and reflects the change in the cash flow visualization.
+- Provides a quick confirmation prompt allowing the user to edit or approve the automatically generated transaction details before saving.
+**Stitch Screen:** `PENDING_DESIGN_NL_TRANSACTION_LOGGER`
