@@ -111,3 +111,11 @@ A predictive tool designed for non-traditional earners (freelancers, gig workers
 - Simulates future cash flow using the smoothed baseline, providing clarity on exactly how much is truly safe to spend right now.
 - Offers interactive scenario toggles (e.g., "What if a major client drops?", "What if I hit my stretch goal?") to stress-test the smoothed budget.
 **Stitch Screen:** `PENDING_DESIGN_VARIABLE_INCOME_SMOOTHER`
+## Automated Savings Rate Auto-Escalator
+**Status:** Unimplemented
+**Description:**
+A smart module designed to progressively increase a user's savings rate over time with minimal friction, tying automatic increases to future income boosts or specific time intervals.
+- As a user, I want to set up small, automatic increases to my savings contributions (e.g., +1% every 6 months) so that I can painlessly build my wealth without feeling the impact on my daily budget.
+- The tool identifies likely periods of cash flow surplus (like expected bonuses, tax returns, or annual review cycles) and suggests opportune moments to schedule a step-up in savings.
+- Provide a projection chart that demonstrates the long-term compounding effect of these micro-escalations on the user's total net worth or retirement goals over a 5, 10, or 20-year horizon.
+**Stitch Screen:** `PENDING_DESIGN_SAVINGS_AUTO_ESCALATOR`
