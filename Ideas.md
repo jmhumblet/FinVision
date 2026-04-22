@@ -111,3 +111,13 @@ A predictive tool designed for non-traditional earners (freelancers, gig workers
 - Simulates future cash flow using the smoothed baseline, providing clarity on exactly how much is truly safe to spend right now.
 - Offers interactive scenario toggles (e.g., "What if a major client drops?", "What if I hit my stretch goal?") to stress-test the smoothed budget.
 **Stitch Screen:** `PENDING_DESIGN_VARIABLE_INCOME_SMOOTHER`
+
+## Instant Purchase Simulator
+**Status:** Unimplemented
+**Description:**
+A tool allowing users to instantly simulate the impact of a potential discretionary purchase on their cash flow and savings goals.
+As a user, I want to be able to input a purchase amount and instantly see how it will affect my projected balance, safe-to-spend metric, and progress toward my savings goals over the next month, so that I can make an informed decision about whether to proceed with the purchase.
+- Input field for the proposed purchase amount and date.
+- Visual comparison showing projected balance with and without the purchase.
+- AI-driven assessment highlighting any potential overdraft risks or delayed savings goals caused by the purchase.
+**Stitch Screen:** `PENDING_DESIGN_INSTANT_PURCHASE_SIMULATOR`
