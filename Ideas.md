@@ -111,3 +111,11 @@ A predictive tool designed for non-traditional earners (freelancers, gig workers
 - Simulates future cash flow using the smoothed baseline, providing clarity on exactly how much is truly safe to spend right now.
 - Offers interactive scenario toggles (e.g., "What if a major client drops?", "What if I hit my stretch goal?") to stress-test the smoothed budget.
 **Stitch Screen:** `PENDING_DESIGN_VARIABLE_INCOME_SMOOTHER`
+## Gamified Micro-Savings Challenges
+**Status:** Unimplemented
+**Description:**
+An AI-driven feature that analyzes discretionary spending to generate personalized, bite-sized weekly savings challenges, aiming to turn small behavioral changes into actionable financial progress.
+- As a user, I want the system to analyze my frequent small purchases (like coffee, takeout, or subscriptions) so that it can identify opportunities for micro-savings.
+- As a user, I want to receive weekly "challenges" (e.g., "Skip the $5 coffee 3 times this week to save $15") so that I am motivated to reduce unnecessary spending through gamification.
+- As a user, I want to track my progress on these challenges and see the "saved" money virtually or actually reallocated to a savings goal so that I can visualize the long-term impact of my daily choices.
+**Stitch Screen:** `PENDING_DESIGN_MICRO_SAVINGS_CHALLENGES`
