@@ -111,3 +111,12 @@ A predictive tool designed for non-traditional earners (freelancers, gig workers
 - Simulates future cash flow using the smoothed baseline, providing clarity on exactly how much is truly safe to spend right now.
 - Offers interactive scenario toggles (e.g., "What if a major client drops?", "What if I hit my stretch goal?") to stress-test the smoothed budget.
 **Stitch Screen:** `PENDING_DESIGN_VARIABLE_INCOME_SMOOTHER`
+## Natural Language Scenario Builder
+**Status:** Unimplemented
+**Description:**
+An AI-powered interface to create complex 'What-If' scenarios using conversational text, directly fulfilling the product's core goals of AI Automation and Predictive Modeling.
+- Allows users to type natural language prompts (e.g., "What if I buy a $30,000 car next month with a 5-year loan at 7% interest?").
+- The AI parses the request, identifies the financial parameters (amount, term, interest rate, timeline), and automatically generates the corresponding `projections` adjustments within a new scenario.
+- Presents a summary of the interpreted scenario for the user to confirm or edit before saving.
+- Drastically reduces the friction of scenario modeling compared to a traditional form-based interface.
+**Stitch Screen:** `PENDING_DESIGN_NL_SCENARIO_BUILDER`
