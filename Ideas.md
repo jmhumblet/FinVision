@@ -111,3 +111,8 @@ A predictive tool designed for non-traditional earners (freelancers, gig workers
 - Simulates future cash flow using the smoothed baseline, providing clarity on exactly how much is truly safe to spend right now.
 - Offers interactive scenario toggles (e.g., "What if a major client drops?", "What if I hit my stretch goal?") to stress-test the smoothed budget.
 **Stitch Screen:** `PENDING_DESIGN_VARIABLE_INCOME_SMOOTHER`
+## Career Transition Financial Bridge Modeler
+**Status:** Unimplemented
+**Description:**
+A specialized module to simulate the financial impact of a career change, allowing users to model a transition period between jobs. This feature allows users to visualize how a potential gap in income, severance pay, or a change in salary will affect their cash flow and savings over time. It helps users confidently plan their runway for taking a sabbatical, changing industries, or starting a new business without risking financial instability.
+**Stitch Screen:** `PENDING_DESIGN_CAREER_TRANSITION_MODELER`
