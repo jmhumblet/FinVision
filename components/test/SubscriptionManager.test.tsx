@@ -130,7 +130,7 @@ describe('SubscriptionManager', () => {
     const cancelBtns = screen.getAllByText('Cancel');
     fireEvent.click(cancelBtns[0]); // Click first cancel button
 
-    expect(screen.getByText('Cancel Netflix')).toBeInTheDocument();
+    expect(screen.getByText('Cancel Gym')).toBeInTheDocument();
     expect(screen.getByText(/Find Cancellation Guide/i)).toBeInTheDocument();
   });
 
@@ -150,7 +150,7 @@ describe('SubscriptionManager', () => {
     fireEvent.click(stopTrackingBtn);
 
     expect(mockOnUpdateProjection).toHaveBeenCalledWith(expect.objectContaining({
-        name: 'Netflix',
+        name: 'Gym',
         isActive: false
     }));
   });
