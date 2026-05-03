@@ -111,3 +111,12 @@ A predictive tool designed for non-traditional earners (freelancers, gig workers
 - Simulates future cash flow using the smoothed baseline, providing clarity on exactly how much is truly safe to spend right now.
 - Offers interactive scenario toggles (e.g., "What if a major client drops?", "What if I hit my stretch goal?") to stress-test the smoothed budget.
 **Stitch Screen:** `PENDING_DESIGN_VARIABLE_INCOME_SMOOTHER`
+
+## AI-Powered "What-If" Relocation Cost Modeler
+**Status:** Unimplemented
+**Description:**
+A specialized scenario builder designed to simulate the financial impact of moving to a new city or state. As a user considering a relocation, I want to input a target destination so that the AI can automatically estimate changes in rent/mortgage, local taxes, and cost of living (groceries, utilities).
+- Fetches real-time cost-of-living data for the target location.
+- Calculates estimated moving expenses (truck rental, movers, deposit).
+- Compares the "Relocation Scenario" cash flow against the base plan to visualize the long-term impact on savings and debt payoff.
+**Stitch Screen:** `PENDING_DESIGN_RELOCATION_MODELER`
