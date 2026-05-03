@@ -127,8 +127,13 @@ describe('SubscriptionManager', () => {
       />
     );
 
-    const cancelBtns = screen.getAllByText('Cancel');
-    fireEvent.click(cancelBtns[0]); // Click first cancel button
+    // The items are sorted by nextDueDate. Since both started in 2023, their next due dates are based on today.
+    // We should specifically find the Cancel button for Netflix to avoid sorting issues.
+    const netflixCard = screen.getByText('Netflix').closest('div.bg-white.p-4');
+    // @ts-ignore
+    const cancelBtn = netflixCard.querySelector('button');
+    // @ts-ignore
+    fireEvent.click(cancelBtn);
 
     expect(screen.getByText('Cancel Netflix')).toBeInTheDocument();
     expect(screen.getByText(/Find Cancellation Guide/i)).toBeInTheDocument();
@@ -143,8 +148,11 @@ describe('SubscriptionManager', () => {
       />
     );
 
-    const cancelBtns = screen.getAllByText('Cancel');
-    fireEvent.click(cancelBtns[0]); // Netflix
+    const netflixCard = screen.getByText('Netflix').closest('div.bg-white.p-4');
+    // @ts-ignore
+    const cancelBtn = netflixCard.querySelector('button');
+    // @ts-ignore
+    fireEvent.click(cancelBtn);
 
     const stopTrackingBtn = screen.getByText('Stop Tracking (Deactivate)');
     fireEvent.click(stopTrackingBtn);
