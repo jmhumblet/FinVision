@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import SubscriptionManager from '../SubscriptionManager';
 import { Projection, Category, TransactionType, Frequency } from '../../types';
@@ -127,8 +127,10 @@ describe('SubscriptionManager', () => {
       />
     );
 
-    const cancelBtns = screen.getAllByText('Cancel');
-    fireEvent.click(cancelBtns[0]); // Click first cancel button
+    const netflixElement = screen.getByText('Netflix');
+    const netflixRow = netflixElement.closest('div.bg-white.p-4') as HTMLElement;
+    const cancelBtn = within(netflixRow).getByText('Cancel');
+    fireEvent.click(cancelBtn);
 
     expect(screen.getByText('Cancel Netflix')).toBeInTheDocument();
     expect(screen.getByText(/Find Cancellation Guide/i)).toBeInTheDocument();
@@ -143,8 +145,10 @@ describe('SubscriptionManager', () => {
       />
     );
 
-    const cancelBtns = screen.getAllByText('Cancel');
-    fireEvent.click(cancelBtns[0]); // Netflix
+    const netflixElement = screen.getByText('Netflix');
+    const netflixRow = netflixElement.closest('div.bg-white.p-4') as HTMLElement;
+    const cancelBtn = within(netflixRow).getByText('Cancel');
+    fireEvent.click(cancelBtn);
 
     const stopTrackingBtn = screen.getByText('Stop Tracking (Deactivate)');
     fireEvent.click(stopTrackingBtn);
