@@ -14,12 +14,15 @@
     "test:integration": "playwright test --config=playwright.integration.config.ts"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.100.9",
     "firebase": "^12.8.0",
     "lucide-react": "0.469.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-router-dom": "^7.15.0",
     "recharts": "2.15.0",
-    "uuid": "11.0.3"
+    "uuid": "11.0.3",
+    "zustand": "^5.0.13"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
