@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
 import { ToastMessage } from '../components/Toast';
+import { User } from 'firebase/auth';
 
 interface AppState {
   toasts: ToastMessage[];
@@ -15,6 +16,9 @@ interface AppState {
   
   authError: string | null;
   setAuthError: (error: string | null) => void;
+  
+  user: User | null;
+  setUser: (user: User | null) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -34,4 +38,7 @@ export const useAppStore = create<AppState>((set) => ({
   
   authError: null,
   setAuthError: (error) => set({ authError: error }),
+  
+  user: null,
+  setUser: (user) => set({ user }),
 }));

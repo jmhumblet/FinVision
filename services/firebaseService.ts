@@ -79,3 +79,7 @@ export const updateRemoteAsset = async (uid: string, asset: Asset) => {
 export const deleteRemoteAsset = async (uid: string, assetId: string) => {
   return useMock ? MockService.deleteRemoteAsset(uid, assetId) : RealService.deleteRemoteAsset(uid, assetId);
 };
+
+export const clearAllUserData = async (uid: string) => {
+  return useMock ? MockService.clearAllUserData(uid) : RealService.clearAllUserData(uid);
+};

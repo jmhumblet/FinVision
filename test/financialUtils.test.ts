@@ -64,11 +64,11 @@ describe('financialUtils', () => {
         }
       ];
 
-      const result = calculateSafeToSpend(currentBalance, projections, new Date('2026-05-10T00:00:00Z'));
+      const result = calculateSafeToSpend(currentBalance, projections, new Date(2026, 4, 10));
 
       // Payday is 2026-05-25. So 15 days until payday.
       expect(result.daysUntil).toBe(15);
-      expect(result.nextPayday).toEqual(new Date('2026-05-25T00:00:00Z'));
+      expect(result.nextPayday).toEqual(new Date(2026, 4, 25));
 
       // Expenses = 300
       // Available = 1500 - 300 = 1200
