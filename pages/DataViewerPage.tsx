@@ -14,8 +14,10 @@ const DataViewerPage: React.FC = () => {
     <DataViewer 
       transactions={data.transactions || []}
       projections={data.projections || []}
-      categories={data.settings?.categories || []}
-      settings={data.settings || {}}
+      debts={data.debts || []}
+      assets={data.assets || []}
+      savingsGoals={data.savingsGoals || []}
+      scenarios={[]}
     />
   );
 };

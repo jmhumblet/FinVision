@@ -16,7 +16,6 @@ const SubscriptionsPage: React.FC = () => {
       projections={data.projections || []}
       categories={data.settings?.categories || []}
       onUpdateProjection={(item) => mutations.updateProjection.mutate({ uid: user!.uid, item })}
-      onDeleteProjection={(id) => mutations.deleteProjection.mutate({ uid: user!.uid, id })}
     />
   );
 };

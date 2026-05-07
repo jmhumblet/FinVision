@@ -169,14 +169,24 @@ const DashboardPage: React.FC = () => {
           categories={categories}
           onUpdateTransaction={(item) => mutations.updateTransaction.mutate({ uid: user!.uid, item })}
           onDeleteTransaction={(id) => mutations.deleteTransaction.mutate({ uid: user!.uid, id })}
-          onAddTransaction={(item) => mutations.updateTransaction.mutate({ uid: user!.uid, item })}
+          onAddTransaction={() => {
+            mutations.updateTransaction.mutate({ 
+              uid: user!.uid, 
+              item: { id: `manual-${uuidv4()}`, date: new Date().toISOString().split('T')[0], description: 'New Transaction', amount: 0, categoryId: '8', type: TransactionType.EXPENSE, skipAutoCategorization: false }
+            });
+          }}
         />
         <ProjectionTable
           projections={projections}
           categories={categories}
           onUpdateProjection={(item) => mutations.updateProjection.mutate({ uid: user!.uid, item })}
           onDeleteProjection={(id) => mutations.deleteProjection.mutate({ uid: user!.uid, id })}
-          onAddProjection={(item) => mutations.updateProjection.mutate({ uid: user!.uid, item })}
+          onAddProjection={() => {
+            mutations.updateProjection.mutate({ 
+              uid: user!.uid, 
+              item: { id: uuidv4(), name: 'New Item', amount: 0, frequency: 'once' as any, startDate: new Date().toISOString().split('T')[0], categoryId: '8', type: TransactionType.EXPENSE, isActive: true }
+            });
+          }}
         />
       </div>
     </>
