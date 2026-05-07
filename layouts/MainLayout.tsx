@@ -26,10 +26,9 @@ import { useUserData } from '../queries/useUserData';
 import { auth } from '../services/firebaseService';
 
 export const MainLayout: React.FC = () => {
-  const { toasts, removeToast } = useAppStore();
+  const { toasts, removeToast, user } = useAppStore();
   const location = useLocation();
   const queryClient = useQueryClient();
-  const user = auth.currentUser;
 
   // We check if queries are fetching/mutating to show the syncing indicator
   const isSyncing = queryClient.isMutating() > 0;

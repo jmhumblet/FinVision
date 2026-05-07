@@ -7,11 +7,12 @@ import { useAppStore } from './store/useAppStore';
 
 const App: React.FC = () => {
   const [isInitializing, setIsInitializing] = useState(true);
-  const { authError, setAuthError } = useAppStore();
+  const { authError, setAuthError, setUser } = useAppStore();
 
   useEffect(() => {
     try {
-      const unsubscribe = observeAuth(() => {
+      const unsubscribe = observeAuth((u) => {
+        setUser(u);
         setIsInitializing(false);
       });
       return () => unsubscribe();

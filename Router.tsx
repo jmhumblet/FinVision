@@ -15,9 +15,10 @@ import BillCalendarPage from './pages/BillCalendarPage';
 import NetWorthPage from './pages/NetWorthPage';
 import FinancialHealthPage from './pages/FinancialHealthPage';
 import DataViewerPage from './pages/DataViewerPage';
+import { useAppStore } from './store/useAppStore';
 
 export const Router: React.FC = () => {
-  const user = auth.currentUser;
+  const user = useAppStore(state => state.user);
 
   if (!user) {
     return <AuthScreen />;
