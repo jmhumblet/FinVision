@@ -349,3 +349,19 @@ export const updateRemoteAsset = async (uid: string, asset: Asset) => {
 export const deleteRemoteAsset = async (uid: string, assetId: string) => {
   await deleteDoc(doc(db, 'users', uid, 'assets', assetId));
 };
+
+export const clearAllUserData = async (uid: string) => {
+  const collections = ['transactions', 'projections', 'checkpoints', 'monthlySetups', 'debts', 'savingsGoals', 'assets'];
+  for (const col of collections) {
+    const q = query(collection(db, 'users', uid, col));
+    const docs = await getDocs(q);
+    const deletePromises = docs.docs.map(d => deleteDoc(d.ref));
+    await Promise.all(deletePromises);
+  }
+  // Reset user document settings
+  await setDoc(doc(db, 'users', uid), {
+    initialBalance: 0,
+    projectionDays: 180,
+    lastUpdated: new Date().toISOString()
+  });
+};

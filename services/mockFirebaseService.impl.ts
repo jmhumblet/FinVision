@@ -299,6 +299,24 @@ export const deleteRemoteAsset = async (uid: string, assetId: string) => {
   setStored('assets', currentAssets);
 };
 
+export const clearAllUserData = async (uid: string) => {
+  currentTransactions = [];
+  currentProjections = [];
+  currentSettings = { initialBalance: 0, projectionDays: 180, lastUpdated: new Date().toISOString() };
+  currentMonthlySetups = {};
+  currentDebts = [];
+  currentSavingsGoals = [];
+  currentAssets = [];
+  
+  setStored('transactions', currentTransactions);
+  setStored('projections', currentProjections);
+  setStored('settings', currentSettings);
+  setStored('monthlySetups', currentMonthlySetups);
+  setStored('debts', currentDebts);
+  setStored('savingsGoals', currentSavingsGoals);
+  setStored('assets', currentAssets);
+};
+
 // Helper to reset state for tests (exposed to window for Playwright)
 
 if (typeof window !== 'undefined') {

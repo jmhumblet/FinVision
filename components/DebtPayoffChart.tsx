@@ -55,7 +55,7 @@ const DebtPayoffChart: React.FC<DebtPayoffChartProps> = ({ summary }) => {
                 dataKey="date"
                 tickFormatter={(val) => {
                     const d = new Date(val);
-                    return `€{d.getMonth() + 1}/€{d.getFullYear().toString().substr(2)}`;
+                    return `${d.getMonth() + 1}/${d.getFullYear().toString().substring(2)}`;
                 }}
                 minTickGap={40}
                 stroke="#94a3b8"
